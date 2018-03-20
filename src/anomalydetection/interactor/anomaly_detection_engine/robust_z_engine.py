@@ -50,11 +50,21 @@ class RobustDetector(BaseEngine):
     def predict(self, value):
         """
         Return the probability of being an outlier
+
+        Parameters
+        ----------
+        value: float
+            Value to be included in the last position of buffer.
+
+        Returns
+        ------
+        anomaly_probability: float
+            Probability that the value is an anomaly given the last observations.
         """
         if np.isnan(self._data).any():
             anomaly_probability = -1.
         else:
-            z_score = np.abs(value - self._median) / (self._mad * 1.4826)
+            z_score = np.abs(value - self._median) / self._mad
             anomaly_probability = 1 - 0.5 * math.erfc(z_score/math.sqrt(2))
         self._update(value=value)
         return anomaly_probability
