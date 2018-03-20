@@ -26,10 +26,6 @@ class AnomalyDetectionKafkaBridge:
 
         return subject
 
-    def test(self, item):
-        print("TESTT")
-        return item
-
     def mean_by_windows(self, observable: Observable) -> Observable:
         def map_element(items):
             application = items[0].application
