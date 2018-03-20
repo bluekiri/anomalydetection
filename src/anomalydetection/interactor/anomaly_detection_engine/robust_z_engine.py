@@ -51,6 +51,10 @@ class RobustDetector(BaseEngine):
         """
         Return the probability of being an outlier
 
+        Calculates the probability of value being an anomaly with respect past events.
+        Once it has been computed, the buffer data is updated and the statistic parameters
+        recalculated.
+
         Parameters
         ----------
         value: float
