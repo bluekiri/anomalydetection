@@ -2,7 +2,7 @@
 
 ![N|Bluekiri](var/bluekiri_logo.png?raw=true "Bluekiri")
 
-This project start from the need of detect multiple status metric signals in realtime. to achieve this Bluekiri decided to implement our own application for manage multiple signals at the same time in a very easy way. This project able us to listen and detect temporal series in realtime from kafka topics.
+This project start from the need ofad detect multiple status metric signals in realtime. to achieve this Bluekiri decided to implement our own application for manage multiple signals at the same time in a very easy way. This project able us to listen and detect temporal series in realtime from kafka topics.
 
 
 
