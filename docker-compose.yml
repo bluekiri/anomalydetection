@@ -57,6 +57,7 @@ services:
       BROKER_SERVER: ${HOST_IP}:9092
       INPUT_TOPIC: "feed"
       OUTPUT_TOPIC: "predict"
+      PERIOD_IN_SECONDS: 60
     depends_on:
       - kafka_wait_for
 
