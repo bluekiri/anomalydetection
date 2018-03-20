@@ -1,12 +1,9 @@
-FROM ubuntu:16.04
-ARG DATABASE_NAME
+FROM python:3.5-alpine
 
 ENV application_path /opt/anomaly_detection
 WORKDIR ${application_path}
 
-RUN apt-get update -y --allow-unauthenticated && apt-get install -y python3-pip
-
 COPY . .
 
 RUN pip3 install .
-ENTRYPOINT python -m poc-anomaly-detection
+ENTRYPOINT python -m anomalydetection.app

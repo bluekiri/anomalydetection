@@ -1,0 +1,10 @@
+FROM wurstmeister/kafka
+ARG ZOOKEEPER_HOST
+ARG KAFKA_PATH
+
+ENV application_path /opt/anomaly_detection
+WORKDIR ${application_path}
+
+COPY . .
+
+RUN ./bin/wait-for-kafka.sh

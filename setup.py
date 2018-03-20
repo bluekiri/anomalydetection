@@ -37,6 +37,6 @@ setup(
         'Operating System :: Unix',
     ],
     install_requires=[
-        "kafka-python", 'python-dateutil', 'jsonschema'
+        "kafka-python", 'python-dateutil', 'jsonschema', 'rx'
     ]
 )
