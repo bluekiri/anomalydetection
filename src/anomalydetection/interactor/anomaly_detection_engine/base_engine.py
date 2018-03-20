@@ -1,4 +1,4 @@
 class BaseEngine:
 
-    def predict(self, value: float) -> bool:
+    def predict(self, value: float) -> float:
         raise NotImplementedError()
