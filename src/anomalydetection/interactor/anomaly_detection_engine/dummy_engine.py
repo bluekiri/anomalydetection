@@ -3,5 +3,5 @@ from anomalydetection.interactor.anomaly_detection_engine.base_engine import Bas
 
 class DummyEngine(BaseEngine):
 
-    def predict(self, value: float) -> bool:
-        return True
+    def predict(self, value: float) -> float:
+        return 1.0
