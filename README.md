@@ -22,7 +22,7 @@ This project start from the need ofad detect multiple status metric signals in r
 Open a bash terminal and export a environment variable with your local host ip, this is necessary to set the kafka advertised host.
 
 ```sh
-$ export IP_HOST=<your private ip address>
+$ export HOST_IP=<your private ip address>
 $ docker-compose up --build
 ```
 
