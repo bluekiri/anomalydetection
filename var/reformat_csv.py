@@ -2,6 +2,7 @@ import pandas as pd
 import json
 import argparse
 
+
 def parse_input(default_params):
     parser = argparse.ArgumentParser(description="Reformat csv as json for anomdec PoC")
     parser.add_argument("--file", "-f",
@@ -14,7 +15,7 @@ def parse_input(default_params):
 
 params = {'file': 'data.csv'}
 
-if __name__=='__main__':
+if __name__ == '__main__':
     print('Reformating file')
     params = parse_input(params)
     file_path = params['file']
