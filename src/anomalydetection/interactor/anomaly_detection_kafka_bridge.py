@@ -29,8 +29,8 @@ class AnomalyDetectionKafkaBridge:
         def map_element(items):
             application = items[0].application
             # mean = sum(item.value for item in items) / len(items) if len(items) != 0 else 0
-            sumation = sum(item.value for item in items)
-            return {"application": application, "value": sumation}
+            summation = sum(item.value for item in items)
+            return {"application": application, "value": summation}
 
         return observable.buffer_with_time(timespan=self.time_in_seconds * 1000).filter(
             lambda items: len(items) > 0).map(map_element)
