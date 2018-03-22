@@ -1,17 +1,18 @@
 from anomalydetection.interactor.anomaly_detection_engine.base_engine import BaseEngine
 import numpy as np
 from statsmodels.robust.scale import mad
-import math
+import scipy.stats as st
 
 class RobustDetector(BaseEngine):
     """Anomaly detection engine based in robust statistics: median and median absolute deviation
     """
 
-    def __init__(self, window=100):
+    def __init__(self, window=100, threshold=0.9999):
         """Default values to be determined for the anomaly detection"""
         self._data = np.full((window, 1), fill_value=np.nan)
         self._median = None
         self._mad = None
+        self.threshold = threshold
 
     def _update_buffer(self, value):
         """Updates the buffered data with the new event.
@@ -31,7 +32,7 @@ class RobustDetector(BaseEngine):
         """Updates the robust statistics based in the buffered data.
         """
         self._median = np.median(self._data)
-        self._mad = mad(self._data)
+        self._mad = mad(self._data)[0]
 
     def _update(self, value):
         """Updates the buffered data with the new event and the robust statistics.
@@ -62,13 +63,23 @@ class RobustDetector(BaseEngine):
 
         Returns
         ------
-        anomaly_probability: float
-            Probability that the value is an anomaly given the last observations.
+        results: dict
+            results['anomaly_probability']: Probability that the value is an anomaly given the last observations.
+            results['is_anomaly']: Boolean indicator. 1 if it is an anomaly based on threshold else 0.
+            results['value_upper_limit']: Value upper limit.
+            results['value_lower_limit']: Value lower limit.
         """
+        results = {}
         if np.isnan(self._data).any():
-            anomaly_probability = -1.
+            results['anomaly_probability'] = -1
+            results['is_anomaly'] = -1
+            results['value_upper_limit'] = -1
+            results['value_lower_limit'] = -1
         else:
             z_score = np.abs(value - self._median) / self._mad
-            anomaly_probability = 1 - 0.5 * math.erfc(z_score/math.sqrt(2))
+            results['anomaly_probability'] = 1 - st.norm.sf(z_score)
+            results['is_anomaly'] = int(results['anomaly_probability'] >= self.threshold)
+            results['value_upper_limit'] = (self._median + self._mad*st.norm.ppf(self.threshold))
+            results['value_lower_limit'] = (self._median - self._mad*st.norm.ppf(self.threshold))
         self._update(value=value)
-        return anomaly_probability
+        return results
