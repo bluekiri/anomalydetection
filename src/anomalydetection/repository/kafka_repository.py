@@ -41,7 +41,6 @@ class KafkaRepository:
         kafka_consumer = KafkaConsumer(bootstrap_servers=self.bootstrap_servers)
         kafka_consumer.subscribe([topic])
         for msg in kafka_consumer:
-            print(msg)
             kafka_message = self.kafka_message_boundary(msg.value.decode('utf-8'))
             if kafka_message is not None:
                 yield kafka_message
@@ -50,7 +49,8 @@ class KafkaRepository:
         try:
             message_json = json.loads(message_str)
             validate(message_json, self.kafka_input_json_schema)
-            return InputMessage(application=message_json["application"], value=message_json["value"],
+            return InputMessage(application=message_json["application"],
+                                value=message_json["value"],
                                 ts_str=message_json["ts"])
         except Exception as e:
             # TODO logs system...
