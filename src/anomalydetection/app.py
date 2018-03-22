@@ -13,7 +13,7 @@ logger = logging.getLogger()
 
 def main():
     # TODO workarround until fix the docker kafka service ready listener...
-    time.sleep(15)
+    #time.sleep(15)
     logger.info("Anomaly detection Start")
     kafka_repository = KafkaRepository(bootstrap_servers=bootstrap_server, broker_list=broker_server)
     anomaly_detector_engine = RobustDetector(window=30)
