@@ -21,7 +21,7 @@ def read(*names, **kwargs):
 setup(
     name='poc-anomaly-detection',
     version='0.0.0',
-    description='POC anomaly detection',
+    description='POC anomaly detection bridge',
     long_description='%s\n%s' % (
         re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.md')),
         re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
@@ -37,6 +37,6 @@ setup(
         'Operating System :: Unix',
     ],
     install_requires=[
-        "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy', 'pandas', 'statsmodels'
+        "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy', 'pandas', 'statsmodels', 'bokeh'
     ]
 )

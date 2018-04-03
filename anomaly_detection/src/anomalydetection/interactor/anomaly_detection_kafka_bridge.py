@@ -4,7 +4,7 @@ from rx.subjects import Subject
 from anomalydetection.conf.config import output_topic
 from anomalydetection.entities.output_message import OutputMessage
 from anomalydetection.repository.kafka_repository import KafkaRepository
-from src.anomalydetection.interactor.anomaly_detection_engine.base_engine import BaseEngine
+from anomalydetection.interactor.anomaly_detection_engine.base_engine import BaseEngine
 
 
 class AnomalyDetectionKafkaBridge:

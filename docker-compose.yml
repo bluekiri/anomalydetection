@@ -19,7 +19,7 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: ${HOST_IP}
       KAFKA_ZOOKEEPER_CONNECT: poc_zookeeper:2181
-      KAFKA_CREATE_TOPICS: "feed:1:1,predict:1:1"
+      KAFKA_CREATE_TOPICS: "write_feed:1:1,write_predict:1:1,read_feed:1:1,read_predict:1:1"
       KAFKA_ADVVERTISED_PORT: 9092
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -42,12 +42,11 @@ services:
       - poc_anomaly_detection
     depends_on:
       - poc_kafka
-
-  app:
+  feed:
     build:
-      context: .
+      context: feed
       dockerfile: Dockerfile
-    container_name: poc_anomaly_detection
+    container_name: poc_anomaly_detection_feed
     links:
       - poc_kafka
     networks:
@@ -55,12 +54,46 @@ services:
     environment:
       BOOTSTRAP_SERVER: ${HOST_IP}:9092
       BROKER_SERVER: ${HOST_IP}:9092
-      INPUT_TOPIC: "feed"
-      OUTPUT_TOPIC: "predict"
-      PERIOD_IN_SECONDS: 1
+      WRITE_FEED_TOPIC: "write_feed"
+      READ_FEED_TOPIC: "read_feed"
+      PERIOD_IN_SECONDS: 300
     depends_on:
       - kafka_wait_for
+  writes_app:
+    build:
+      context: anomaly_detection
+      dockerfile: Dockerfile
+    container_name: poc_anomaly_detection_writes
+    links:
+      - poc_kafka
+    networks:
+      - poc_anomaly_detection
+    environment:
+      BOOTSTRAP_SERVER: ${HOST_IP}:9092
+      BROKER_SERVER: ${HOST_IP}:9092
+      INPUT_TOPIC: "write_feed"
+      OUTPUT_TOPIC: "write_predict"
+      PERIOD_IN_SECONDS: 300
+    depends_on:
+      - feed
 
+  read_app:
+    build:
+      context: anomaly_detection
+      dockerfile: Dockerfile
+    container_name: poc_anomaly_detection_read
+    links:
+      - poc_kafka
+    networks:
+      - poc_anomaly_detection
+    environment:
+      BOOTSTRAP_SERVER: ${HOST_IP}:9092
+      BROKER_SERVER: ${HOST_IP}:9092
+      INPUT_TOPIC: "read_feed"
+      OUTPUT_TOPIC: "read_predict"
+      PERIOD_IN_SECONDS: 30
+    depends_on:
+      - feed
 
 networks:
   poc_anomaly_detection:

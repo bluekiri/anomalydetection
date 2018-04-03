@@ -3,7 +3,7 @@ from kafka import KafkaProducer
 from jsonschema import validate
 import json
 
-from src.anomalydetection.entities.input_message import InputMessage
+from anomalydetection.entities.input_message import InputMessage
 
 
 class KafkaRepository:
