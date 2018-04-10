@@ -1,10 +1,10 @@
 from rx import Observable, Observer
 from rx.subjects import Subject
 
-from anomalydetection.conf.config import output_topic
+from anomalydetection.conf.config import KAFKA_OUTPUT_TOPIC
 from anomalydetection.entities.output_message import OutputMessage
 from anomalydetection.repository.kafka_repository import KafkaRepository
-from anomalydetection.interactor.anomaly_detection_engine.base_engine import BaseEngine
+from anomalydetection.interactor.engine.base_engine import BaseEngine
 
 
 class AnomalyDetectionKafkaBridge:
@@ -18,7 +18,7 @@ class AnomalyDetectionKafkaBridge:
 
         subject = self.map_output_result(observable=observable_to_predict)
         subject.subscribe(
-            on_next=lambda item: self.kafka_repository.send_output_message(topic=output_topic, message_output=item))
+            on_next=lambda item: self.kafka_repository.send_output_message(topic=KAFKA_OUTPUT_TOPIC, message_output=item))
 
     def map_output_result(self, observable: Observable) -> Subject:
         return observable.map(lambda item: {"application": item["application"],

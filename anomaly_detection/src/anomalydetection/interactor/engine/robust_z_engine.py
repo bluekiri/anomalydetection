@@ -1,10 +1,15 @@
-from anomalydetection.interactor.anomaly_detection_engine.base_engine import BaseEngine
+# -*- coding:utf-8 -*- #
+
 import numpy as np
-from statsmodels.robust.scale import mad
 import scipy.stats as st
+from anomalydetection.interactor.engine.base_engine import BaseEngine
+from statsmodels.robust.scale import mad
+
 
 class RobustDetector(BaseEngine):
-    """Anomaly detection engine based in robust statistics: median and median absolute deviation
+    """
+    Anomaly detection engine based in robust statistics:
+    median and median absolute deviation.
     """
 
     def __init__(self, window=100, threshold=0.9999):

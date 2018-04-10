@@ -1,4 +1,4 @@
-from anomalydetection.interactor.anomaly_detection_engine.base_engine import BaseEngine
+from anomalydetection.interactor.engine.base_engine import BaseEngine
 
 
 class DummyEngine(BaseEngine):
