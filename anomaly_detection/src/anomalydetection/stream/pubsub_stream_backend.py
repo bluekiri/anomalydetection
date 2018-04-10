@@ -43,9 +43,10 @@ class PubSubStreamBackend(StreamBackend):
     def poll(self) -> str:
         subscription = self.__full_subscription_name()
         body = {"returnImmediately": True, "maxMessages": 1}
-        resp = self.pubsub.projects().subscriptions().pull(
-            subscription=subscription,
-            body=body)
+        resp = self.pubsub.projects()\
+            .subscriptions()\
+            .pull(subscription=subscription, body=body)\
+            .execute(num_retries=3)
 
         messages = resp.get("receivedMessages")
         if messages:
@@ -56,13 +57,14 @@ class PubSubStreamBackend(StreamBackend):
                     yield message
                     ack_ids.append(i.get("ackId"))
             ack_body = {"ackIds": ack_ids}
-            self.pubsub.projects().subscriptions().acknowledge(
-                subscription=subscription, body=ack_body).execute(
-                num_retries=3)
+            self.pubsub.projects()\
+                .subscriptions()\
+                .acknowledge(subscription=subscription, body=ack_body)\
+                .execute(num_retries=3)
 
     def push(self, message: str):
-        encoded = base64.b64encode(message)
-        body = {"messages": [{"data": encoded}]}
+        encoded = base64.b64encode(message.encode("utf-8"))
+        body = {"messages": [{"data": str(encoded)}]}
         self.pubsub.projects().topics().publish(
             topic=self.__full_topic_name(),
             body=body)
