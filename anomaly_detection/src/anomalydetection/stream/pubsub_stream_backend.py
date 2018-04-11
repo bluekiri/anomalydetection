@@ -13,6 +13,8 @@ from anomalydetection.stream import StreamBackend
 
 class PubSubStreamBackend(StreamBackend):
 
+    SCOPES = ['https://www.googleapis.com/auth/pubsub']
+
     logger = logging.getLogger('PubSubStreamBackend')
 
     def __init__(self,
@@ -35,7 +37,9 @@ class PubSubStreamBackend(StreamBackend):
         super().__init__()
         self.project_id = project_id
         self.topic = output_topic
-        self.credentials = GoogleCredentials.get_application_default()
+        self.credentials = GoogleCredentials \
+            .get_application_default()\
+            .create_scoped(self.SCOPES)
         if auth_file:
             self.credentials = Credentials.from_service_account_file(auth_file)
         self.subscription = subscription
