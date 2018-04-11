@@ -5,8 +5,8 @@ import logging
 from collections import Generator
 
 from googleapiclient.discovery import build
-from google.auth import compute_engine
 from google.oauth2.service_account import Credentials
+from oauth2client.client import GoogleCredentials
 
 from anomalydetection.stream import StreamBackend
 
@@ -29,13 +29,13 @@ class PubSubStreamBackend(StreamBackend):
         :param auth_file:       authentication json file.
         :type output_topic:     str.
         :param output_topic:    the PubSub Topic.
-        :type subscription:       str.
-        :param subscription:      the PubSub Subscriber name.
+        :type subscription:     str.
+        :param subscription:    the PubSub Subscriber name.
         """
         super().__init__()
         self.project_id = project_id
         self.topic = output_topic
-        self.credentials = compute_engine.Credentials()
+        self.credentials = GoogleCredentials.get_application_default()
         if auth_file:
             self.credentials = Credentials.from_service_account_file(auth_file)
         self.subscription = subscription
