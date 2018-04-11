@@ -37,11 +37,15 @@ class PubSubStreamBackend(StreamBackend):
         super().__init__()
         self.project_id = project_id
         self.topic = output_topic
-        self.credentials = GoogleCredentials \
-            .get_application_default()\
-            .create_scoped(self.SCOPES)
-        if auth_file:
-            self.credentials = Credentials.from_service_account_file(auth_file)
+        try:
+            self.credentials = GoogleCredentials \
+                .get_application_default()\
+                .create_scoped(self.SCOPES)
+        except Exception as ex:
+            if auth_file:
+                self.credentials = Credentials.from_service_account_file(auth_file)
+            else:
+                raise ex
         self.subscription = subscription
         self.pubsub = build('pubsub', 'v1', credentials=self.credentials)
 
