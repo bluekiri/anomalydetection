@@ -35,6 +35,6 @@ setup(
     ],
     install_requires=[
         "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy', 'pandas', 'statsmodels', 'bokeh',
-        "oauth2client", "google-auth", "google-api-python-client"
+        "oauth2client", "google-auth", "google-auth-httplib2", "google-api-python-client"
     ]
 )

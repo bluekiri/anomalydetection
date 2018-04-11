@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*- #
+
 import os
 
 
@@ -16,7 +17,7 @@ def get_or_default(key: str, default: object=None):
 
 
 # General
-PERIOD_IN_SECONDS = get_or_default("PERIOD_IN_SECONDS", 300)
+PERIOD_IN_MILLISECONDS = get_or_default("PERIOD_IN_MILLISECONDS", 1 * 60 * 1000)
 
 # Kafka
 KAFKA_BOOTSTRAP_SERVER = get_or_default("KAFKA_BOOTSTRAP_SERVER")
@@ -26,5 +27,6 @@ KAFKA_OUTPUT_TOPIC = get_or_default("KAFKA_OUTPUT_TOPIC")
 
 # Pub/Sub
 PUBSUB_PROJECT_ID = get_or_default("PUBSUB_PROJECT_ID")
+PUBSUB_AUTH_FILE = get_or_default("PUBSUB_AUTH_FILE")
 PUBSUB_INPUT_TOPIC = get_or_default("PUBSUB_OUTPUT_TOPIC")
 PUBSUB_OUTPUT_TOPIC = get_or_default("PUBSUB_OUTPUT_TOPIC")
