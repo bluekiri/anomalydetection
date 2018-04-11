@@ -61,7 +61,7 @@ class PubSubStreamBackend(StreamBackend):
 
     def poll(self) -> Generator:
         subscription = self.__full_subscription_name()
-        body = {"returnImmediately": False, "maxMessages": 100}
+        body = {"returnImmediately": True, "maxMessages": 2}
 
         while True:
             try:
