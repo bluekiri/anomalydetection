@@ -8,6 +8,7 @@ from anomalydetection.engine.robust_z_engine import RobustDetector
 from anomalydetection.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.stream.stream_factory import StreamFactory
 
+logging.basicConfig()
 logger = logging.getLogger()
 
 

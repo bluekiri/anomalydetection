@@ -15,7 +15,8 @@ class PubSubStreamBackend(StreamBackend):
 
     SCOPES = ['https://www.googleapis.com/auth/pubsub']
 
-    logger = logging.getLogger('PubSubStreamBackend')
+    logger = logging.getLogger("pubsub")
+    logger.setLevel(logging.DEBUG)
 
     def __init__(self,
                  project_id: str,
@@ -61,10 +62,11 @@ class PubSubStreamBackend(StreamBackend):
 
     def poll(self) -> Generator:
         subscription = self.__full_subscription_name()
-        body = {"returnImmediately": True, "maxMessages": 2}
+        body = {"returnImmediately": False, "maxMessages": 5}
 
         while True:
             try:
+                self.logger.debug("Polling messages. START")
                 resp = self.pubsub.projects()\
                     .subscriptions()\
                     .pull(subscription=subscription, body=body)\
@@ -80,21 +82,25 @@ class PubSubStreamBackend(StreamBackend):
                             ack_ids.append(i.get("ackId"))
                     ack_body = {"ackIds": ack_ids}
 
+                    self.logger.debug("Acking messages. START")
                     self.pubsub.projects()\
                         .subscriptions()\
                         .acknowledge(subscription=subscription, body=ack_body)\
-                        .execute(num_retries=3)
+                        .execute(num_retries=10)
+                    self.logger.debug("Acking messages. END")
+
+                self.logger.debug("Polling messages. END")
             except Exception as e:
-                self.logger.error("Error polling messages.", e)
+                self.logger.debug("Error polling messages.", e)
 
     def push(self, message: str) -> None:
         encoded = base64.b64encode(message.encode("utf-8"))
         body = {"messages": [{"data": str(encoded, "utf-8")}]}
-        resp = self.pubsub.projects()\
+        self.logger.debug("Pushing message. START")
+        self.pubsub.projects()\
             .topics()\
             .publish(topic=self.__full_topic_name(),
                      body=body) \
             .execute(num_retries=3)
-
-        self.logger.info(resp)
+        self.logger.debug("Pushing message. END")
 
