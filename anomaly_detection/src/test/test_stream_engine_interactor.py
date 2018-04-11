@@ -5,7 +5,7 @@ import unittest
 from collections import Generator
 from random import randint
 
-from anomalydetection.interactor.engine.robust_z_engine import RobustDetector
+from anomalydetection.engine.robust_z_engine import RobustDetector
 from anomalydetection.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.stream import StreamBackend, MessageHandler, T
 
@@ -13,7 +13,7 @@ from anomalydetection.stream import StreamBackend, MessageHandler, T
 class DummyStream(StreamBackend):
 
     def poll(self) -> Generator:
-        for i in range(1000):
+        for i in range(10):
             yield randint(0, 1000)
             time.sleep(2)
 

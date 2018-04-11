@@ -1,11 +1,10 @@
 # -*- coding:utf-8 -*- #
 
-import time
 import logging
 
 from anomalydetection.conf.config import *
 from anomalydetection.entities.json_input_message_handler import InputJsonMessageHandler
-from anomalydetection.interactor.engine.robust_z_engine import RobustDetector
+from anomalydetection.engine.robust_z_engine import RobustDetector
 from anomalydetection.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.stream.stream_factory import StreamFactory
 
@@ -26,6 +25,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # TODO workarround until fix the docker kafka service ready listener...
-    time.sleep(15)
     main()

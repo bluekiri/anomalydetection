@@ -6,9 +6,9 @@ import unittest
 from anomalydetection.stream.pubsub_stream_backend import PubSubStreamBackend
 
 
-class TestClient(unittest.TestCase):
+class TestPubSubStreamBackend(unittest.TestCase):
 
-    def test_backend(self):
+    def test(self):
 
         pubsub = PubSubStreamBackend(
             "bluekiri-bigd-dev-anomdec",

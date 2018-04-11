@@ -2,7 +2,7 @@
 
 import numpy as np
 import scipy.stats as st
-from anomalydetection.interactor.engine.base_engine import BaseEngine
+from anomalydetection.engine.base_engine import BaseEngine
 from statsmodels.robust.scale import mad
 
 

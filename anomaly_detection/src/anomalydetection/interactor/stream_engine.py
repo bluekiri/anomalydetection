@@ -3,7 +3,7 @@ import json
 
 from rx import Observable
 
-from anomalydetection.interactor.engine.base_engine import BaseEngine
+from anomalydetection.engine.base_engine import BaseEngine
 from anomalydetection.stream import StreamBackend, MessageHandler
 
 
@@ -25,16 +25,18 @@ class StreamEngineInteractor(object):
         self.agg_function = agg_function
         self.agg_window = agg_window
 
+    async def _do_poll(self, generator):
+        for item in generator:
+            return item
+
     def run(self):
 
-        source = Observable.from_(self.stream.poll())\
+        Observable.from_(self.stream.poll()) \
             .map(lambda x: self.message_handler.parse_message(x)) \
             .filter(lambda x: self.message_handler.validate_message(x)) \
             .map(lambda x: self.message_handler.extract_value(x)) \
-            .buffer_with_time(timespan=self.agg_window)\
-            .filter(lambda x: len(x) > 0)\
-            .map(lambda x: self.agg_function(x))
-
-        source \
+            .buffer_with_time(timespan=self.agg_window) \
+            .filter(lambda x: len(x) > 0) \
+            .map(lambda x: self.agg_function(x)) \
             .map(lambda x: {"value": x, "results_anomaly": self.engine.predict(x)}) \
             .subscribe(lambda x: self.stream.push(json.dumps(x)))

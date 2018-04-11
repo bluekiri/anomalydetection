@@ -39,13 +39,14 @@ class KafkaStreamBackend(StreamBackend):
             self.input_topic,
             bootstrap_servers=self.bootstrap_servers,
             group_id=self.group_id)
+        self.kafka_consumer.subscribe([self.input_topic])
+
         self.kafka_producer = KafkaProducer(
             bootstrap_servers=self.broker_servers,
             api_version=(0, 10))
 
     def poll(self) -> Generator:
-        messages = self.kafka_consumer.subscribe([self.input_topic])
-        for msg in messages:
+        for msg in self.kafka_consumer:
             yield msg.value.decode('utf-8')
 
     def push(self, message: str) -> None:
