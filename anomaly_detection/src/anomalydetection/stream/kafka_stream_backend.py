@@ -55,7 +55,9 @@ class KafkaStreamBackend(StreamBackend):
             self.logger.debug("Polling messages (auto ack). START")
             try:
                 for msg in self.kafka_consumer:
-                    yield msg.value.decode('utf-8')
+                    message = msg.value.decode('utf-8')
+                    self.logger.debug("Message received: {}".format(message))
+                    yield message
             except Exception as ex:
                 self.logger.error("Error polling messages.", ex)
 
@@ -63,9 +65,8 @@ class KafkaStreamBackend(StreamBackend):
 
     def push(self, message: str) -> None:
         try:
-            self.logger.debug("Pushing message. START")
+            self.logger.debug("Pushing message: {}.".format(message))
             self.kafka_producer.send(self.output_topic,
                                      bytearray(message, 'utf-8'))
-            self.logger.debug("Pushing message. END")
         except Exception as ex:
             self.logger.error("Pushing message failed.", ex)

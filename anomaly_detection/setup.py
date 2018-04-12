@@ -33,8 +33,13 @@ setup(
         'Programming Language :: Python :: 3.5.2',
         'Operating System :: Unix',
     ],
+    # It requires latest version of setuptools: pip install --upgrade pip setuptools
     install_requires=[
+        # Core dependencies
         "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy', 'pandas', 'statsmodels', 'bokeh',
-        "oauth2client", "google-auth", "google-auth-httplib2", "google-api-python-client"
+        # Google api lib
+        "oauth2client", "google-auth", "google-auth-httplib2", "google-api-python-client",
+        # Google cloud lib
+        "google-cloud", "google-cloud-pubsub"
     ]
 )
