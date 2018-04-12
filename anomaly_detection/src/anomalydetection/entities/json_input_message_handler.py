@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*- #
 
 import json
+import logging
 
 from jsonschema import validate
 
@@ -9,6 +10,9 @@ from anomalydetection.stream import MessageHandler
 
 
 class InputJsonMessageHandler(MessageHandler[InputMessage]):
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
     JSON_SCHEMA = {
         "$id": "anomaly-detection",
@@ -43,7 +47,8 @@ class InputJsonMessageHandler(MessageHandler[InputMessage]):
                                 data["value"],
                                 data["ts"])
         except Exception as e:
-            raise e
+            cls.logger.error("Error parsing message", e)
+            return None
 
     @classmethod
     def extract_value(cls, message: InputMessage) -> float:
@@ -51,5 +56,6 @@ class InputJsonMessageHandler(MessageHandler[InputMessage]):
 
     @classmethod
     def validate_message(cls, message: InputMessage) -> bool:
-        return True
+        if message:
+            return True
 

@@ -15,7 +15,7 @@ class PubSubStreamBackend(StreamBackend):
 
     SCOPES = ['https://www.googleapis.com/auth/pubsub']
 
-    logger = logging.getLogger("pubsub")
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
     def __init__(self,
@@ -94,13 +94,16 @@ class PubSubStreamBackend(StreamBackend):
                 self.logger.debug("Error polling messages.", e)
 
     def push(self, message: str) -> None:
-        encoded = base64.b64encode(message.encode("utf-8"))
-        body = {"messages": [{"data": str(encoded, "utf-8")}]}
-        self.logger.debug("Pushing message. START")
-        self.pubsub.projects()\
-            .topics()\
-            .publish(topic=self.__full_topic_name(),
-                     body=body) \
-            .execute(num_retries=3)
-        self.logger.debug("Pushing message. END")
+        try:
+            encoded = base64.b64encode(message.encode("utf-8"))
+            body = {"messages": [{"data": str(encoded, "utf-8")}]}
+            self.logger.debug("Pushing message. START")
+            self.pubsub.projects()\
+                .topics()\
+                .publish(topic=self.__full_topic_name(),
+                         body=body) \
+                .execute(num_retries=3)
+            self.logger.debug("Pushing message. END")
+        except Exception as ex:
+            self.logger.error("Pushing message failed.", ex)
 

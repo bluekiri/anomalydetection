@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+
+import logging
 from typing import Generator
 
 from kafka import KafkaConsumer, KafkaProducer
@@ -7,6 +9,9 @@ from anomalydetection.stream import StreamBackend
 
 
 class KafkaStreamBackend(StreamBackend):
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
     def __init__(self,
                  bootstrap_server: str,
@@ -26,7 +31,7 @@ class KafkaStreamBackend(StreamBackend):
         :type output_topic:       str.
         :param output_topic:      topic to write to.
         :type group_id:           str.
-        :param group_id:          consumer id
+        :param group_id:          consumer id.
         """
         super().__init__()
         self.bootstrap_servers = bootstrap_server.split(",")
@@ -46,9 +51,21 @@ class KafkaStreamBackend(StreamBackend):
             api_version=(0, 10))
 
     def poll(self) -> Generator:
-        for msg in self.kafka_consumer:
-            yield msg.value.decode('utf-8')
+        while True:
+            self.logger.debug("Polling messages (auto ack). START")
+            try:
+                for msg in self.kafka_consumer:
+                    yield msg.value.decode('utf-8')
+            except Exception as ex:
+                self.logger.error("Error polling messages.", ex)
+
+            self.logger.debug("Polling messages. END")
 
     def push(self, message: str) -> None:
-        self.kafka_producer.send(self.output_topic,
-                                 bytearray(message, 'utf-8'))
+        try:
+            self.logger.debug("Pushing message. START")
+            self.kafka_producer.send(self.output_topic,
+                                     bytearray(message, 'utf-8'))
+            self.logger.debug("Pushing message. END")
+        except Exception as ex:
+            self.logger.error("Pushing message failed.", ex)
