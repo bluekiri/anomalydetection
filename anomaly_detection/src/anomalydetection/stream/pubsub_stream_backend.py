@@ -59,7 +59,7 @@ class PubSubStreamBackend(StreamBackend):
     def push(self, message: str) -> None:
         try:
             self.logger.debug("Pushing message: {}.".format(message))
-            encoded = base64.b64encode(message.encode("utf-8"))
+            encoded = message.encode("utf-8")
             self.publisher.publish(self._full_topic_name(), encoded)
         except Exception as ex:
             self.logger.error("Pushing message failed.", ex)

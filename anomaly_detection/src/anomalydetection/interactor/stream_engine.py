@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*- #
+import datetime
 import json
 
 from rx import Observable
@@ -38,5 +39,11 @@ class StreamEngineInteractor(object):
             .buffer_with_time(timespan=self.agg_window) \
             .filter(lambda x: len(x) > 0) \
             .map(lambda x: self.agg_function(x)) \
-            .map(lambda x: {"value": x, "results_anomaly": self.engine.predict(x)}) \
+            .map(lambda x: {
+                "agg_value": x,
+                "agg_function": str(self.agg_function),
+                "agg_window_millis": self.agg_window,
+                "ts": datetime.datetime.now().isoformat(),
+                "anomaly_results": self.engine.predict(x)
+            }) \
             .subscribe(lambda x: self.stream.push(json.dumps(x)))
