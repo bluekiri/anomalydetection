@@ -2,6 +2,7 @@
 
 import json
 import logging
+from datetime import datetime
 
 from jsonschema import validate
 
@@ -58,4 +59,8 @@ class InputJsonMessageHandler(MessageHandler[InputMessage]):
     def validate_message(cls, message: InputMessage) -> bool:
         if message:
             return True
+
+    @classmethod
+    def extract_ts(cls, message: InputMessage) -> datetime:
+        return message.ts
 

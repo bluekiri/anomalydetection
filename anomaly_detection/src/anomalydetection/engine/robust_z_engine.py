@@ -3,6 +3,7 @@
 import numpy as np
 import scipy.stats as st
 from anomalydetection.engine.base_engine import BaseEngine
+from anomalydetection.entities.output_message import AnomalyResult
 from statsmodels.robust.scale import mad
 
 
@@ -53,7 +54,7 @@ class RobustDetector(BaseEngine):
         self._update_buffer(value=value)
         self._update_statistics()
 
-    def predict(self, value):
+    def predict(self, value) -> AnomalyResult:
         """
         Return the probability of being an outlier
 
@@ -87,4 +88,5 @@ class RobustDetector(BaseEngine):
             results['value_upper_limit'] = (self._median + self._mad*st.norm.ppf(self.threshold))
             results['value_lower_limit'] = (self._median - self._mad*st.norm.ppf(self.threshold))
         self._update(value=value)
-        return results
+
+        return AnomalyResult(**results)
