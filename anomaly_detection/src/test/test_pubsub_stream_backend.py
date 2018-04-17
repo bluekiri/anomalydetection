@@ -12,7 +12,7 @@ class TestPubSubStreamBackend(unittest.TestCase):
 
         pubsub = PubSubStreamBackend(
             "bluekiri-bigd-dev-anomdec",
-            os.getenv("HOME") + "/Documents/bluekiri-bigd-dev-anomdec.json",
+            os.getenv("HOME") + "/bluekiri-bigd-dev-anomdec.json",
             "test", "test1")
 
         # Publish

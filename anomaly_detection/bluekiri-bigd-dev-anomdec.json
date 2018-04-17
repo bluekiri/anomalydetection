@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "bluekiri-bigd-dev-anomdec",
+  "private_key_id": "2a044687c1320b46412616132a3133822a846aa3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCnUmKFH/ItOoR9\nhRcsslGZmSaT5RSapl83GIaE4NJm+WdV/7EvrMGcfsAO6RufOp9P5bQAxdv+ZRRz\n/szHSih05AW35dkygeNBF2tSmY1aU9TR7KKrfH9Z5vzeJBvVJ/MqTiLIdjFUvCxX\nLqT1BjmSN0Rmh69H/DKYwOMN3AN3LjXcwt0Qp6EIMuHdovX5tFfZ394prT/ruhHI\nchhC6hpE9YDd2tYkOEKiOHgsldpryJc6oTk0a1WFKtoFMI2hNkKbUhjTgEWRRyKX\n1CTWjsyKNV0/YqEeOu/NV8wXgn+2hL1c2GM1XFmcmENJr2L+TIbE1E1GOBVqcCWE\nRY0vza2tAgMBAAECggEATUfebClIpD4yYn0dqo3D5aMYb9evMAymzp47x1TFqT0J\nTu21q1Tp6bubPmfJU75yRadM/8xjIzkRfM/TSjrEu9RzlbAKJOtcCLzl23VDldRB\naCIZMgZjFaV75qgb2NRGWiRTqW35s+7jtfK7ytXwsklnhMmnmiJwRiBU3ppfWWRV\neJbs0fgvrXk0+qXEnpv+Z+U8MwBgKdTq5nPTHEUI8yzZmLBmk+kmzljHQAyRHjyS\nNKHZePVLdkuu2skL07m7ZwfC86fcghPxEXN+/OMSyfLa5MdHmoQvDtGZIMvsRabK\nwmnyA6a3GUDUZLTr+DSKpBRBoL075I5n0/o3cd4MuwKBgQDcdYK1q124Qm6N/PJk\naHMlTFye3M4tWGgv6rBNdHBQ8+EIoHvP0eWhoF7SNSCxsG7Gltzi/8JM2kx/G02g\nyQO8P1grRb4QqVYAUovHJVH+ysT4DozqOgNoRuEthD8gL+dBCAyxAcgDSBYH8ncp\nHDEhyQa0wcvEvubuY/pG6oK6zwKBgQDCS93WflOgIpmeTtLV6HqK3qOBzpO3UrNi\nnRtn5Z45GrNqO+h4rv4JXvxzE3C8B/S7r1T4KEOGbGJnH0DRXCtx6DxnJm2ed5Cx\ngV8lei35+bJDNCg3ib8B1vr162SEVxAp+dkGh2tls53V2zgrbbQ9yotJ0CoFYEAT\nu6wYUSD+wwKBgEM6LmbZ4BV9ZJs15HDMDTj1hVUIfnMDf5oFFkg4VrvI8vmffsIL\n/tt/vQqbGuI0rEMw5CDw3z5yX1tvZwe95L62Dlv7w47vJIOqqGdNMSjiipgeT8hp\ncnqNCsPHjTxyfzGsk7oykdy2UcmQndfSegUUeVALvOi9Ukyl/j876iuvAoGBAKWl\nSoawgpkWhoNJzkPiBH9aWmmzdYoobpkXOiM0xtUGZ4mdc49YGWph2bY+D7Gu0r4k\nN7utkAwNYUNriLY07zEYfk6um2wroWdD1Zs88++XKpxS3iqjO/3Ui3aXbcXJ+BTh\nVl5Tm4NEQ77sO5IC4FSB1ohieUDGEzr/mDPPDuNDAoGBALJ4D/F7qoD8swCuGPZd\nZ5F3J/oT9zTEjhAuTt6yOduuNlZXbp1/BayrhK2kaL9rTx+3PAWfbLlWP/v1Aby4\nxYxwCNwfwapPdXLVODefv7l9nOzJ+8tnmQOfNzbhI2RzuJma8u9G+xtbI2PDlaBx\nfjteYM+gEf3iqhVN5ab4JEdV\n-----END PRIVATE KEY-----\n",
+  "client_email": "bluekiri-bigd-dev-anomdec@bluekiri-bigd-dev-anomdec.iam.gserviceaccount.com",
+  "client_id": "112884448678601833273",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bluekiri-bigd-dev-anomdec%40bluekiri-bigd-dev-anomdec.iam.gserviceaccount.com"
+}
