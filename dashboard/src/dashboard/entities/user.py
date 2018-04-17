@@ -1,4 +1,4 @@
-from dashboard.src.dashboard.repository.sqlite import get_sql_connection
+from dashboard.repository.sqlite import get_sql_connection
 
 db = get_sql_connection()
 

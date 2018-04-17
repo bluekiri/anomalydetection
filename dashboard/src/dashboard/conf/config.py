@@ -1,5 +1,7 @@
+import os
+
 # Flask configuration
 SECRET_KEY = '123456790'
-DATABASE_FILE = 'sample_db.sqlite'
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_FILE
+DATA_DB_FILE = os.environ["DATA_DB_FILE"]
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATA_DB_FILE
 SQLALCHEMY_ECHO = True

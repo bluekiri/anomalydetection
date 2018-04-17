@@ -1,30 +1,31 @@
-import os
-
-from bokeh.embed import components
 from flask import Flask, url_for, redirect, render_template, request
 
 # Create Flask application
 from flask_admin import Admin
 from flask_login import LoginManager
 
-from dashboard.src.dashboard.repository.sqlite import get_sql_connection
+from dashboard.conf.config import SECRET_KEY, DATA_DB_FILE, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_ECHO
+from dashboard.interactor.get_prediction_signal import GetPredictionSignal
+from dashboard.repository.predictions_signal_repository import PredictionSignalRepository
+from dashboard.repository.sqlite import get_sql_connection
+import os
+current_path = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__)
 
 # Create dummy secrey key so we can use sessions
-app.config['SECRET_KEY'] = '123456790'
-
+app.config['SECRET_KEY'] = SECRET_KEY
+app.config['STATIC_FOLDER'] = current_path +'/static'
 # Create in-memory database
-app.config['DATABASE_FILE'] = 'sample_db.sqlite'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + app.config['DATABASE_FILE']
-app.config['SQLALCHEMY_ECHO'] = True
+app.config['DATABASE_FILE'] = DATA_DB_FILE
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_ECHO'] = SQLALCHEMY_ECHO
 get_sql_connection(app)
 
-from dashboard.src.dashboard.initialize_db import build_sample_db
-from dashboard.src.dashboard.entities.user import User
-from dashboard.src.dashboard.interactor.is_current_user_validate import IsCurrentUserValidate
-from dashboard.src.dashboard.view.home import MyModelView
-from dashboard.src.dashboard.view.my_admin_index import MyAdminIndexView
+from dashboard.entities.user import User
+from dashboard.interactor.is_current_user_validate import IsCurrentUserValidate
+from dashboard.view.home_view import HomeView
+from dashboard.view.login_admin_view import LoginAdminView
 
 
 # Initialize flask-login
@@ -38,11 +39,6 @@ def init_login():
         return get_sql_connection().session.query(User).get(user_id)
 
 
-# # Flask views
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error = None
@@ -50,42 +46,23 @@ def login():
         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
             error = 'Invalid Credentials. Please try again.'
         else:
-            return redirect(url_for('home'))
+            return redirect(url_for('home.index'))
     return render_template('login.html', error=error)
-
-
-def create_figure():
-    from bokeh.plotting import figure
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 2, 4, 5]
-    p = figure(title="simple line example", x_axis_label='x', y_axis_label='y')
-    p.line(x, y, legend="Temp.", line_width=2)
-    # Set the y axis label
-    return p
-
-
-@app.route('/home')
-def home():
-    plot = create_figure()
-    script, div = components(plot)
-    return render_template("home.html", script=script, div=div)
 
 
 init_login()
 
-admin = Admin(app, 'Example: Auth', index_view=MyAdminIndexView(), base_template='my_master.html')
+admin = Admin(app, 'Example: Auth', index_view=LoginAdminView(), base_template='my_master.html')
 
 is_current_user_validate = IsCurrentUserValidate()
 
-admin.add_view(MyModelView(User, get_sql_connection().session, is_current_user_validate))
+predictions_signal_repository = PredictionSignalRepository()
+
+get_prediction_signal = GetPredictionSignal(predictions_signal_repository)
+
+admin.add_view(
+    HomeView(User, get_sql_connection().session, is_current_user_validate, endpoint="home",
+             get_prediction_signal=get_prediction_signal))
 
 if __name__ == '__main__':
-
-    # Build a sample db on the fly, if one does not exist yet.
-    app_dir = os.path.realpath(os.path.dirname(__file__))
-    database_path = os.path.join(app_dir, app.config['DATABASE_FILE'])
-    if not os.path.exists(database_path):
-        build_sample_db()
-
-    # Start app
     app.run(debug=True)

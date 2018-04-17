@@ -1,8 +1,8 @@
 from werkzeug.security import check_password_hash
 from wtforms import form, fields, validators
 
-from dashboard.src.dashboard.entities.user import User
-from dashboard.src.dashboard.repository.sqlite import get_sql_connection
+from dashboard.entities.user import User
+from dashboard.repository.sqlite import get_sql_connection
 
 
 class LoginForm(form.Form):

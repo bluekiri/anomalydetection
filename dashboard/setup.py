@@ -36,12 +36,12 @@ setup(
     # It requires latest version of setuptools: pip install --upgrade pip setuptools
     install_requires=[
         # Core dependencies
-        "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy', 'pandas', 'statsmodels', 'bokeh',
+        'python-dateutil==2.7.2', 'numpy==1.14.2', 'pandas==0.22.0', 'bokeh==0.12.15',
         # Google api lib
-        "oauth2client", "google-auth", "google-auth-httplib2", "google-api-python-client",
+        # "oauth2client", "google-auth", "google-auth-httplib2", "google-api-python-client",
         # Google cloud lib
-        "google-cloud", "google-cloud-pubsub",
+        # "google-cloud", "google-cloud-pubsub",
         # Dashboard
-        "Flask", "Flask-Admin", "Flask-SQLAlchemy", "Flask-Login"
+        "Flask==0.12.2", "Flask-Admin==1.5.1", "Flask-SQLAlchemy==2.3.2", "Flask-Login==0.4.1"
     ]
 )

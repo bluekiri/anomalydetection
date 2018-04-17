@@ -1,7 +1,7 @@
 from wtforms import validators, form, fields
 
-from dashboard.src.dashboard.entities.user import User
-from dashboard.src.dashboard.repository.sqlite import get_sql_connection
+from dashboard.entities.user import User
+from dashboard.repository.sqlite import get_sql_connection
 
 
 class RegistrationForm(form.Form):
