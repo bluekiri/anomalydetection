@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 
 import os
-import base64
 import logging
 from collections import Generator
 from queue import Queue
@@ -31,7 +30,8 @@ class PubSubStreamBackend(StreamBackend):
         self.queue = Queue()
         self.publisher = pubsub.PublisherClient()
         self.subscriber = pubsub.SubscriberClient()
-        self.subs = self.subscriber.subscribe(self._full_subscription_name(), callback=self.__enqueue)
+        self.subs = self.subscriber.subscribe(self._full_subscription_name(),
+                                              callback=self.__enqueue)
 
     def _full_topic_name(self):
         return "projects/{}/{}/{}".format(self.project_id,
@@ -44,7 +44,8 @@ class PubSubStreamBackend(StreamBackend):
                                           self.subscription)
 
     def __enqueue(self, message: Message) -> None:
-        self.logger.debug("Message received: {}".format(str(message.data, "utf-8")))
+        self.logger.debug(
+            "Message received: {}".format(str(message.data, "utf-8")))
         self.queue.put(message)
 
     def __dequeue(self) -> Message:

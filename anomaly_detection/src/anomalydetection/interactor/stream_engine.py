@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*- #
-import datetime
-import json
 
+import json
+from typing import Any, List
+
+from anomalydetection.entities.input_message import InputMessage
+from anomalydetection.entities.output_message import OutputMessage
 from rx import Observable
 
 from anomalydetection.engine.base_engine import BaseEngine
-from anomalydetection.stream import StreamBackend, MessageHandler
+from anomalydetection.stream import StreamBackend, MessageHandler, Middleware
 
 
 class StreamEngineInteractor(object):
@@ -17,33 +20,56 @@ class StreamEngineInteractor(object):
                  stream: StreamBackend,
                  engine: BaseEngine,
                  message_handler: MessageHandler,
+                 middleware: List[Middleware] = [],
                  agg_function: callable = DEFAULT_AGG_FUNCTION,
-                 agg_window: int = DEFAULT_AGG_WINDOW) -> None:
+                 agg_window_millis: int = DEFAULT_AGG_WINDOW) -> None:
         super().__init__()
         self.stream = stream
         self.engine = engine
+        self.middleware = middleware
         self.message_handler = message_handler
         self.agg_function = agg_function
-        self.agg_window = agg_window
+        self.agg_window_millis = agg_window_millis
 
-    async def _do_poll(self, generator):
-        for item in generator:
-            return item
+    def build_output_message(self, value):
+        input_message, agg_value = value
+        output = {
+            "application": input_message.application,
+            "agg_value": agg_value,
+            "agg_function": str(self.agg_function),
+            "agg_window_millis": self.agg_window_millis,
+            "ts": str(self.message_handler.extract_ts(input_message)),
+            "anomaly_results": self.engine.predict(agg_value)
+        }
+        return OutputMessage(**output)
+
+    def zip_input_with_agg(self, value):
+        return (
+            value[-1],
+            self.agg_function(
+                map(self.message_handler.extract_value, value))
+        )
 
     def run(self):
 
-        Observable.from_(self.stream.poll()) \
+        # Aggregate and map input values.
+        stream = Observable.from_(self.stream.poll()) \
             .map(lambda x: self.message_handler.parse_message(x)) \
             .filter(lambda x: self.message_handler.validate_message(x)) \
-            .map(lambda x: self.message_handler.extract_value(x)) \
-            .buffer_with_time(timespan=self.agg_window) \
-            .filter(lambda x: len(x) > 0) \
-            .map(lambda x: self.agg_function(x)) \
-            .map(lambda x: {
-                "agg_value": x,
-                "agg_function": str(self.agg_function),
-                "agg_window_millis": self.agg_window,
-                "ts": datetime.datetime.now().isoformat(),
-                "anomaly_results": self.engine.predict(x)
-            }) \
-            .subscribe(lambda x: self.stream.push(json.dumps(x)))
+
+        rx = stream \
+            .buffer_with_time(timespan=self.agg_window_millis) \
+            .filter(lambda x: x) \
+            .map(lambda x: self.zip_input_with_agg(x)) \
+            .map(lambda x: self.build_output_message(x)) \
+            .publish()  # This is required for multiple subscriptions
+
+        # Main subscription
+        rx.subscribe(lambda x: self.stream.push(str(x)))
+
+        # Middleware
+        for mw in self.middleware:
+            rx.subscribe(mw)
+
+        # Connect with observers
+        rx.connect()

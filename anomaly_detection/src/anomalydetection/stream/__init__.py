@@ -1,7 +1,10 @@
 # -*- coding:utf-8 -*-
 
 from collections import Generator
-from typing import TypeVar, Generic
+from datetime import datetime
+from typing import TypeVar, Generic, Any
+
+from rx import Observer
 
 T = TypeVar('T')
 
@@ -20,11 +23,26 @@ class MessageHandler(Generic[T]):
     def validate_message(cls, message: T) -> bool:
         raise NotImplementedError("To implement in child classes.")
 
+    @classmethod
+    def extract_ts(cls, message: T) -> datetime:
+        return datetime.now()
 
-class StreamBackend(object):
+
+class Middleware(Observer):
+    pass
+
+
+class StreamBase(object):
 
     def poll(self) -> Generator:
         raise NotImplementedError("To implement in child classes.")
+
+
+class BatchBase(StreamBase):
+    pass
+
+
+class StreamBackend(StreamBase):
 
     def push(self, message: str) -> None:
         raise NotImplementedError("To implement in child classes.")

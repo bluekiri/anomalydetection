@@ -3,18 +3,17 @@
 import time
 import unittest
 from collections import Generator
-from random import randint
 
 from anomalydetection.engine.robust_z_engine import RobustDetector
 from anomalydetection.interactor.stream_engine import StreamEngineInteractor
-from anomalydetection.stream import StreamBackend, MessageHandler, T
+from anomalydetection.stream import StreamBackend, MessageHandler, T, Middleware
 
 
 class DummyStream(StreamBackend):
 
     def poll(self) -> Generator:
-        for i in range(10):
-            yield randint(0, 1000)
+        for i in range(50):
+            yield i
             time.sleep(2)
 
     def push(self, message: str) -> None:
@@ -36,6 +35,18 @@ class DummyMessageHandler(MessageHandler[dict]):
         return True
 
 
+class DummyMiddleware(Middleware):
+
+    def on_next(self, value):
+        print(value)
+
+    def on_error(self, error):
+        print(error)
+
+    def on_completed(self):
+        print("Done!")
+
+
 class TestStreamEngineInteractor(unittest.TestCase):
 
     def test(self):
@@ -46,5 +57,6 @@ class TestStreamEngineInteractor(unittest.TestCase):
             stream,
             engine,
             DummyMessageHandler(),
-            agg_window=5 * 1000)
+            middleware=[DummyMiddleware()],
+            agg_window_millis=5 * 1000)
         interactor.run()
