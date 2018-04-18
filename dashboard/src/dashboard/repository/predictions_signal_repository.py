@@ -7,7 +7,7 @@ class PredictionSignalRepository:
     def __init__(self):
         self.db = get_sql_connection()
 
-    def get_application_signal(self, application: str) -> tuple:
+    def get_application_signal(self, application: str):
         return self.db.session.execute(
             "SELECT application, "
             "ts, "
