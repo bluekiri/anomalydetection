@@ -5,9 +5,9 @@ import unittest
 from collections import Generator
 from datetime import datetime
 
-from anomalydetection.engine.robust_z_engine import RobustDetector
-from anomalydetection.interactor.batch_engine import BatchEngineInteractor
-from anomalydetection.stream import StreamBackend, MessageHandler, T, BatchBase
+from anomalydetection.backend.engine.robust_z_engine import RobustDetector
+from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
+from anomalydetection.backend.stream import StreamBackend, MessageHandler, T, BatchBase
 
 
 class DummyBatch(BatchBase):

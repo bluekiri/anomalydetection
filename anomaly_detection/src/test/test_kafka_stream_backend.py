@@ -2,7 +2,7 @@
 
 import unittest
 
-from anomalydetection.stream.kafka_stream_backend import KafkaStreamBackend
+from anomalydetection.backend.stream.kafka_stream_backend import KafkaStreamBackend
 
 
 class TestPubSubStreamBackend(unittest.TestCase):

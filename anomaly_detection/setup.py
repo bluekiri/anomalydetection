@@ -20,7 +20,9 @@ setup(
     version='0.0.0',
     description='POC anomaly detection bridge',
     long_description='%s\n%s' % (
-        re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.md')),
+        re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('',
+                                                                        read(
+                                                                            'README.md')),
         re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
     ),
     url='',
@@ -28,7 +30,8 @@ setup(
     include_package_data=True,
     packages=find_packages('src', exclude=("tests", "tests.*")),
     package_dir={'': 'src'},
-    py_modules=[path.splitext(path.basename(p))[0] for p in glob.glob('src/*.py')],
+    py_modules=[path.splitext(path.basename(p))[0] for p in
+                glob.glob('src/*.py')],
     classifiers=[
         'Programming Language :: Python :: 3.5.2',
         'Operating System :: Unix',
@@ -36,10 +39,15 @@ setup(
     # It requires latest version of setuptools: pip install --upgrade pip setuptools
     install_requires=[
         # Core dependencies
-        "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy', 'pandas', 'statsmodels', 'bokeh',
+        "kafka-python", 'python-dateutil', 'jsonschema', 'rx', 'numpy',
+        'pandas', 'statsmodels', 'bokeh',
         # Google api lib
-        "oauth2client", "google-auth", "google-auth-httplib2", "google-api-python-client",
+        "oauth2client", "google-auth", "google-auth-httplib2",
+        "google-api-python-client",
         # Google cloud lib
         "google-cloud", "google-cloud-pubsub"
+        # Dashboard
+                        "Flask==0.12.2", "Flask-Admin==1.5.1",
+        "Flask-SQLAlchemy==2.3.2", "Flask-Login==0.4.1"
     ]
 )

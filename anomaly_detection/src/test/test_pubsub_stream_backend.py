@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from anomalydetection.stream.pubsub_stream_backend import PubSubStreamBackend
+from anomalydetection.backend.stream.pubsub_stream_backend import PubSubStreamBackend
 
 
 class TestPubSubStreamBackend(unittest.TestCase):

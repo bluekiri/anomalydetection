@@ -4,9 +4,9 @@ import time
 import unittest
 from collections import Generator
 
-from anomalydetection.engine.robust_z_engine import RobustDetector
-from anomalydetection.interactor.stream_engine import StreamEngineInteractor
-from anomalydetection.stream import StreamBackend, MessageHandler, T, Middleware
+from anomalydetection.backend.engine.robust_z_engine import RobustDetector
+from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
+from anomalydetection.backend.stream import StreamBackend, MessageHandler, T, Middleware
 
 
 class DummyStream(StreamBackend):
