@@ -42,12 +42,13 @@ def main():
     # Creates a middleware that stores all output to a file
     middleware = StoreToFileMiddleware("/tmp/backend_storage.json")
 
-    interactor = StreamEngineInteractor(stream,
-                                        engine,
-                                        InputJsonMessageHandler(),
-                                        middleware=[middleware],
-                                        agg_window_millis=PERIOD_IN_MILLISECONDS,
-                                        agg_function=sum)
+    interactor = StreamEngineInteractor(
+        stream,
+        engine,
+        InputJsonMessageHandler(),
+        middleware=[middleware],
+        agg_window_millis=PERIOD_IN_MILLISECONDS,
+        agg_function=sum)
     interactor.run()
 
 

@@ -26,6 +26,6 @@ class BatchEngineInteractor(object):
                 "value": self.message_handler.extract_value(x),
                 "ts": self.message_handler.extract_ts(x),
                 "anomaly_results": self.engine.predict(
-                    self.message_handler.extract_value(x))
+                    self.message_handler.extract_value(x)).to_dict()
             })
         return processed.to_blocking()
