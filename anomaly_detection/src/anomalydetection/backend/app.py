@@ -8,8 +8,8 @@ from anomalydetection.backend.entities.json_input_message_handler import \
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 from anomalydetection.backend.interactor.stream_engine import \
     StreamEngineInteractor
-from anomalydetection.backend.store_middleware.store_file_middleware import \
-    StoreToFileMiddleware
+from anomalydetection.backend.store_middleware.sqlite_store_middleware import \
+    SqliteStoreMiddleware
 from anomalydetection.backend.stream.stream_factory import StreamFactory
 
 logging.basicConfig()
@@ -24,7 +24,7 @@ def main():
     engine = RobustDetector(30)
 
     # Creates a store_middleware that stores all output to a file
-    middleware = StoreToFileMiddleware(logger)
+    middleware = SqliteStoreMiddleware(logger)
 
     interactor = StreamEngineInteractor(
         stream,
