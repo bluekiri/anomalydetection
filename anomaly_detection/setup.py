@@ -45,9 +45,9 @@ setup(
         "oauth2client", "google-auth", "google-auth-httplib2",
         "google-api-python-client",
         # Google cloud lib
-        "google-cloud", "google-cloud-pubsub"
+        "google-cloud", "google-cloud-pubsub",
         # Dashboard
-                        "Flask==0.12.2", "Flask-Admin==1.5.1",
+        "Flask==0.12.2", "Flask-Admin==1.5.1",
         "Flask-SQLAlchemy==2.3.2", "Flask-Login==0.4.1"
     ]
 )
