@@ -1,4 +1,4 @@
-from flask import Flask, url_for, redirect, render_template, request
+from flask import Flask, url_for, redirect, render_template, request, current_app
 
 # Create Flask application
 from flask_admin import Admin
@@ -46,7 +46,10 @@ def login():
         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
             error = 'Invalid Credentials. Please try again.'
         else:
-            return redirect(url_for('home.index'))
+            redirect_to_index = redirect(url_for('home.index'))
+            response = current_app.make_response(redirect_to_index)
+            response.set_cookie('auth', value='dummy_auth')
+            return response
     return render_template('login.html', error=error)
 
 
@@ -54,14 +57,12 @@ init_login()
 
 admin = Admin(app, 'Example: Auth', index_view=LoginAdminView(), base_template='my_master.html')
 
-is_current_user_validate = IsCurrentUserValidate()
-
 predictions_signal_repository = PredictionSignalRepository()
 
 get_prediction_signal = GetPredictionSignal(predictions_signal_repository)
 
 admin.add_view(
-    HomeView(User, get_sql_connection().session, is_current_user_validate, endpoint="home",
+    HomeView(User, get_sql_connection().session, endpoint="home",
              get_prediction_signal=get_prediction_signal))
 
 if __name__ == '__main__':
