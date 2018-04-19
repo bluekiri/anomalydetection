@@ -22,7 +22,8 @@ class PubSubStreamBackend(StreamBackend):
                  auth_file: str = None) -> None:
 
         super().__init__()
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = auth_file
+        if auth_file:
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", auth_file)
         self.project_id = project_id
         self.topic = output_topic
         self.subscription = subscription
