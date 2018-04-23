@@ -1,17 +1,16 @@
 # -*- coding:utf-8 -*- #
 
-from rx import Observable
-
 from anomalydetection.backend.engine.base_engine import BaseEngine
-from anomalydetection.backend.stream import StreamBackend, MessageHandler
+from anomalydetection.backend.stream import \
+    BaseMessageHandler, BaseObservable
 
 
 class BatchEngineInteractor(object):
 
     def __init__(self,
-                 batch: StreamBackend,
+                 batch: BaseObservable,
                  engine: BaseEngine,
-                 message_handler: MessageHandler) -> None:
+                 message_handler: BaseMessageHandler) -> None:
         super().__init__()
         self.batch = batch
         self.engine = engine
@@ -19,7 +18,7 @@ class BatchEngineInteractor(object):
 
     def process(self) -> list:
 
-        processed = Observable.from_(self.batch.poll()) \
+        processed = self.batch.get_observable() \
             .map(lambda x: self.message_handler.parse_message(x)) \
             .filter(lambda x: self.message_handler.validate_message(x)) \
             .map(lambda x: {

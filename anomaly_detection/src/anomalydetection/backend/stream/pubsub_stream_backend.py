@@ -8,10 +8,10 @@ from queue import Queue
 from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud import pubsub
 
-from anomalydetection.backend.stream import StreamBackend
+from anomalydetection.backend.stream import BaseStreamBackend
 
 
-class PubSubStreamBackend(StreamBackend):
+class PubSubStreamBackend(BaseStreamBackend):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 

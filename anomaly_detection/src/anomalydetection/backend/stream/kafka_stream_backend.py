@@ -5,10 +5,10 @@ from typing import Generator
 
 from kafka import KafkaConsumer, KafkaProducer
 
-from anomalydetection.backend.stream import StreamBackend
+from anomalydetection.backend.stream import BaseStreamBackend
 
 
-class KafkaStreamBackend(StreamBackend):
+class KafkaStreamBackend(BaseStreamBackend):
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)

@@ -4,12 +4,12 @@ from collections import Generator
 from datetime import datetime
 from typing import TypeVar, Generic
 
-from rx import Observer
+from rx import Observer, Observable
 
 T = TypeVar('T')
 
 
-class MessageHandler(Generic[T]):
+class BaseMessageHandler(Generic[T]):
 
     @classmethod
     def parse_message(cls, message: str) -> T:
@@ -28,18 +28,22 @@ class MessageHandler(Generic[T]):
         return datetime.now()
 
 
+class BaseObservable(object):
 
-class StreamBase(object):
+    def get_observable(self):
+        raise NotImplementedError("To implement in child classes.")
+
+
+class BasePollingStream(BaseObservable):
 
     def poll(self) -> Generator:
         raise NotImplementedError("To implement in child classes.")
 
+    def get_observable(self):
+        return Observable.from_(self.poll())
 
-class BatchBase(StreamBase):
-    pass
 
-
-class StreamBackend(StreamBase):
+class BaseStreamBackend(BasePollingStream):
 
     def push(self, message: str) -> None:
         raise NotImplementedError("To implement in child classes.")

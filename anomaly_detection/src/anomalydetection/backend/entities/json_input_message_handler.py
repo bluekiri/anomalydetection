@@ -7,10 +7,10 @@ from datetime import datetime
 from jsonschema import validate
 
 from anomalydetection.backend.entities.input_message import InputMessage
-from anomalydetection.backend.stream import MessageHandler
+from anomalydetection.backend.stream import BaseMessageHandler
 
 
-class InputJsonMessageHandler(MessageHandler[InputMessage]):
+class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)

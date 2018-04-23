@@ -4,9 +4,8 @@ from flask import Flask, url_for, redirect, render_template, request, current_ap
 from flask_admin import Admin
 from flask_login import LoginManager
 
+from anomalydetection.backend.repository.sqlite import SQLiteRepository
 from anomalydetection.dashboard.conf.config import SECRET_KEY, DATA_DB_FILE, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_ECHO
-from anomalydetection.dashboard.interactor.get_prediction_signal import GetPredictionSignal
-from anomalydetection.dashboard.repository.predictions_signal_repository import PredictionSignalRepository
 from anomalydetection.dashboard.repository.sqlite import get_sql_connection
 import os
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +22,6 @@ app.config['SQLALCHEMY_ECHO'] = SQLALCHEMY_ECHO
 get_sql_connection(app)
 
 from anomalydetection.dashboard.entities.user import User
-from anomalydetection.dashboard.interactor.is_current_user_validate import IsCurrentUserValidate
 from anomalydetection.dashboard.view.home_view import HomeView
 from anomalydetection.dashboard.view.login_admin_view import LoginAdminView
 
@@ -57,13 +55,10 @@ init_login()
 
 admin = Admin(app, 'Example: Auth', index_view=LoginAdminView(), base_template='my_master.html')
 
-predictions_signal_repository = PredictionSignalRepository()
-
-get_prediction_signal = GetPredictionSignal(predictions_signal_repository)
+repository = SQLiteRepository(DATA_DB_FILE)
 
 admin.add_view(
-    HomeView(User, get_sql_connection().session, endpoint="home",
-             get_prediction_signal=get_prediction_signal))
+    HomeView(User, None, endpoint="home", repository=repository))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=int(os.getenv("PORT", "5000")))

@@ -3,7 +3,7 @@ from anomalydetection.backend.conf.config import KAFKA_BOOTSTRAP_SERVER, \
     KAFKA_BROKER_SERVER, KAFKA_INPUT_TOPIC, KAFKA_OUTPUT_TOPIC, KAFKA_GROUP_ID, \
     PUBSUB_PROJECT_ID, PUBSUB_SUBSCRIPTION, PUBSUB_OUTPUT_TOPIC, \
     PUBSUB_AUTH_FILE
-from anomalydetection.backend.stream import StreamBackend
+from anomalydetection.backend.stream import BaseStreamBackend
 from anomalydetection.backend.stream.kafka_stream_backend import KafkaStreamBackend
 from anomalydetection.backend.stream.pubsub_stream_backend import PubSubStreamBackend
 
@@ -11,7 +11,7 @@ from anomalydetection.backend.stream.pubsub_stream_backend import PubSubStreamBa
 class StreamFactory(object):
 
     @staticmethod
-    def create_stream() -> StreamBackend:
+    def create_stream() -> BaseStreamBackend:
         if StreamFactory.is_pubsub():
             return StreamFactory.create_pubsub_stream()
         elif StreamFactory.is_kafka():
@@ -34,7 +34,7 @@ class StreamFactory(object):
                and PUBSUB_OUTPUT_TOPIC
 
     @staticmethod
-    def create_pubsub_stream() -> StreamBackend:
+    def create_pubsub_stream() -> BaseStreamBackend:
         return PubSubStreamBackend(
             PUBSUB_PROJECT_ID,
             PUBSUB_SUBSCRIPTION,
@@ -42,7 +42,7 @@ class StreamFactory(object):
             PUBSUB_AUTH_FILE)
 
     @staticmethod
-    def create_kafka_stream() -> StreamBackend:
+    def create_kafka_stream() -> BaseStreamBackend:
         return KafkaStreamBackend(
             KAFKA_BOOTSTRAP_SERVER,
             KAFKA_BROKER_SERVER,

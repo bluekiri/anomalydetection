@@ -6,11 +6,13 @@ from collections import Generator
 from datetime import datetime
 
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
-from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
-from anomalydetection.backend.stream import StreamBackend, MessageHandler, T, BatchBase
+from anomalydetection.backend.interactor.batch_engine import \
+    BatchEngineInteractor
+from anomalydetection.backend.stream import \
+    BaseMessageHandler, T, BasePollingStream
 
 
-class DummyBatch(BatchBase):
+class DummyBatch(BasePollingStream):
 
     def poll(self) -> Generator:
         with open(os.getenv("HOME") + "/anom-detection-predictions.json") as f:
@@ -22,7 +24,7 @@ class DummyBatch(BatchBase):
                     break
 
 
-class InputJsonHandler(MessageHandler[dict]):
+class InputJsonHandler(BaseMessageHandler[dict]):
 
     @classmethod
     def extract_ts(cls, message: dict) -> datetime:

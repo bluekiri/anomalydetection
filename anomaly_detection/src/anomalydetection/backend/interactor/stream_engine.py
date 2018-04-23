@@ -1,33 +1,35 @@
 # -*- coding:utf-8 -*- #
-
-import json
-from typing import Any, List
-
-from anomalydetection.backend.entities.input_message import InputMessage
-from anomalydetection.backend.entities.output_message import OutputMessage
-from rx import Observable
+import logging
+from typing import List
 
 from anomalydetection.backend.engine.base_engine import BaseEngine
+from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.store_middleware import Middleware
-from anomalydetection.backend.stream import StreamBackend, MessageHandler
+from anomalydetection.backend.stream import BaseStreamBackend, \
+    BaseMessageHandler, BaseObservable
 
 
 class StreamEngineInteractor(object):
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
     DEFAULT_AGG_WINDOW = 5 * 60 * 1000
     DEFAULT_AGG_FUNCTION = sum
 
     def __init__(self,
-                 stream: StreamBackend,
+                 stream: BaseStreamBackend,
                  engine: BaseEngine,
-                 message_handler: MessageHandler,
+                 message_handler: BaseMessageHandler,
                  middleware: List[Middleware] = [],
+                 warm_up: BaseObservable = None,
                  agg_function: callable = DEFAULT_AGG_FUNCTION,
                  agg_window_millis: int = DEFAULT_AGG_WINDOW) -> None:
         super().__init__()
         self.stream = stream
         self.engine = engine
         self.middleware = middleware
+        self.warm_up = warm_up
         self.message_handler = message_handler
         self.agg_function = agg_function
         self.agg_window_millis = agg_window_millis
@@ -53,8 +55,16 @@ class StreamEngineInteractor(object):
 
     def run(self):
 
+        if self.warm_up:
+            warm_up = self.warm_up.get_observable() \
+                .map(lambda x: self.build_output_message((x.to_input(),
+                                                          x.agg_value))) \
+                .to_blocking()
+            [x for x in warm_up]  # Force model to consume messages
+        self.logger.info("Warm up completed.")
+
         # Aggregate and map input values.
-        stream = Observable.from_(self.stream.poll()) \
+        stream = self.stream.get_observable() \
             .map(lambda x: self.message_handler.parse_message(x)) \
             .filter(lambda x: self.message_handler.validate_message(x)) \
 

@@ -3,6 +3,8 @@
 import datetime
 import json
 
+from anomalydetection.backend.entities.input_message import InputMessage
+
 
 class AnomalyResult(object):
 
@@ -47,6 +49,15 @@ class OutputMessage(object):
                     agg_function=self.agg_function,
                     agg_value=self.agg_value,
                     ts=self.ts)
+
+    def to_plain_dict(self):
+        me = self.to_dict()
+        me.update(**me['anomaly_results'].copy())
+        del me['anomaly_results']
+        return me
+
+    def to_input(self):
+        return InputMessage(self.application, self.agg_value, self.ts)
 
     def __str__(self):
         response = self.to_dict()
