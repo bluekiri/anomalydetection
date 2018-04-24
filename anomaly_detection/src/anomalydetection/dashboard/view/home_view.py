@@ -27,20 +27,21 @@ class HomeView(BaseView):
 
     def create_figure(self):
 
-        params = {"engine": "robust", "window": 80, "threshold": 0.99}
         data = request.args.to_dict()
-        params.update(data)
 
+        days = int(data["days"]) if "days" in data else 7
         to_ts = datetime.datetime.now()
-        from_ts = to_ts - datetime.timedelta(days=7)
+        from_ts = to_ts - datetime.timedelta(days=days)
         observable = ObservableSQLite(self.repository,
                                       from_ts, to_ts)
 
-        reprocessed = BatchEngineInteractor(observable,
-                                            EngineFactory(**params).get(),
-                                            OutputMessageHandler()).process()
+        ticks = observable.get_observable().to_blocking()
+        if "engine" in data:
+            ticks = BatchEngineInteractor(observable,
+                                          EngineFactory(**data).get(),
+                                          OutputMessageHandler()).process()
 
-        predictions = [x.to_plain_dict() for x in reprocessed]
+        predictions = [x.to_plain_dict() for x in ticks]
         df = pd.DataFrame(predictions)
         df["ts"] = pd.to_datetime(df["ts"])
 
