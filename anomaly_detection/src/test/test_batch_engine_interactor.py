@@ -5,42 +5,22 @@ import unittest
 from collections import Generator
 from datetime import datetime
 
+from anomalydetection.backend.entities import BaseMessageHandler, T
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
+from anomalydetection.backend.entities.input_message import InputMessage
+from anomalydetection.backend.entities.json_input_message_handler import InputJsonMessageHandler
 from anomalydetection.backend.interactor.batch_engine import \
     BatchEngineInteractor
 from anomalydetection.backend.stream import \
-    BaseMessageHandler, T, BasePollingStream
+    BasePollingStream
 
 
 class DummyBatch(BasePollingStream):
 
     def poll(self) -> Generator:
-        with open(os.getenv("HOME") + "/anom-detection-predictions.json") as f:
-            while True:
-                line = f.readline()
-                if line:
-                    yield line
-                else:
-                    break
-
-
-class InputJsonHandler(BaseMessageHandler[dict]):
-
-    @classmethod
-    def extract_ts(cls, message: dict) -> datetime:
-        return message["ts"]
-
-    @classmethod
-    def parse_message(cls, message: str) -> T:
-        return json.loads(message)
-
-    @classmethod
-    def extract_value(cls, message: dict) -> float:
-        return message["agg_value"]
-
-    @classmethod
-    def validate_message(cls, message: dict) -> bool:
-        return True
+        for i in range(100):
+            line = json.dumps({"application": "test", "value": i, "ts": str(datetime.now())})
+            yield line
 
 
 class TestBatchEngineInteractor(unittest.TestCase):
@@ -52,7 +32,7 @@ class TestBatchEngineInteractor(unittest.TestCase):
         interactor = BatchEngineInteractor(
             stream,
             engine,
-            InputJsonHandler())
+            InputJsonMessageHandler())
         data = interactor.process()
         for i in data:
             print(i)

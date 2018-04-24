@@ -4,6 +4,8 @@ from typing import Any
 
 import dateutil.parser
 
+from anomalydetection.backend.entities import BaseMessageHandler, T
+
 
 class InputMessage:
 
@@ -21,3 +23,19 @@ class InputMessage:
             self.ts = ts
         self.value = value
         self.application = application
+
+
+class InputMessageHandler(BaseMessageHandler[InputMessage]):
+
+    @classmethod
+    def parse_message(cls, message: InputMessage) -> InputMessage:
+        return message
+
+    @classmethod
+    def extract_value(cls, message: InputMessage) -> float:
+        return message.value
+
+    @classmethod
+    def validate_message(cls, message: InputMessage) -> bool:
+        return True
+

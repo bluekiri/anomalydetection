@@ -3,10 +3,11 @@ import logging
 from typing import List
 
 from anomalydetection.backend.engine.base_engine import BaseEngine
+from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.store_middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend, \
-    BaseMessageHandler, BaseObservable
+    BaseObservable
 
 
 class StreamEngineInteractor(object):
@@ -60,8 +61,8 @@ class StreamEngineInteractor(object):
                 .map(lambda x: self.build_output_message((x.to_input(),
                                                           x.agg_value))) \
                 .to_blocking()
-            [x for x in warm_up]  # Force model to consume messages
-        self.logger.info("Warm up completed.")
+            len([x for x in warm_up])  # Force model to consume messages
+            self.logger.info("Warm up completed.")
 
         # Aggregate and map input values.
         stream = self.stream.get_observable() \

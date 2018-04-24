@@ -7,7 +7,7 @@ from datetime import datetime
 from jsonschema import validate
 
 from anomalydetection.backend.entities.input_message import InputMessage
-from anomalydetection.backend.stream import BaseMessageHandler
+from anomalydetection.backend.entities import BaseMessageHandler
 
 
 class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):

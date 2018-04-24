@@ -3,6 +3,7 @@
 import datetime
 import json
 
+from anomalydetection.backend.entities import BaseMessageHandler, T
 from anomalydetection.backend.entities.input_message import InputMessage
 
 
@@ -63,3 +64,18 @@ class OutputMessage(object):
         response = self.to_dict()
         response["ts"] = str(response["ts"])  # Datetime to string
         return json.dumps(response)
+
+
+class OutputMessageHandler(BaseMessageHandler[InputMessage]):
+
+    @classmethod
+    def parse_message(cls, message: OutputMessage) -> InputMessage:
+        return message.to_input()
+
+    @classmethod
+    def extract_value(cls, message: InputMessage) -> float:
+        return message.value
+
+    @classmethod
+    def validate_message(cls, message: InputMessage) -> bool:
+        return True

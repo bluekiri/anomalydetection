@@ -7,6 +7,10 @@ from flask_admin import expose, BaseView
 from bokeh.plotting import figure
 import pandas as pd
 
+from anomalydetection.backend.engine.engine_factory import EngineFactory
+from anomalydetection.backend.engine.robust_z_engine import RobustDetector
+from anomalydetection.backend.entities.output_message import OutputMessageHandler
+from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
 from anomalydetection.backend.repository import BaseRepository
 from anomalydetection.backend.repository.sqlite import ObservableSQLite
 
@@ -23,14 +27,20 @@ class HomeView(BaseView):
 
     def create_figure(self):
 
+        params = {"engine": "robust", "window": 80, "threshold": 0.99}
+        data = request.args.to_dict()
+        params.update(data)
+
         to_ts = datetime.datetime.now()
         from_ts = to_ts - datetime.timedelta(days=7)
         observable = ObservableSQLite(self.repository,
-                                      from_ts, to_ts) \
-            .get_observable() \
-            .to_blocking()
+                                      from_ts, to_ts)
 
-        predictions = [x.to_plain_dict() for x in observable]
+        reprocessed = BatchEngineInteractor(observable,
+                                            EngineFactory(**params).get(),
+                                            OutputMessageHandler()).process()
+
+        predictions = [x.to_plain_dict() for x in reprocessed]
         df = pd.DataFrame(predictions)
         df["ts"] = pd.to_datetime(df["ts"])
 
