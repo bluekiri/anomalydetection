@@ -61,7 +61,7 @@ services:
       - kafka_wait_for
   writes_app:
     build:
-      context: anomaly_detection
+      context: anomalydetection
       dockerfile: Dockerfile
     container_name: poc_anomaly_detection_writes
     links:
@@ -79,7 +79,7 @@ services:
 
   read_app:
     build:
-      context: anomaly_detection
+      context: anomalydetection
       dockerfile: Dockerfile
     container_name: poc_anomaly_detection_read
     links:

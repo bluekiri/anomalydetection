@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Meta -->
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- favicon -->
+  <link rel="icon" href="/static/dashboard/frankenstein.png" sizes="16x16 32x32 64x64 128x128" type="image/png">
+  <!-- Title -->
+  <title>{% block h_title %}Anomaly Detection Dashboard{% end %}</title>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css" />
+  <!-- Admin LTE -->
+  <link rel="stylesheet" href="/static/vendor/admin-lte/css/AdminLTE.min.css" />
+  <link rel="stylesheet" href="/static/vendor/admin-lte/css/skins/_all-skins.min.css" />
+  <!-- Font awesome -->
+  <link rel="stylesheet" href="/static/vendor/font-awesome/css/font-awesome.min.css" />
+  <!-- Pace script and style -->
+  <script src="/static/vendor/admin-lte/pace/pace.min.js"></script>
+  <link rel="stylesheet" href="/static/vendor/admin-lte/pace/pace.min.css">
+  <!-- jQuery -->
+  <script src="/static/vendor/jquery/jquery.min.js"></script>
+  <script src="/static/vendor/mustache.js/mustache.min.js"></script>
+  <script src="/static/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/static/vendor/admin-lte/js/adminlte.min.js"></script>
+  <!-- Dashboard CSS -->
+  <link rel="stylesheet" href="/static/dashboard/css/main.css">
+  {% block head %}{% end %}
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+  <div class="wrapper">
+
+    <header class="main-header">
+      <!-- Logo -->
+      <a href="/" class="logo">
+        <!-- mini logo for sidebar mini 50x50 pixels -->
+        <span class="logo-mini"><b>AD</b></span>
+        <!-- logo for regular state and mobile devices -->
+        <span class="logo-lg"><b>Anomaly</b> Detection</span>
+      </a>
+      <!-- Header Navbar: style can be found in header.less -->
+      <nav class="navbar navbar-static-top">
+        <!-- Sidebar toggle button-->
+        <a href="#" class="sidebar-toggle" role="button" data-toggle="push-menu">
+          <span class="sr-only">Toggle navigation</span>
+        </a>
+
+        <div class="navbar-custom-menu">
+          <ul class="nav navbar-nav">
+            <!-- User Account: style can be found in dropdown.less -->
+            {% block nav %}{% end %}
+            <li class="dropdown user user-menu">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-user" aria-hidden="true"></i>
+                <span class="hidden-xs">{{ username }}</span>
+              </a>
+              <ul class="dropdown-menu">
+              <!-- User image -->
+              <li class="user-header">
+                <img src="http://placehold.it/90x90" class="img-circle" alt="User Image">
+                <p>
+                  {{ username }}
+                </p>
+              </li>
+              <!-- Menu Body -->
+              <li class="user-body">
+                <div class="row">
+                </div>
+                <!-- /.row -->
+              </li>
+              <!-- Menu Footer-->
+              <li class="user-footer">
+                <div class="pull-left">
+                  <a href="/profile" class="btn btn-default btn-flat">Profile</a>
+                </div>
+                <div class="pull-right">
+                  <a href="/logout" class="btn btn-default btn-flat">Sign out</a>
+                </div>
+              </li>
+            </ul>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+      <!-- sidebar: style can be found in sidebar.less -->
+      <section class="sidebar">
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu">
+          <li class="header">MAIN NAVIGATION</li>
+          <li><a href="/"><i class="fa fa-home"></i> <span>Home</span></a></li>
+        </ul>
+      </section>
+      <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+      <!-- Content Header (Page header) -->
+      <section class="content-header">
+        <h1>
+          {% block title %}{% end %}
+          <small>{% block subtitle %}{% end %}</small>
+        </h1>
+        <div id="after-title"></div>
+        <ol class="breadcrumb">
+          <li><a href="/"><strong>Anomaly Detection</strong></a></li>
+          <li class="active">{% block title %}{% end %}</li>
+        </ol>
+      </section>
+
+      <!-- Main content -->
+      <section class="content">
+        {% block content %}{% end %}
+      </section>
+      <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <footer class="main-footer">
+      <div class="pull-right hidden-xs">
+        <b>Version</b> 0.1
+      </div>
+      <strong>Anomaly detection framework <a href="http://bluekiri.com">Bluekiri</a></strong>
+    </footer>
+    <!-- Add the sidebar's background. This div must be placed
+         immediately after the control sidebar -->
+    <div class="control-sidebar-bg"></div>
+  </div>
+  <!-- ./wrapper -->
+  <script src="/static/dashboard/js/functions.js"></script>
+  <script src="/static/dashboard/js/main.js"></script>
+  {% block js %}
+  {% end %}
+  <!-- alert -->
+  <script id="alert" type="x-tmpl-mustache">
+    <div class="alert alert-{{! type }} alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+      <h4><i class="icon fa fa-ban"></i>{{! title }}</h4>
+      {{! message }}
+    </div>
+  </script>
+  <!-- ./ alert-->
+</body>
+</html>

@@ -1,0 +1,73 @@
+{
+  "name": "anomaly-detector-dashboard",
+  "version": "0.0.0",
+  "homepage": "http://bluekiri.com",
+  "authors": [
+    "Cristòfol Torrens <tofol.torrens@bluekiri.com>"
+  ],
+  "description": "JavaScript dependencies",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "(c)",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "admin-lte": "2.4.3",
+    "font-awesome": "^4.7.0",
+    "jquery": "3.1.1",
+    "mustache.js": "mustache#^2.2.1",
+    "bokeh"
+  },
+  "resolutions": {
+    "jquery": "~3.1.1"
+  },
+  "install": {
+    "path": "static/vendor",
+    "sources": {
+      "bootstrap": "bower_components/bootstrap/dist/**",
+      "admin-lte": [
+        "bower_components/admin-lte/dist/**",
+        "bower_components/admin-lte/plugins/**"
+      ],
+      "jquery": [
+        "bower_components/jquery/dist/core.js",
+        "bower_components/jquery/dist/jquery.min.js",
+        "bower_components/jquery/dist/jquery.slim.js",
+        "bower_components/jquery/dist/jquery.slim.js.map"
+      ],
+      "font-awesome": {
+        "mapping": [
+          {
+            "bower_components/font-awesome/css/font-awesome.min.css": "css/font-awesome.min.css"
+          },
+          {
+            "bower_components/font-awesome/fonts/FontAwesome.otf": "fonts/FontAwesome.otf"
+          },
+          {
+            "bower_components/font-awesome/fonts/fontawesome-webfont.eot": "fonts/fontawesome-webfont.eot"
+          },
+          {
+            "bower_components/font-awesome/fonts/fontawesome-webfont.svg": "fonts/fontawesome-webfont.svg"
+          },
+          {
+            "bower_components/font-awesome/fonts/fontawesome-webfont.ttf": "fonts/fontawesome-webfont.ttf"
+          },
+          {
+            "bower_components/font-awesome/fonts/fontawesome-webfont.woff": "fonts/fontawesome-webfont.woff"
+          },
+          {
+            "bower_components/font-awesome/fonts/fontawesome-webfont.woff2": "fonts/fontawesome-webfont.woff2"
+          }
+        ]
+      },
+      "mustache.js": "bower_components/mustache.js/mustache.min.js"
+    }
+  }
+}

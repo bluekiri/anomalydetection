@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Home{% end %}
+{% block head %}
+	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.15.css"
+        type="text/css" />
+  <script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js"></script>
+  <script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js"></script>
+{% end %}
+{% block nav %}
+<li class="dropdown messages-menu">
+  <a href="#" id="ws-indicator" class="dropdown-toggle" title="WS not connected"
+      data-placement="bottom">
+    <i class="fa fa-circle text-red"></i>
+    <span class="label label-success"></span>
+  </a>
+</li>
+{% end %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12">
+    <div class="box box-primary">
+      {% raw div %}
+    </div>
+  </div>
+  <!-- /.col -->
+</div>
+<!-- /.row -->
+
+{% block script%}
+  {% raw script %}
+{% end %}
+<!-- Script -->
+{% end %}

@@ -207,3 +207,7 @@ venv.bak/
 # kafka confluence plugin for streamz
 librdkafka-0.9.2-RC1/
 # End of https://www.gitignore.io/api/python,pycharm,intellij+all
+
+# Bower components
+anomalydetection/src/anomalydetection/dashboard/bower_components
+anomalydetection/src/anomalydetection/dashboard/static/vendor
