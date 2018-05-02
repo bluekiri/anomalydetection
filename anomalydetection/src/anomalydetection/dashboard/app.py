@@ -21,8 +21,9 @@ app = Application(urls, **settings)
 if __name__ == '__main__':
 
     # Parse arguments
-    parser = argparse.ArgumentParser(description="Frankenstein Visualization tool")
-    parser.add_argument("--listen", metavar="N", type=int, help="Port to listen to.", default=8031)
+    parser = argparse.ArgumentParser(description="Dashboard")
+    parser.add_argument("--listen", metavar="N", type=int,
+                        help="Port to listen to.", default=8031)
     args = parser.parse_args()
 
     # Start server
