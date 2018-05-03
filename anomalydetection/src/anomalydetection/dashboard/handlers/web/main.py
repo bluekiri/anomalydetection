@@ -9,10 +9,13 @@ from tornado.web import RequestHandler
 from anomalydetection.backend.engine.engine_factory import EngineFactory
 from anomalydetection.backend.entities.output_message import OutputMessageHandler
 from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
-from anomalydetection.backend.repository.sqlite import ObservableSQLite, SQLiteRepository
+from anomalydetection.backend.repository.sqlite import ObservableSQLite
+from anomalydetection.backend.repository.sqlite import SQLiteRepository
 from anomalydetection.dashboard.conf import DATA_DB_FILE
-from anomalydetection.dashboard.lib.handlers.html.base_html import BaseHTMLHandler
-from anomalydetection.dashboard.lib.handlers.html.secure_html import SecureHTMLHandler
+from anomalydetection.dashboard.handlers.base.html \
+    import BaseHTMLHandler
+from anomalydetection.dashboard.handlers.base.html \
+    import SecureHTMLHandler
 
 
 class Chart(RequestHandler):

@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-File: BaseHandler.py
-Author: Cristòfol Torrens Morell <tofol.torrens@logitravel.com>
-Description: Base handler
-"""
-
 import traceback
 
 from tornado.escape import json_encode

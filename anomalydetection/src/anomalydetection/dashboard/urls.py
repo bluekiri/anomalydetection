@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from anomalydetection.dashboard.handlers.auth import Login, Logout
-from anomalydetection.dashboard.handlers.main import Home
-from anomalydetection.dashboard.handlers.main import Maintenance, MaintenanceEnable, MaintenanceDisable
+from anomalydetection.dashboard.handlers.web.auth import Login, Logout
+from anomalydetection.dashboard.handlers.web.main import Home
+from anomalydetection.dashboard.handlers.web.main import Maintenance
+from anomalydetection.dashboard.handlers.web.main import MaintenanceEnable
+from anomalydetection.dashboard.handlers.web.main import MaintenanceDisable
 from anomalydetection.dashboard.handlers.ws.websocket import WebSocket
 
-from anomalydetection.dashboard.handlers.errors import NotFound
+from anomalydetection.dashboard.handlers.web.errors import NotFound
 
 urls = [
     (r'/?', Home),

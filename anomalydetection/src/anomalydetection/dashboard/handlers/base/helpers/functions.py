@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-File: funtions.py
-Author: Cristòfol Torrens Morell <tofol.torrens@logitravel.com>
-Description: Common used functions
-"""
-
 from time import mktime
 from datetime import datetime
 

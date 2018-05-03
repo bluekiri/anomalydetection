@@ -5,7 +5,7 @@ import os
 from anomalydetection.dashboard.conf import config
 
 # Settings
-from anomalydetection.dashboard.lib import ui
+from anomalydetection.dashboard.handlers.base import ui
 
 print(os.path.join(os.path.realpath(os.curdir)))
 settings = {

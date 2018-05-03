@@ -2,8 +2,10 @@
 
 from tornado import web
 
-from anomalydetection.dashboard.lib.handlers.json.base_json import BaseJSONHandler
-from anomalydetection.dashboard.lib.handlers.html.auth import AuthMixin
+from dashboard.handlers.base.json.base_json \
+    import BaseJSONHandler
+from dashboard.handlers.base.html \
+    import AuthMixin
 
 
 class SecureJSONHandler(BaseJSONHandler, AuthMixin):

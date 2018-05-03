@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from anomalydetection.dashboard.lib.handlers.json.base_json import BaseJSONHandler
-from anomalydetection.dashboard.lib.handlers.json.secure_json import SecureJSONHandler
+from anomalydetection.dashboard.base.handlers.json.base_json import BaseJSONHandler
+from anomalydetection.dashboard.base.handlers.json.secure_json import SecureJSONHandler
 
 
 class UnsecureHandler(BaseJSONHandler):

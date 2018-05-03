@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-File: app.py
-Author: Cristòfol Torrens Morell <tofol.torrens@v5tech.es>
-Description: Tour service
-"""
-
-import argparse
+import os
 
 from tornado import ioloop
 from tornado.web import Application
@@ -20,13 +14,8 @@ app = Application(urls, **settings)
 # Main, start server
 if __name__ == '__main__':
 
-    # Parse arguments
-    parser = argparse.ArgumentParser(description="Dashboard")
-    parser.add_argument("--listen", metavar="N", type=int,
-                        help="Port to listen to.", default=8031)
-    args = parser.parse_args()
-
     # Start server
-    print("Server listening on port: %s" % args.listen)
-    app.listen(args.listen)
+    port = os.getenv("PORT", "5000")
+    print("Server listening on port: %s" % port)
+    app.listen(int(port))
     ioloop.IOLoop.current().start()

@@ -22,8 +22,7 @@
     "admin-lte": "2.4.3",
     "font-awesome": "^4.7.0",
     "jquery": "3.1.1",
-    "mustache.js": "mustache#^2.2.1",
-    "bokeh"
+    "mustache.js": "mustache#^2.2.1"
   },
   "resolutions": {
     "jquery": "~3.1.1"

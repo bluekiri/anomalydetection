@@ -4,16 +4,16 @@ import time
 import unittest
 from collections import Generator
 
-from rx import Observable
-
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
-from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities import BaseMessageHandler
+from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import WarmUp
-from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
+from anomalydetection.backend.interactor.stream_engine import \
+    StreamEngineInteractor
 from anomalydetection.backend.store_middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend
+from rx import Observable
 
 
 class DummyStream(BaseStreamBackend):

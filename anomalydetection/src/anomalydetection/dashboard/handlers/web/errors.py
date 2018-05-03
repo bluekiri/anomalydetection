@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from anomalydetection.dashboard.lib.handlers.html.secure_html import SecureHTMLHandler
-from anomalydetection.dashboard.lib.helpers.error import Error
+from anomalydetection.dashboard.handlers.base.html import SecureHTMLHandler
+from anomalydetection.dashboard.handlers.base.helpers.error import Error
 
 
 class NotFound(SecureHTMLHandler):

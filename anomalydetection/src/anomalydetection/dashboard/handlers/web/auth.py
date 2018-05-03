@@ -2,7 +2,7 @@
 
 import uuid
 
-from anomalydetection.dashboard.lib.handlers.html.base_html import BaseHTMLHandler
+from anomalydetection.dashboard.handlers.base.html import BaseHTMLHandler
 
 
 class Login(BaseHTMLHandler):

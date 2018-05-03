@@ -6,7 +6,7 @@ import traceback
 from tornado import gen
 from tornado.escape import json_encode
 
-from anomalydetection.dashboard.lib.handlers.BaseHandler import BaseHandler
+from anomalydetection.dashboard.base.handlers.BaseHandler import BaseHandler
 
 
 class BaseJSONHandler(BaseHandler):

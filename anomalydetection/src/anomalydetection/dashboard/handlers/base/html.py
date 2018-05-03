@@ -2,8 +2,11 @@
 
 import traceback
 
-from anomalydetection.dashboard.lib.handlers.BaseHandler import BaseHandler
-from anomalydetection.dashboard.lib.helpers.error import Error
+from tornado import web
+from tornado.web import RequestHandler
+
+from anomalydetection.dashboard.handlers.base.helpers.error import Error
+from anomalydetection.dashboard.handlers.base import BaseHandler
 
 
 class BaseHTMLHandler(BaseHandler):
@@ -48,3 +51,37 @@ class BaseHTMLHandler(BaseHandler):
     def print_error(self, error):
         self.set_status(error.code, error.message)
         self.render(self.error_template, error=error)
+
+
+class AuthMixin(RequestHandler):
+
+    def data_received(self, chunk):
+        pass
+
+    def get_current_user(self):
+        return self.get_secure_cookie("session")
+
+    def get_display_name(self):
+        return self.get_secure_cookie("user")
+
+
+class SecureHTMLHandler(BaseHTMLHandler, AuthMixin):
+
+    def response(self, **kwargs):
+        maintenance = False
+        if maintenance:
+            self.redirect("/maintenance/")
+        else:
+            self.set_status(self.default_response_code)
+            self.render(self.template, **kwargs)
+
+    @web.authenticated
+    def render(self, template_name, **kwargs):
+        return super(SecureHTMLHandler,
+                     self).render(template_name,
+                                  username=self.get_display_name(),
+                                  **kwargs)
+
+
+class ErrorHandler(SecureHTMLHandler):
+    pass
