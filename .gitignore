@@ -209,8 +209,8 @@ librdkafka-0.9.2-RC1/
 # End of https://www.gitignore.io/api/python,pycharm,intellij+all
 
 # Bower components
-anomalydetection/src/anomalydetection/dashboard/bower_components
-anomalydetection/src/anomalydetection/dashboard/static/vendor
+src/anomalydetection/dashboard/bower_components
+src/anomalydetection/dashboard/static/vendor
 
 # Testing
 cover
