@@ -3,8 +3,8 @@
 import os
 import time
 import unittest
-
-from google.cloud import pubsub
+import test
+from google.api_core.exceptions import AlreadyExists
 
 from anomalydetection.backend.stream.pubsub_stream_backend import \
     PubSubStreamBackend
@@ -12,42 +12,48 @@ from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
 from rx import Observable
 
 
-class TestPubSubStreamBackend(unittest.TestCase):
+class TestPubSubStreamBackend(unittest.TestCase, test.LoggingMixin):
+
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+        self.passed = False
 
     def test(self):
 
         message = "hello world!"
 
-        publisher = PublisherClient()
-        publisher.create_topic(publisher.topic_path("testing", "test0"))
-        publisher.create_topic(publisher.topic_path("testing", "test1"))
+        try:
+            publisher = PublisherClient()
+            publisher.create_topic(publisher.topic_path("testing", "test0"))
 
-        subscriber = SubscriberClient()
-        subscriber.create_subscription(
-            subscriber.subscription_path("testing", "test0"),
-            subscriber.topic_path("testing", "test0"))
+            subscriber = SubscriberClient()
+            subscriber.create_subscription(
+                subscriber.subscription_path("testing", "test0"),
+                subscriber.topic_path("testing", "test0"))
+        except AlreadyExists as ex:
+            pass
 
-        pubsub = PubSubStreamBackend(
-            "testing",
-            os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
-            "test0", "test1")
+        pubsub = PubSubStreamBackend("testing", "test0", "test0")
+        messages = pubsub.poll()
 
-        def push_and_sleep(arg0):
+        def push(arg0):
+            if not self.passed and arg0 > 10:
+                raise Exception("No message received")
             pubsub.push(message)
-            time.sleep(1)
 
         def raise_error():
-            raise Exception("No message received")
+            self.logger.debug("Completed")
 
-        Observable.interval(10) \
-            .map(push_and_sleep) \
+        Observable.interval(1000) \
+            .map(push) \
             .subscribe(on_completed=raise_error)
 
         # Poll
-        messages = pubsub.poll()
         if messages:
             for msg in messages:
                 self.assertEqual(message, msg)
+                self.passed = True
+                break
         else:
             raise Exception("Cannot consume published message.")
 

@@ -1,23 +1,27 @@
 # -*- coding:utf-8 -*- #
-import os
+
 import time
 import unittest
-import threading
 
 from anomalydetection.backend.stream.kafka_stream_backend import \
     KafkaStreamBackend
 from rx import Observable
+from test import config
 from test import LoggingMixin
 
 
 class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
+
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+        self.passed = False
 
     def test(self):
 
         message = "hello world!"
 
         self.logger.info("Testing Kafka StreamBackend")
-        kafka_broker = os.environ["KAFKA_BROKER"]
+        kafka_broker = config["KAFKA_BROKER"]
         kafka = KafkaStreamBackend(kafka_broker,
                                    kafka_broker,
                                    "test1",
@@ -30,15 +34,16 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         # Publish
         self.logger.info("Publishing message")
 
-        def push_and_sleep(arg0):
+        def push(arg0):
+            if not self.passed and arg0 > 10:
+                raise Exception("No message received")
             kafka.push(message)
-            time.sleep(1)
 
         def raise_error():
-            raise Exception("No message received")
+            self.logger.debug("Completed")
 
-        Observable.interval(10) \
-            .map(push_and_sleep) \
+        Observable.interval(1000) \
+            .map(push) \
             .subscribe(on_completed=raise_error)
 
         # Poll
@@ -47,6 +52,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             for i in messages:
                 self.logger.info("Next: {}".format(i))
                 self.assertEqual(message, i)
+                self.passed = True
                 kafka.kafka_consumer.unsubscribe()
                 break
         else:

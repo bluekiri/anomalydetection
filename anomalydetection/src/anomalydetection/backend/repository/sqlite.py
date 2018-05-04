@@ -21,16 +21,14 @@ class SQLiteRepository(BaseRepository):
         # Check if table exists
         self.conn = sqlite3.connect(self.conn_string)
         cur = self.conn.cursor()
-        check = list(
-            cur.execute("""
-                SELECT COUNT(*)
-                FROM sqlite_master
-                WHERE 1
-                AND type='table'
-                AND name='predictions'""")
-            )
+        check = cur.execute("""
+          SELECT COUNT(*)
+          FROM sqlite_master
+          WHERE 1
+          AND type='table'
+          AND name='predictions'""").fetchone()
 
-        if not check:
+        if not check or not check[0]:
             cur.execute("""
                 CREATE TABLE predictions (
                     application text,
@@ -73,7 +71,7 @@ class SQLiteRepository(BaseRepository):
         anomaly_value = [anomaly_results.value_upper_limit,
                          anomaly_results.anomaly_probability,
                          anomaly_results.value_lower_limit,
-                         anomaly_results.is_anomaly]
+                         int(anomaly_results.is_anomaly)]
         root_value = ["'%s'" % message.application,
                       "'%s'" % message.ts,
                       "'%s'" % message.agg_function,
