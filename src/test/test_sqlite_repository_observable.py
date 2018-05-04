@@ -26,7 +26,7 @@ class SQLiteObservableRepository(unittest.TestCase, LoggingMixin):
         self.repo.insert(OutputMessage("app", anom, 1, "none",
                                        1, ts=datetime.now()))
 
-    def test(self):
+    def test_observable_sqlite(self):
         obs_rep = ObservableSQLite(self.repo)
         obs_rep.get_observable() \
             .subscribe(lambda x: self.logger.debug(str(x)))

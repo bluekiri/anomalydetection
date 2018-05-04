@@ -26,7 +26,7 @@ class DummyBatch(BasePollingStream):
 
 class TestBatchEngineInteractor(unittest.TestCase, LoggingMixin):
 
-    def test(self):
+    def test_batch_engine_interactor(self):
 
         stream = DummyBatch()
         engine = RobustDetector(30, 0.98)
