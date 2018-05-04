@@ -4,12 +4,12 @@ from datetime import datetime
 
 from tornado.testing import AsyncHTTPTestCase
 
-from anomalydetection.backend.entities.output_message import OutputMessage, AnomalyResult
+from anomalydetection.backend.entities.output_message import OutputMessage
+from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
 from anomalydetection.dashboard.app import make_app
 
-from anomalydetection.dashboard.settings import config as dconfig
-from test import config as tconfig
+from test import config
 
 
 class TestDashboard(AsyncHTTPTestCase):
@@ -26,7 +26,7 @@ class TestDashboard(AsyncHTTPTestCase):
         super().setUp()
 
         # Insert some data
-        repository = SQLiteRepository(tconfig["DATA_DB_FILE"])
+        repository = SQLiteRepository(config["DATA_DB_FILE"])
 
         repository.initialize()
         anom = AnomalyResult(-1, 1, 0.5, False)
@@ -41,7 +41,7 @@ class TestDashboard(AsyncHTTPTestCase):
 
     def get_app(self):
         from anomalydetection.dashboard.settings import settings
-        settings["conf"]["DATA_DB_FILE"] = tconfig["DATA_DB_FILE"]
+        settings["conf"]["DATA_DB_FILE"] = config["DATA_DB_FILE"]
         return make_app(settings)
 
     def test_homepage(self):
