@@ -21,3 +21,4 @@ config = {
 os.environ["DATA_DB_FILE"] = config["DATA_DB_FILE"]
 os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
 os.environ["PUBSUB_PROJECT_ID"] = "testing"
+os.environ["ASYNC_TEST_TIMEOUT"] = "100"

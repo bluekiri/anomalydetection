@@ -8,8 +8,13 @@ from tornado.web import Application
 from anomalydetection.dashboard.urls import urls
 from anomalydetection.dashboard.settings import settings
 
+
+def make_app(kwargs):
+    return Application(urls, **kwargs)
+
+
 # Configure app with settings and urls
-app = Application(urls, **settings)
+app = make_app(settings)
 
 # Main, start server
 if __name__ == '__main__':

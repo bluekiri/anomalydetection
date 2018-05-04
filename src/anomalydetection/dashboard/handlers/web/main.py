@@ -11,7 +11,6 @@ from anomalydetection.backend.entities.output_message import OutputMessageHandle
 from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
 from anomalydetection.backend.repository.sqlite import ObservableSQLite
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
-from anomalydetection.dashboard.conf import DATA_DB_FILE
 from anomalydetection.dashboard.handlers.base.html \
     import BaseHTMLHandler
 from anomalydetection.dashboard.handlers.base.html \
@@ -27,7 +26,8 @@ class Chart(RequestHandler):
         days = int(data["days"]) if "days" in data else 7
         to_ts = datetime.datetime.now()
         from_ts = to_ts - datetime.timedelta(days=days)
-        observable = ObservableSQLite(SQLiteRepository(DATA_DB_FILE),
+        file_db = self.application.settings['conf']['DATA_DB_FILE']
+        observable = ObservableSQLite(SQLiteRepository(file_db),
                                       from_ts, to_ts)
 
         ticks = observable.get_observable().to_blocking()
@@ -52,7 +52,7 @@ class Chart(RequestHandler):
                line_width=1, color='red', alpha=0.5)
         p.line(df["ts"], df["value_upper_limit"], legend="Upper bound",
                line_width=1, color='blue', alpha=0.5)
-        p.line(df["ts"], df["agg_value"], legend=df.ix[0]["application"],
+        p.line(df["ts"], df["agg_value"], legend=df.iloc[0]["application"],
                line_width=2, color='green')
         p.circle(anomaly["ts"], anomaly["agg_value"], fill_color="red", size=8)
 
@@ -67,32 +67,6 @@ class Home(SecureHTMLHandler, Chart):
         plot = await self.create_figure()
         script, div = components(plot)
         self.response(script=script, div=div)
-
-
-class Documentation(SecureHTMLHandler):
-
-    template = "docs.html"
-
-    async def get(self):
-        self.response()
-
-
-class CategoriesSettings(SecureHTMLHandler):
-
-    template = "categories_settings.html"
-
-    async def get(self):
-        self.response()
-
-
-class HotelFile(SecureHTMLHandler):
-
-    template = "hotel_file.html"
-
-    async def get(self):
-        hotel = self.get_argument("hotel", "")
-        aws_s3_url = self.application.settings['conf']['aws']['s3']['url']
-        self.response(hotel=hotel, aws_s3_url=aws_s3_url)
 
 
 class Maintenance(BaseHTMLHandler):

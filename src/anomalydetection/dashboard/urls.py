@@ -11,9 +11,9 @@ from anomalydetection.dashboard.handlers.web.errors import NotFound
 
 urls = [
     (r'/?', Home),
-    (r'/maintenance/?', Maintenance),
-    (r'/maintenance/enable/?', MaintenanceEnable),
     (r'/maintenance/disable/?', MaintenanceDisable),
+    (r'/maintenance/enable/?', MaintenanceEnable),
+    (r'/maintenance/?', Maintenance),
     (r'/login/?', Login),
     (r'/logout/?', Logout),
     (r'/ws/?', WebSocket),

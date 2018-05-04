@@ -17,10 +17,14 @@ class SQLiteObservableRepository(unittest.TestCase, LoggingMixin):
         self.repo = SQLiteRepository(config["DATA_DB_FILE"])
         self.repo.initialize()
         anom = AnomalyResult(-1, 1, 0.5, False)
-        self.repo.insert(OutputMessage("app", anom, 1, "none", 1, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, "none", 1, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, "none", 1, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, "none", 1, ts=datetime.now()))
+        self.repo.insert(OutputMessage("app", anom, 1, "none",
+                                       1, ts=datetime.now()))
+        self.repo.insert(OutputMessage("app", anom, 1, "none",
+                                       1, ts=datetime.now()))
+        self.repo.insert(OutputMessage("app", anom, 1, "none",
+                                       1, ts=datetime.now()))
+        self.repo.insert(OutputMessage("app", anom, 1, "none",
+                                       1, ts=datetime.now()))
 
     def test(self):
         obs_rep = ObservableSQLite(self.repo)
