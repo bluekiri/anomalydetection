@@ -69,7 +69,7 @@ class DummyWarmUp(WarmUp):
 
 class TestStreamEngineInteractor(unittest.TestCase):
 
-    def test(self):
+    def test_stream_engine_interactor(self):
 
         stream = DummyStream()
         engine = RobustDetector(30, 0.95)

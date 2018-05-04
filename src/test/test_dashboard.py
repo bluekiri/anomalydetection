@@ -44,17 +44,17 @@ class TestDashboard(AsyncHTTPTestCase):
         settings["conf"]["DATA_DB_FILE"] = config["DATA_DB_FILE"]
         return make_app(settings)
 
-    def test_homepage(self):
+    def test_dashboard_homepage(self):
         response = self.fetch("/", method="GET", body=None)
         self.assertEqual(response.code, 200)
 
-    def test_homepage_reprocess(self):
+    def test_dashboard_homepage_reprocess(self):
         response = self.fetch("/?window=10&threshold=0.9999&engine=robust",
                               method="GET", body=None, headers=self.headers,
                               max_redirects=0)
         self.assertEqual(response.code, 200)
 
-    def test_login(self):
+    def test_dashboard_login(self):
         response = self.fetch("/login?next=%2F", method="POST",
                               body="username=admin&password=admin",
                               max_redirects=0)
@@ -62,11 +62,11 @@ class TestDashboard(AsyncHTTPTestCase):
         self.assertEqual(response.code, 302)
         self.assertEqual(response.headers._dict['Location'], "/")
 
-    def test_maintenance(self):
+    def test_dashboard_maintenance(self):
         response = self.fetch("/maintenance", method="GET", body=None)
         self.assertEqual(response.code, 200)
 
-    def test_404(self):
+    def test_dashboard_404(self):
         response = self.fetch("/404", method="GET", body=None,
                               headers=self.headers)
         self.assertEqual(response.code, 404)

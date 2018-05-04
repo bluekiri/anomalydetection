@@ -18,7 +18,7 @@ class TestPubSubStreamBackend(unittest.TestCase, test.LoggingMixin):
         super().__init__(methodName)
         self.passed = False
 
-    def test(self):
+    def test_pubsub_stream_backend(self):
 
         message = "hello world!"
 

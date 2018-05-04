@@ -10,13 +10,13 @@ from test import config
 from test import LoggingMixin
 
 
-class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
+class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
 
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
         self.passed = False
 
-    def test(self):
+    def test_kafka_stream_backend(self):
 
         message = "hello world!"
 
