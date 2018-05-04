@@ -14,6 +14,14 @@ from test import config as tconfig
 
 class TestDashboard(AsyncHTTPTestCase):
 
+    headers = {
+       "Cookie": "session=2|1:0|10:1525430996|7:session|48:ODE5MjZkYTMtY"
+                 "jVkMy00ZDNlLWFhNjktNjk5N2NlM2U0ZmFi|cb014ac5f4f81ef35d6"
+                 "4b4af69edb3998eb6aca8e6ca2cfe3ced58787f2a6d31; user=2|1"
+                 ":0|10:1525430996|4:user|16:YWRtaW4gLSBQT0Nz|ba7047c1a2a"
+                 "6af09f7e8f0ca553ffbb35e11c4b0f694a661d9327159f30d312c"
+    }
+
     def setUp(self):
         super().setUp()
 
@@ -42,7 +50,8 @@ class TestDashboard(AsyncHTTPTestCase):
 
     def test_homepage_reprocess(self):
         response = self.fetch("/?window=10&threshold=0.9999&engine=robust",
-                              method="GET", body=None)
+                              method="GET", body=None, headers=self.headers,
+                              max_redirects=0)
         self.assertEqual(response.code, 200)
 
     def test_login(self):
@@ -58,12 +67,6 @@ class TestDashboard(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
 
     def test_404(self):
-        headers = {
-           "Cookie": "session=2|1:0|10:1525430996|7:session|48:ODE5MjZkYTMtY"
-                     "jVkMy00ZDNlLWFhNjktNjk5N2NlM2U0ZmFi|cb014ac5f4f81ef35d6"
-                     "4b4af69edb3998eb6aca8e6ca2cfe3ced58787f2a6d31; user=2|1"
-                     ":0|10:1525430996|4:user|16:YWRtaW4gLSBQT0Nz|ba7047c1a2a"
-                     "6af09f7e8f0ca553ffbb35e11c4b0f694a661d9327159f30d312c"
-        }
-        response = self.fetch("/404", method="GET", body=None, headers=headers)
+        response = self.fetch("/404", method="GET", body=None,
+                              headers=self.headers)
         self.assertEqual(response.code, 404)
