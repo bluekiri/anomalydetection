@@ -5,6 +5,7 @@ from bokeh.embed import components
 from bokeh.plotting import figure
 import pandas as pd
 from tornado.web import RequestHandler
+from tornado import web
 
 from anomalydetection.backend.engine.engine_factory import EngineFactory
 from anomalydetection.backend.entities.output_message import OutputMessageHandler
@@ -19,21 +20,19 @@ from anomalydetection.dashboard.handlers.base.html \
 
 class Chart(RequestHandler):
 
-    async def create_figure(self):
-        data = {k: v[0].decode("utf-8") for k, v in self.request.arguments.items()}
+    async def create_figure(self, data):
 
-        days = int(data["days"]) if "days" in data else 7
-        to_ts = datetime.datetime.now()
-        from_ts = to_ts - datetime.timedelta(days=days)
+        to_ts = datetime.datetime.strptime(data["to-date"] + " 23:59:59",
+                                           "%d-%m-%Y %H:%M:%S")
+        from_ts = datetime.datetime.strptime(data["from-date"] + " 00:00:00",
+                                             "%d-%m-%Y %H:%M:%S")
         file_db = self.application.settings['conf']['DATA_DB_FILE']
         observable = ObservableSQLite(SQLiteRepository(file_db),
                                       from_ts, to_ts)
 
-        ticks = observable.get_observable().to_blocking()
-        if "engine" in data:
-            ticks = BatchEngineInteractor(observable,
-                                          EngineFactory(**data).get(),
-                                          OutputMessageHandler()).process()
+        ticks = BatchEngineInteractor(observable,
+                                      EngineFactory(**data).get(),
+                                      OutputMessageHandler()).process()
 
         predictions = [x.to_plain_dict() for x in ticks]
         df = pd.DataFrame(predictions)
@@ -61,10 +60,29 @@ class Chart(RequestHandler):
 class Home(SecureHTMLHandler, Chart):
     template = "home.html"
 
+    @web.asynchronous
     async def get(self):
-        plot = await self.create_figure()
+
+        engines = EngineFactory.engines
+        to_date = datetime.datetime.now()
+        default_engine = next(iter(engines.items()))
+        data = {
+            "engine": default_engine[1]['key'],
+            "window": "30",
+            "threshold": "0.99",
+            "to-date": to_date.strftime("%d-%m-%Y"),
+            "from-date": (to_date - datetime.timedelta(days=7)).strftime("%d-%m-%Y")
+        }
+
+        input_data = {k: v[0].decode("utf-8")
+                      for k, v in self.request.arguments.items()}
+        data.update(input_data)
+
+        plot = await self.create_figure(data)
         script, div = components(plot)
-        self.response(script=script, div=div)
+
+        self.response(script=script, div=div, engines=engines,
+                      form_data=data, engine=engines[data['engine']]['name'])
 
 
 class Maintenance(BaseHTMLHandler):

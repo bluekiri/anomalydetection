@@ -1,11 +1,21 @@
 # -*- coding:utf-8 -*- #
 import json
+from collections import OrderedDict
 
 from anomalydetection.backend.engine.base_engine import BaseEngine
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
 
 class EngineFactory(object):
+
+    engines = OrderedDict(
+        [
+            ("robust", {
+                "key": "robust",
+                "name": "RobustDetector"
+            })
+        ]
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
@@ -15,9 +25,8 @@ class EngineFactory(object):
         try:
             if self.kwargs["engine"] == "robust":
                 return self.get_robust()
-            elif self.kwargs["engine"] == "html":
-                return self.get_htm()
-        except Exception:
+        except Exception as ex:
+            raise ex
             raise RuntimeError(
                 "Cannot instantiate the engine with this params {}"
                 .format(json.dumps(self.kwargs)))
@@ -25,6 +34,3 @@ class EngineFactory(object):
     def get_robust(self):
         return RobustDetector(window=int(self.kwargs["window"]),
                               threshold=float(self.kwargs["threshold"]))
-
-    def get_htm(self):
-        pass

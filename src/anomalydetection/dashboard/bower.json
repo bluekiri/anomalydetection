@@ -66,6 +66,7 @@
           }
         ]
       },
+      "inputmask": "bower_components/dist/**",
       "mustache.js": "bower_components/mustache.js/mustache.min.js"
     }
   }
