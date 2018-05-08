@@ -23,7 +23,8 @@ class RobustDetector(BaseEngine):
     def _update_buffer(self, value):
         """Updates the buffered data with the new event.
 
-        Appends the event at the end of self._data and clears the first registry in a FIFO fashion.
+        Appends the event at the end of self._data and clears the first
+        registry in a FIFO fashion.
         Keeps the size of self._data constant.
 
         Parameters
@@ -43,7 +44,8 @@ class RobustDetector(BaseEngine):
     def _update(self, value):
         """Updates the buffered data with the new event and the robust statistics.
 
-        Appends the event at the end of self._data and clears the first registry in a FIFO fashion.
+        Appends the event at the end of self._data and clears the first
+        registry in a FIFO fashion.
         Once the buffer is updated, updates the median and mad
 
         Parameters
@@ -70,8 +72,10 @@ class RobustDetector(BaseEngine):
         Returns
         ------
         results: dict
-            results['anomaly_probability']: Probability that the value is an anomaly given the last observations.
-            results['is_anomaly']: Boolean indicator. 1 if it is an anomaly based on threshold else 0.
+            results['anomaly_probability']: Probability that the value is an
+                                            anomaly given the last observations.
+            results['is_anomaly']: Boolean indicator. 1 if it is an anomaly
+                                   based on threshold else 0.
             results['value_upper_limit']: Value upper limit.
             results['value_lower_limit']: Value lower limit.
         """
@@ -85,8 +89,10 @@ class RobustDetector(BaseEngine):
             z_score = np.abs(value - self._median) / self._mad
             results['anomaly_probability'] = 1 - st.norm.sf(z_score)
             results['is_anomaly'] = int(results['anomaly_probability'] >= self.threshold)
-            results['value_upper_limit'] = (self._median + self._mad*st.norm.ppf(self.threshold))
-            results['value_lower_limit'] = (self._median - self._mad*st.norm.ppf(self.threshold))
+            results['value_upper_limit'] = \
+                (self._median + self._mad*st.norm.ppf(self.threshold))
+            results['value_lower_limit'] = \
+                (self._median - self._mad*st.norm.ppf(self.threshold))
         self._update(value=value)
 
         return AnomalyResult(**results)

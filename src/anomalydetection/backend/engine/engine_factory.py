@@ -17,10 +17,10 @@ class EngineFactory(object):
                 return self.get_robust()
             elif self.kwargs["engine"] == "html":
                 return self.get_htm()
-        except Exception as ex:
+        except Exception:
             raise RuntimeError(
                 "Cannot instantiate the engine with this params {}"
-                    .format(json.dumps(self.kwargs)))
+                .format(json.dumps(self.kwargs)))
 
     def get_robust(self):
         return RobustDetector(window=int(self.kwargs["window"]),

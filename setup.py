@@ -32,10 +32,6 @@ setup(
     include_package_data=True,
     packages=find_packages('src', exclude=("test", "test.*")),
     package_dir={'': 'src'},
-    classifiers=[
-        'Programming Language :: Python :: 3.5.2',
-        'Operating System :: Unix',
-    ],
     install_requires=install_require,
     test_suite="nose.collector"
 )

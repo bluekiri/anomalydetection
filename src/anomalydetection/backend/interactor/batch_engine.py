@@ -25,7 +25,8 @@ class BatchEngineInteractor(object):
             "agg_function": None,
             "agg_window_millis": None,
             "ts": message.ts,
-            "anomaly_results": self.engine.predict(self.message_handler.extract_value(message))
+            "anomaly_results": self.engine.predict(
+                self.message_handler.extract_value(message))
         }
         return OutputMessage(**params)
 

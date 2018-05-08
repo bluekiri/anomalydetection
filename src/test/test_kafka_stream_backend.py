@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*- #
 
-import time
 import unittest
 
 from anomalydetection.backend.stream.kafka_stream_backend import \
@@ -57,4 +56,3 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
                 break
         else:
             raise Exception("Cannot consume published message.")
-

@@ -3,7 +3,7 @@
 import datetime
 import json
 
-from anomalydetection.backend.entities import BaseMessageHandler, T
+from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 
 

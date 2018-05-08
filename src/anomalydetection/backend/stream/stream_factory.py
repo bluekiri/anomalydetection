@@ -4,8 +4,10 @@ from anomalydetection.backend.conf.config import KAFKA_BOOTSTRAP_SERVER, \
     PUBSUB_PROJECT_ID, PUBSUB_SUBSCRIPTION, PUBSUB_OUTPUT_TOPIC, \
     PUBSUB_AUTH_FILE
 from anomalydetection.backend.stream import BaseStreamBackend
-from anomalydetection.backend.stream.kafka_stream_backend import KafkaStreamBackend
-from anomalydetection.backend.stream.pubsub_stream_backend import PubSubStreamBackend
+from anomalydetection.backend.stream.kafka_stream_backend import  \
+    KafkaStreamBackend
+from anomalydetection.backend.stream.pubsub_stream_backend import \
+    PubSubStreamBackend
 
 
 class StreamFactory(object):
@@ -17,7 +19,8 @@ class StreamFactory(object):
         elif StreamFactory.is_kafka():
             return StreamFactory.create_kafka_stream()
         else:
-            raise RuntimeError("Bad configuration, please set env vars for stream backend.")
+            raise RuntimeError("Bad configuration, please set "
+                               "env vars for stream backend.")
 
     @staticmethod
     def is_kafka() -> bool:

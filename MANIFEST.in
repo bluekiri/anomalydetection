@@ -1,0 +1,2 @@
+recursive-include src/anomalydetection/dashboard/templates/ *
+recursive-include src/anomalydetection/dashboard/static/ *

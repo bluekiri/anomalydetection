@@ -4,7 +4,7 @@ from typing import Any
 
 import dateutil.parser
 
-from anomalydetection.backend.entities import BaseMessageHandler, T
+from anomalydetection.backend.entities import BaseMessageHandler
 
 
 class InputMessage:
@@ -38,4 +38,3 @@ class InputMessageHandler(BaseMessageHandler[InputMessage]):
     @classmethod
     def validate_message(cls, message: InputMessage) -> bool:
         return True
-

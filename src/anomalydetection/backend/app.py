@@ -13,7 +13,6 @@ from anomalydetection.backend.repository.sqlite import SQLiteRepository, Observa
 from anomalydetection.backend.store_middleware.sqlite_store_middleware import \
     SQLiteStoreMiddleware
 from anomalydetection.backend.stream.stream_factory import StreamFactory
-from test.test_sqlite_repository_observable import SQLiteObservableRepository
 
 logging.basicConfig()
 logger = logging.getLogger()

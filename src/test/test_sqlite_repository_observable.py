@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*- #
 
-import os
 import unittest
 from datetime import datetime
 
-from anomalydetection.backend.entities.output_message import OutputMessage, AnomalyResult
+from anomalydetection.backend.entities.output_message import OutputMessage, \
+    AnomalyResult
 from anomalydetection.backend.repository.sqlite import ObservableSQLite, \
     SQLiteRepository
 from test import config, LoggingMixin
@@ -30,4 +30,3 @@ class SQLiteObservableRepository(unittest.TestCase, LoggingMixin):
         obs_rep = ObservableSQLite(self.repo)
         obs_rep.get_observable() \
             .subscribe(lambda x: self.logger.debug(str(x)))
-

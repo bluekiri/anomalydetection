@@ -1,7 +1,5 @@
 # -*- coding:utf-8 -*- #
 
-import os
-import time
 import unittest
 import test
 from google.api_core.exceptions import AlreadyExists
@@ -30,7 +28,7 @@ class TestPubSubStreamBackend(unittest.TestCase, test.LoggingMixin):
             subscriber.create_subscription(
                 subscriber.subscription_path("testing", "test0"),
                 subscriber.topic_path("testing", "test0"))
-        except AlreadyExists as ex:
+        except AlreadyExists:
             pass
 
         pubsub = PubSubStreamBackend("testing", "test0", "test0")
@@ -56,4 +54,3 @@ class TestPubSubStreamBackend(unittest.TestCase, test.LoggingMixin):
                 break
         else:
             raise Exception("Cannot consume published message.")
-

@@ -47,15 +47,15 @@ class SQLiteRepository(BaseRepository):
     def fetch(self, from_ts, to_ts):
         stmt = """
             SELECT
-              application,
-              ts,
-              agg_function,
-              agg_value,
-              agg_window_millis,
-              ar_value_upper_limit,
-              ar_anomaly_probability,
-              ar_value_lower_limit,
-              ar_is_anomaly 
+                application,
+                ts,
+                agg_function,
+                agg_value,
+                agg_window_millis,
+                ar_value_upper_limit,
+                ar_anomaly_probability,
+                ar_value_lower_limit,
+                ar_is_anomaly
             FROM predictions
             WHERE ts BETWEEN ? AND ?
         """

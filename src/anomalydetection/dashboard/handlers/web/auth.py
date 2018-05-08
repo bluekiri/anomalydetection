@@ -80,5 +80,3 @@ class AuthResponse:
         self.error_cause = error
         self.udn = udn
         self.maintenance = maintenance
-
-

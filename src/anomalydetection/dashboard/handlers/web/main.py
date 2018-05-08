@@ -20,7 +20,6 @@ from anomalydetection.dashboard.handlers.base.html \
 class Chart(RequestHandler):
 
     async def create_figure(self):
-
         data = {k: v[0].decode("utf-8") for k, v in self.request.arguments.items()}
 
         days = int(data["days"]) if "days" in data else 7
@@ -40,7 +39,7 @@ class Chart(RequestHandler):
         df = pd.DataFrame(predictions)
         df["ts"] = pd.to_datetime(df["ts"])
 
-        anomaly = df.loc[df.loc[:,"is_anomaly"] == True]
+        anomaly = df.loc[df.loc[:, "is_anomaly"] == True]  # noqa: E712
 
         p = figure(x_axis_type="datetime",
                    plot_height=200,
@@ -60,7 +59,6 @@ class Chart(RequestHandler):
 
 
 class Home(SecureHTMLHandler, Chart):
-
     template = "home.html"
 
     async def get(self):
@@ -70,7 +68,6 @@ class Home(SecureHTMLHandler, Chart):
 
 
 class Maintenance(BaseHTMLHandler):
-
     template = "maintenance.html"
 
     async def get(self):
@@ -78,7 +75,6 @@ class Maintenance(BaseHTMLHandler):
 
 
 class MaintenanceSwitch(SecureHTMLHandler):
-
     template = "maintenance.html"
 
     async def get(self):
