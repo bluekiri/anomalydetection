@@ -19,14 +19,16 @@ class BatchEngineInteractor(object):
         self.message_handler = message_handler
 
     def build_output_message(self, message):
+        extra_values = self.message_handler.extract_extra(message)
+        anomaly_results = self.engine.predict(
+                self.message_handler.extract_value(message), **extra_values)
         params = {
             "application": message.application,
             "agg_value": message.value,
             "agg_function": None,
             "agg_window_millis": None,
             "ts": message.ts,
-            "anomaly_results": self.engine.predict(
-                self.message_handler.extract_value(message))
+            "anomaly_results": anomaly_results
         }
         return OutputMessage(**params)
 

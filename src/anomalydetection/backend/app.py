@@ -36,8 +36,7 @@ def main():
         InputJsonMessageHandler(),
         middleware=[middleware],
         warm_up=warm_up,
-        agg_window_millis=PERIOD_IN_MILLISECONDS,
-        agg_function=sum)
+        agg_window_millis=PERIOD_IN_MILLISECONDS)
     interactor.run()
 
 

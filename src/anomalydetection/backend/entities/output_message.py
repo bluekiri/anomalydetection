@@ -79,3 +79,7 @@ class OutputMessageHandler(BaseMessageHandler[InputMessage]):
     @classmethod
     def validate_message(cls, message: InputMessage) -> bool:
         return True
+
+    @classmethod
+    def extract_extra(cls, message: InputMessage) -> dict:
+        return {"ts": message.ts}

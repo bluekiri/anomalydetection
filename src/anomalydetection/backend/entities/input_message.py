@@ -9,7 +9,10 @@ from anomalydetection.backend.entities import BaseMessageHandler
 
 class InputMessage:
 
-    def __init__(self, application: str, value: float, ts: Any):
+    def __init__(self,
+                 application: str,
+                 value: float,
+                 ts: Any):
         """
         This is the parser format of a kafka message.
 

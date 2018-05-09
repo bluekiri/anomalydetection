@@ -63,3 +63,7 @@ class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):
     @classmethod
     def extract_ts(cls, message: InputMessage) -> datetime:
         return message.ts
+
+    @classmethod
+    def extract_extra(cls, message: InputMessage) -> dict:
+        return {"ts": message.ts}

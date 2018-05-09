@@ -1,8 +1,11 @@
 # -*- coding:utf-8 -*- #
 import datetime
+import logging
 import time
 import unittest
 from collections import Generator
+
+from rx import Observable
 
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 from anomalydetection.backend.entities import BaseMessageHandler
@@ -13,10 +16,14 @@ from anomalydetection.backend.interactor.stream_engine import \
     StreamEngineInteractor
 from anomalydetection.backend.store_middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend
-from rx import Observable
+from test import LoggingMixin
+
+logging.basicConfig()
+logger = logging.getLogger(__package__)
+logger.setLevel(logging.DEBUG)
 
 
-class DummyStream(BaseStreamBackend):
+class DummyStream(BaseStreamBackend, LoggingMixin):
 
     def poll(self) -> Generator:
         for i in range(5):
@@ -24,10 +31,10 @@ class DummyStream(BaseStreamBackend):
             time.sleep(2)
 
     def push(self, message: str) -> None:
-        print(message)
+        self.logger.debug("Pushing message: {}".format(message))
 
 
-class DummyMessageHandler(BaseMessageHandler[InputMessage]):
+class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
 
     @classmethod
     def parse_message(cls, message: str) -> InputMessage:
@@ -44,19 +51,19 @@ class DummyMessageHandler(BaseMessageHandler[InputMessage]):
         return True
 
 
-class DummyMiddleware(Middleware):
+class DummyMiddleware(Middleware, LoggingMixin):
 
     def on_next(self, value):
-        print(value)
+        self.logger.debug("Middleware on_next: {}".format(value))
 
     def on_error(self, error):
-        print(error)
+        self.logger.debug("Middleware on_error: {}".format(error))
 
     def on_completed(self):
-        print("Done!")
+        self.logger.debug("Middleware on_completed.")
 
 
-class DummyWarmUp(WarmUp):
+class DummyWarmUp(WarmUp, LoggingMixin):
 
     def dummy_generator(self) -> Generator:
         for i in range(50):
@@ -67,7 +74,7 @@ class DummyWarmUp(WarmUp):
         return Observable.from_(self.dummy_generator())
 
 
-class TestStreamEngineInteractor(unittest.TestCase):
+class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
 
     def test_stream_engine_interactor(self):
 

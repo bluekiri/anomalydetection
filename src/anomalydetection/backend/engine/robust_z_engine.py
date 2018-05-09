@@ -56,7 +56,7 @@ class RobustDetector(BaseEngine):
         self._update_buffer(value=value)
         self._update_statistics()
 
-    def predict(self, value) -> AnomalyResult:
+    def predict(self, value, **kwargs) -> AnomalyResult:
         """
         Return the probability of being an outlier
 

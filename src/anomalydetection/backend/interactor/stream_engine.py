@@ -8,6 +8,7 @@ from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.store_middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend, \
     BaseObservable
+from anomalydetection.backend.interactor import aggregation_functions
 
 
 class StreamEngineInteractor(object):
@@ -16,7 +17,7 @@ class StreamEngineInteractor(object):
     logger.setLevel(logging.DEBUG)
 
     DEFAULT_AGG_WINDOW = 5 * 60 * 1000
-    DEFAULT_AGG_FUNCTION = sum
+    DEFAULT_AGG_FUNCTION = aggregation_functions.avg
 
     def __init__(self,
                  stream: BaseStreamBackend,
@@ -37,21 +38,30 @@ class StreamEngineInteractor(object):
 
     def build_output_message(self, value):
         input_message, agg_value = value
+        ts = str(self.message_handler.extract_ts(input_message))
+        extra_values = self.message_handler.extract_extra(input_message)
+        anomaly_results = self.engine.predict(agg_value, **extra_values)
         output = {
             "application": input_message.application,
             "agg_value": agg_value,
             "agg_function": str(self.agg_function),
             "agg_window_millis": self.agg_window_millis,
-            "ts": str(self.message_handler.extract_ts(input_message)),
-            "anomaly_results": self.engine.predict(agg_value)
+            "ts": ts,
+            "anomaly_results": anomaly_results
         }
         return OutputMessage(**output)
 
-    def zip_input_with_agg(self, value):
+    def zip_input_with_agg_value(self, value):
         return (
             value[-1],
             self.agg_function(
-                map(self.message_handler.extract_value, value))
+                list(map(self.message_handler.extract_value, value)))
+        )
+
+    def zip_input_with_value(self, value):
+        return (
+            value,
+            self.message_handler.extract_value(value)
         )
 
     def run(self):
@@ -64,17 +74,25 @@ class StreamEngineInteractor(object):
             len([x for x in warm_up])  # Force model to consume messages
             self.logger.info("Warm up completed.")
 
-        # Aggregate and map input values.
+        # Parse input
         stream = self.stream.get_observable() \
             .map(lambda x: self.message_handler.parse_message(x)) \
             .filter(lambda x: self.message_handler.validate_message(x)) \
 
-        rx = stream \
-            .buffer_with_time(timespan=self.agg_window_millis) \
-            .filter(lambda x: x) \
-            .map(lambda x: self.zip_input_with_agg(x)) \
-            .map(lambda x: self.build_output_message(x)) \
-            .publish()  # This is required for multiple subscriptions
+        # Aggregate and map input values.
+        if self.agg_function:
+            rx = stream \
+                .buffer_with_time(timespan=self.agg_window_millis) \
+                .filter(lambda x: x) \
+                .map(lambda x: self.zip_input_with_agg_value(x)) \
+                .map(lambda x: self.build_output_message(x)) \
+                .publish()  # This is required for multiple subscriptions
+        else:
+            rx = stream \
+                .filter(lambda x: x) \
+                .map(lambda x: self.zip_input_with_value(x)) \
+                .map(lambda x: self.build_output_message(x)) \
+                .publish()  # This is required for multiple subscriptions
 
         # Main subscription
         rx.subscribe(lambda x: self.stream.push(str(x)))

@@ -22,3 +22,7 @@ class BaseMessageHandler(Generic[T]):
     @classmethod
     def extract_ts(cls, message: T) -> datetime:
         return datetime.now()
+
+    @classmethod
+    def extract_extra(cls, message: T) -> dict:
+        return {}
