@@ -21,7 +21,27 @@ class BaseRepository(object):
         raise NotImplementedError("To implement on child classes.")
 
 
-class BaseObservableRepository(BaseRepository, BaseObservable):
+class BaseObservableRepository(BaseObservable):
+
+    def _get_observable(self):
+        raise NotImplementedError("To implement on child classes.")
+
+    def get_observable(self):
+        return self._get_observable().map(lambda x: self.map(x))
+
+    def get_min(self):
+        maximum = self.get_observable() \
+            .map(lambda x: x.agg_value) \
+            .reduce(lambda a, b: a if a < b else b) \
+            .to_blocking()
+        return [x for x in maximum][0]
+
+    def get_max(self):
+        maximum = self.get_observable() \
+            .map(lambda x: x.agg_value) \
+            .reduce(lambda a, b: a if a > b else b) \
+            .to_blocking()
+        return [x for x in maximum][0]
 
     def map(self, item: Any) -> OutputMessage:
         raise NotImplementedError("To implement on child classes.")

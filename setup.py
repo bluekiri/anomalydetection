@@ -5,8 +5,10 @@ from setuptools import find_packages, setup
 
 install_require = [
     # Core dependencies
-    "kafka-python", "python-dateutil", "jsonschema", "rx", "numpy",
-    "pandas", "statsmodels", "bokeh",
+    "rx", "jsonschema", "python-dateutil",
+    "numpy", "pandas", "statsmodels", "bokeh",
+    # Kafka
+    "kafka-python",
     # Google api base
     "oauth2client", "google-auth", "google-auth-httplib2",
     "google-api-python-client",

@@ -85,7 +85,7 @@ class SQLiteRepository(BaseRepository):
         self.conn.close()
 
 
-class ObservableSQLite(SQLiteRepository, BaseObservableRepository):
+class ObservableSQLite(BaseObservableRepository):
 
     def __init__(self, repository: BaseRepository,
                  from_ts=None, to_ts=None) -> None:
@@ -98,10 +98,9 @@ class ObservableSQLite(SQLiteRepository, BaseObservableRepository):
         if not self.from_ts:
             self.from_ts = self.to_ts - datetime.timedelta(hours=24)
 
-    def get_observable(self):
+    def _get_observable(self):
         return Observable.from_(self.repository.fetch(self.from_ts,
-                                                      self.to_ts)) \
-            .map(lambda x: self.map(x))
+                                                      self.to_ts))
 
     def map(self, row: Row) -> OutputMessage:
         anom_results = AnomalyResult(

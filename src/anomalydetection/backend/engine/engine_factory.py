@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*- #
-import json
+
 from collections import OrderedDict
 
 from anomalydetection.backend.engine.base_engine import BaseEngine
+from anomalydetection.backend.engine.cad_engine import CADDetector
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
 
@@ -13,7 +14,11 @@ class EngineFactory(object):
             ("robust", {
                 "key": "robust",
                 "name": "RobustDetector"
-            })
+            }),
+            ("cad", {
+                "key": "cad",
+                "name": "CADDetector"
+            }),
         ]
     )
 
@@ -25,12 +30,16 @@ class EngineFactory(object):
         try:
             if self.kwargs["engine"] == "robust":
                 return self.get_robust()
+            if self.kwargs["engine"] == "cad":
+                return self.get_cad()
         except Exception as ex:
             raise ex
-            raise RuntimeError(
-                "Cannot instantiate the engine with this params {}"
-                .format(json.dumps(self.kwargs)))
 
     def get_robust(self):
         return RobustDetector(window=int(self.kwargs["window"]),
                               threshold=float(self.kwargs["threshold"]))
+
+    def get_cad(self):
+        return CADDetector(min_value=float(self.kwargs["min_value"]),
+                           max_value=float(self.kwargs["max_value"]),
+                           threshold=float(self.kwargs["threshold"]))

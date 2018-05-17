@@ -3,6 +3,7 @@
 import os
 
 from tornado import ioloop
+from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
 from anomalydetection.dashboard.urls import urls
@@ -22,5 +23,7 @@ if __name__ == '__main__':
     # Start server
     port = os.getenv("PORT", "5000")
     print("Server listening on port: %s" % port)
-    app.listen(int(port))
+    server = HTTPServer(app)
+    server.bind(int(port))
+    server.start(8)  # forks one process per CPU
     ioloop.IOLoop.current().start()

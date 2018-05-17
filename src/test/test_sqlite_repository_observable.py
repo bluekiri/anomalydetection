@@ -20,13 +20,21 @@ class SQLiteObservableRepository(unittest.TestCase, LoggingMixin):
         self.repo.insert(OutputMessage("app", anom, 1, "none",
                                        1, ts=datetime.now()))
         self.repo.insert(OutputMessage("app", anom, 1, "none",
-                                       1, ts=datetime.now()))
+                                       4, ts=datetime.now()))
         self.repo.insert(OutputMessage("app", anom, 1, "none",
-                                       1, ts=datetime.now()))
+                                       3, ts=datetime.now()))
         self.repo.insert(OutputMessage("app", anom, 1, "none",
-                                       1, ts=datetime.now()))
+                                       2, ts=datetime.now()))
 
     def test_observable_sqlite(self):
         obs_rep = ObservableSQLite(self.repo)
         obs_rep.get_observable() \
             .subscribe(lambda x: self.logger.debug(str(x)))
+
+    def test_get_min(self):
+        obs_rep = ObservableSQLite(self.repo)
+        self.assertEqual(1, obs_rep.get_min())
+
+    def test_get_max(self):
+        obs_rep = ObservableSQLite(self.repo)
+        self.assertEqual(4, obs_rep.get_max())

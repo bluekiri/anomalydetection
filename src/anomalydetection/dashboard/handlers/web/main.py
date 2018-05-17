@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import sys
 
 from bokeh.embed import components
 from bokeh.plotting import figure
@@ -29,6 +30,11 @@ class Chart(RequestHandler):
         file_db = self.application.settings['conf']['DATA_DB_FILE']
         observable = ObservableSQLite(SQLiteRepository(file_db),
                                       from_ts, to_ts)
+
+        min_value = observable.get_min()
+        max_value = observable.get_max()
+        data["min_value"] = min(min_value, data.get("min_value", sys.maxsize))
+        data["max_value"] = max(max_value, data.get("max_value", -sys.maxsize))
 
         ticks = BatchEngineInteractor(observable,
                                       EngineFactory(**data).get(),
@@ -82,7 +88,8 @@ class Home(SecureHTMLHandler, Chart):
         script, div = components(plot)
 
         self.response(script=script, div=div, engines=engines,
-                      form_data=data, engine=engines[data['engine']]['name'])
+                      form_data=data, engine_key=data['engine'],
+                      engine_name=engines[data['engine']]['name'])
 
 
 class Maintenance(BaseHTMLHandler):
