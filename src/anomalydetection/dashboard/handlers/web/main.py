@@ -8,11 +8,10 @@ import pandas as pd
 from tornado.web import RequestHandler
 from tornado import web
 
-from anomalydetection.backend.engine.engine_factory import EngineFactory
+from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities.output_message import OutputMessageHandler
 from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
-from anomalydetection.backend.repository.sqlite import ObservableSQLite
-from anomalydetection.backend.repository.sqlite import SQLiteRepository
+from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.dashboard.handlers.base.html \
     import BaseHTMLHandler
 from anomalydetection.dashboard.handlers.base.html \
@@ -27,17 +26,39 @@ class Chart(RequestHandler):
                                            "%d-%m-%Y %H:%M:%S")
         from_ts = datetime.datetime.strptime(data["from-date"] + " 00:00:00",
                                              "%d-%m-%Y %H:%M:%S")
-        file_db = self.application.settings['conf']['DATA_DB_FILE']
-        observable = ObservableSQLite(SQLiteRepository(file_db),
-                                      from_ts, to_ts)
+
+        conf = self.application \
+            .settings["config"] \
+            .get_as_dict()
+
+        repository = conf[data["name"]][3][0].repository
+        observable = ObservableRepository(repository,
+                                          data["application"],
+                                          from_ts, to_ts)
 
         min_value = observable.get_min()
         max_value = observable.get_max()
         data["min_value"] = min(min_value, data.get("min_value", sys.maxsize))
         data["max_value"] = max(max_value, data.get("max_value", -sys.maxsize))
 
+        engine_builder = None
+        if data["engine"] == "cad":
+            engine_builder = EngineBuilderFactory.get_cad()
+            if "min_value" in data:
+                engine_builder.set_min_value(float(data["min_value"]))
+            if "max_value" in data:
+                engine_builder.set_max_value(float(data["max_value"]))
+
+        if data["engine"] == "robust":
+            engine_builder = EngineBuilderFactory.get_robust()
+            if "window" in data:
+                engine_builder.set_window(int(data["window"]))
+
+        if "threshold" in data:
+            engine_builder.set_threshold(float(data["threshold"]))
+
         ticks = BatchEngineInteractor(observable,
-                                      EngineFactory(**data).get(),
+                                      engine_builder,
                                       OutputMessageHandler()).process()
 
         predictions = [x.to_plain_dict() for x in ticks]
@@ -69,7 +90,7 @@ class Home(SecureHTMLHandler, Chart):
     @web.asynchronous
     async def get(self):
 
-        engines = EngineFactory.engines
+        engines = EngineBuilderFactory.engines
         to_date = datetime.datetime.now()
         default_engine = next(iter(engines.items()))
         data = {
@@ -84,11 +105,21 @@ class Home(SecureHTMLHandler, Chart):
                       for k, v in self.request.arguments.items()}
         data.update(input_data)
 
+        conf = self.application \
+            .settings["config"] \
+            .get_as_dict()
+
+        repository = conf[data["name"]][3][0].repository
+        applications = repository.get_applications()
+        if 'application' not in data:
+            data['application'] = applications[0]
+
         plot = await self.create_figure(data)
         script, div = components(plot)
 
         self.response(script=script, div=div, engines=engines,
                       form_data=data, engine_key=data['engine'],
+                      applications=applications, selected_app=data['application'],
                       engine_name=engines[data['engine']]['name'])
 
 

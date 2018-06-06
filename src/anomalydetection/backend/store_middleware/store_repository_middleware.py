@@ -5,7 +5,7 @@ from anomalydetection.backend.repository import BaseRepository
 from anomalydetection.backend.store_middleware import Middleware
 
 
-class SQLiteStoreMiddleware(Middleware):
+class StoreRepositoryMiddleware(Middleware):
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)

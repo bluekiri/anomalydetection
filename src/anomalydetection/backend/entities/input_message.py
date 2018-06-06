@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*- #
 import datetime
+import json
 from typing import Any
 
 import dateutil.parser
@@ -27,12 +28,30 @@ class InputMessage:
         self.value = value
         self.application = application
 
+    def to_dict(self):
+        return {
+            "application": self.application,
+            "value": self.value,
+            "ts": self.ts
+        }
+
+    def to_json(self):
+        return json.dumps({
+            "application": self.application,
+            "value": self.value,
+            "ts": str(self.ts)
+        })
+
 
 class InputMessageHandler(BaseMessageHandler[InputMessage]):
 
     @classmethod
     def parse_message(cls, message: InputMessage) -> InputMessage:
         return message
+
+    @classmethod
+    def extract_key(cls, message: InputMessage) -> str:
+        return message.application
 
     @classmethod
     def extract_value(cls, message: InputMessage) -> float:

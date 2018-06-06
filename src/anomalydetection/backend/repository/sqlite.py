@@ -1,32 +1,29 @@
 # -*- coding:utf-8 -*- #
-import datetime
 import sqlite3
 from sqlite3 import Row
 
-from rx import Observable
+from anomalydetection.backend.entities.output_message import AnomalyResult
+from anomalydetection.backend.entities.output_message import OutputMessage
 
-from anomalydetection.backend.entities.output_message import OutputMessage, \
-    AnomalyResult
-from anomalydetection.backend.repository import \
-    BaseObservableRepository, BaseRepository
+from anomalydetection.backend.repository import BaseRepository
 
 
 class SQLiteRepository(BaseRepository):
 
-    def __init__(self, conn_string: str) -> None:
-        super().__init__(conn_string)
-        self.conn_string = conn_string
+    def __init__(self, database: str) -> None:
+        super().__init__(database)
+        self.conn_string = database
 
     def initialize(self):
         # Check if table exists
         self.conn = sqlite3.connect(self.conn_string)
         cur = self.conn.cursor()
         check = cur.execute("""
-          SELECT COUNT(*)
-          FROM sqlite_master
-          WHERE 1
-          AND type='table'
-          AND name='predictions'""").fetchone()
+            SELECT COUNT(*)
+            FROM sqlite_master
+            WHERE 1
+            AND type='table'
+            AND name='predictions'""").fetchone()
 
         if not check or not check[0]:
             cur.execute("""
@@ -44,7 +41,34 @@ class SQLiteRepository(BaseRepository):
         self.conn.commit()
         self.conn.close()
 
-    def fetch(self, from_ts, to_ts):
+    def map(self, item: Row) -> OutputMessage:
+        anom_results = AnomalyResult(
+            value_lower_limit=item[7],
+            value_upper_limit=item[5],
+            anomaly_probability=item[6],
+            is_anomaly=item[8]
+        )
+        return OutputMessage(item[0],
+                             anom_results,
+                             agg_window_millis=item[4],
+                             agg_function=item[2],
+                             agg_value=item[3],
+                             ts=item[1])
+
+    def get_applications(self):
+        stmt = """
+            SELECT DISTINCT(application)
+            FROM predictions
+        """
+        self.conn = sqlite3.connect(self.conn_string)
+        cur = self.conn.cursor()
+        cursor = cur.execute(stmt)
+        elements = cursor.fetchall()
+        self.conn.close()
+        elements = [x[0] for x in elements]
+        return sorted(elements)
+
+    def fetch(self, application, from_ts, to_ts):
         stmt = """
             SELECT
                 application,
@@ -57,11 +81,16 @@ class SQLiteRepository(BaseRepository):
                 ar_value_lower_limit,
                 ar_is_anomaly
             FROM predictions
-            WHERE ts BETWEEN ? AND ?
+            WHERE 1
+            AND ts BETWEEN ? AND ?
         """
+        params = (from_ts, to_ts)
+        if application:
+            stmt = stmt + """AND application = ?"""
+            params = (from_ts, to_ts, application)
         self.conn = sqlite3.connect(self.conn_string)
         cur = self.conn.cursor()
-        cursor = cur.execute(stmt, (from_ts, to_ts))
+        cursor = cur.execute(stmt, params)
         elements = cursor.fetchall()
         self.conn.close()
         return elements
@@ -76,42 +105,10 @@ class SQLiteRepository(BaseRepository):
                       "'%s'" % message.ts,
                       "'%s'" % message.agg_function,
                       message.agg_value,
-                      message.agg_window_millis]
+                      int(message.agg_window_millis)]
         values = ", ".join(map(str, root_value + anomaly_value))
         self.conn = sqlite3.connect(self.conn_string)
         cur = self.conn.cursor()
         cur.execute("""INSERT INTO predictions VALUES (%s)""" % values)
         self.conn.commit()
         self.conn.close()
-
-
-class ObservableSQLite(BaseObservableRepository):
-
-    def __init__(self, repository: BaseRepository,
-                 from_ts=None, to_ts=None) -> None:
-        self.repository = repository
-        self.from_ts = from_ts
-        self.to_ts = to_ts
-
-        if not self.to_ts:
-            self.to_ts = datetime.datetime.now()
-        if not self.from_ts:
-            self.from_ts = self.to_ts - datetime.timedelta(hours=24)
-
-    def _get_observable(self):
-        return Observable.from_(self.repository.fetch(self.from_ts,
-                                                      self.to_ts))
-
-    def map(self, row: Row) -> OutputMessage:
-        anom_results = AnomalyResult(
-            value_lower_limit=row[7],
-            value_upper_limit=row[5],
-            anomaly_probability=row[6],
-            is_anomaly=row[8]
-        )
-        return OutputMessage(row[0],
-                             anom_results,
-                             agg_window_millis=row[4],
-                             agg_function=row[2],
-                             agg_value=row[3],
-                             ts=row[1])

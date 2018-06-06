@@ -31,7 +31,9 @@ class TestPubSubStreamBackend(unittest.TestCase, test.LoggingMixin):
         except AlreadyExists:
             pass
 
-        pubsub = PubSubStreamBackend("testing", "test0", "test0")
+        pubsub = PubSubStreamBackend("testing",
+                                     "test0",
+                                     "test0")
         messages = pubsub.poll()
 
         def push(arg0):
@@ -39,12 +41,12 @@ class TestPubSubStreamBackend(unittest.TestCase, test.LoggingMixin):
                 raise Exception("No message received")
             pubsub.push(message)
 
-        def raise_error():
+        def completed():
             self.logger.debug("Completed")
 
         Observable.interval(1000) \
             .map(push) \
-            .subscribe(on_completed=raise_error)
+            .subscribe(on_completed=completed)
 
         # Poll
         if messages:

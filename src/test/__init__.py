@@ -15,10 +15,10 @@ class LoggingMixin(object):
 
 config = {
     "KAFKA_BROKER": os.getenv("KAFKA_BROKER", "localhost:9092"),
-    "DATA_DB_FILE": os.getenv("DATA_DB_FILE", "/tmp/database.sqlite"),
+    "SQLITE_DATABASE_FILE": os.getenv("SQLITE_DATABASE_FILE", "/tmp/database.sqlite"),
 }
 
-os.environ["DATA_DB_FILE"] = config["DATA_DB_FILE"]
+os.environ["SQLITE_DATABASE_FILE"] = config["SQLITE_DATABASE_FILE"]
 os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
 os.environ["PUBSUB_PROJECT_ID"] = "testing"
 os.environ["ASYNC_TEST_TIMEOUT"] = "100"

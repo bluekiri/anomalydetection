@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import operator
+import sys
 
 from anomalydetection.backend.engine.base_engine import BaseEngine
 from anomalydetection.backend.entities.output_message import AnomalyResult
@@ -161,8 +162,8 @@ class CADDetector(BaseEngine):
     """
 
     def __init__(self,
-                 min_value,
-                 max_value,
+                 min_value=-sys.maxsize,
+                 max_value=sys.maxsize,
                  threshold=0.95,
                  rest_period=30,
                  max_left_semi_contexts_length=8,
@@ -268,7 +269,7 @@ class CADDetector(BaseEngine):
         anomaly_score = self.get_anomaly_score(
             {"timestamp": kwargs["ts"], "value": value})
 
-        return AnomalyResult(None,
-                             None,
+        return AnomalyResult(0.0,
+                             0.0,
                              anomaly_score,
                              (anomaly_score >= self.threshold))

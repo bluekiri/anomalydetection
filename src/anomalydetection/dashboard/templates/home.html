@@ -29,6 +29,18 @@
       <form role="form" method="get">
         <div class="box-body">
           <div class="form-group">
+            <label>Application</label>
+            <select name="application" class="form-control">
+              {% for app in applications %}
+                <option class="option"
+                        {% if selected_app == app %}
+                          selected="selected"
+                        {% end %}
+                        value="{{ app }}">{{ app }}</option>
+              {% end %}
+            </select>
+          </div>
+          <div class="form-group">
             <label>Select</label>
             <select name="engine" class="form-control">
               {% for key, value in engines.items() %}

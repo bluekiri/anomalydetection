@@ -52,6 +52,10 @@ class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):
             return None
 
     @classmethod
+    def extract_key(cls, message: InputMessage) -> str:
+        return message.application
+
+    @classmethod
     def extract_value(cls, message: InputMessage) -> float:
         return message.value
 

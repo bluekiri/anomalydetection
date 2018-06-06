@@ -38,7 +38,9 @@ class OutputMessage(object):
                  ts: datetime):
         self.application = application
         self.anomaly_results = anomaly_results
-        self.agg_window_millis = agg_window_millis
+        self.agg_window_millis = agg_window_millis \
+            if isinstance(agg_window_millis, int) \
+            else 0
         self.agg_function = agg_function
         self.agg_value = agg_value
         self.ts = ts
@@ -71,6 +73,10 @@ class OutputMessageHandler(BaseMessageHandler[InputMessage]):
     @classmethod
     def parse_message(cls, message: OutputMessage) -> InputMessage:
         return message.to_input()
+
+    @classmethod
+    def extract_key(cls, message: InputMessage) -> str:
+        return message.application
 
     @classmethod
     def extract_value(cls, message: InputMessage) -> float:

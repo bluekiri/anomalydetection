@@ -22,7 +22,6 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
         self.logger.info("Testing Kafka StreamBackend")
         kafka_broker = config["KAFKA_BROKER"]
         kafka = KafkaStreamBackend(kafka_broker,
-                                   kafka_broker,
                                    "test1",
                                    "test1",
                                    "test1")

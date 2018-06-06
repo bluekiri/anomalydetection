@@ -7,15 +7,16 @@ from collections import Generator
 
 from rx import Observable
 
-from anomalydetection.backend.engine.robust_z_engine import RobustDetector
+from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.interactor import WarmUp
+from anomalydetection.backend.interactor import BaseWarmUp
 from anomalydetection.backend.interactor.stream_engine import \
     StreamEngineInteractor
 from anomalydetection.backend.store_middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend
+from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
 from test import LoggingMixin
 
 logging.basicConfig()
@@ -24,6 +25,9 @@ logger.setLevel(logging.DEBUG)
 
 
 class DummyStream(BaseStreamBackend, LoggingMixin):
+
+    def __init__(self) -> None:
+        super().__init__(AggregationFunction.AVG, 1000)
 
     def poll(self) -> Generator:
         for i in range(5):
@@ -41,6 +45,10 @@ class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
         return InputMessage("app",
                             float(message),
                             datetime.datetime.now())
+
+    @classmethod
+    def extract_key(cls, message: InputMessage) -> str:
+        return message.application
 
     @classmethod
     def extract_value(cls, message: InputMessage) -> float:
@@ -63,7 +71,7 @@ class DummyMiddleware(Middleware, LoggingMixin):
         self.logger.debug("Middleware on_completed.")
 
 
-class DummyWarmUp(WarmUp, LoggingMixin):
+class DummyWarmUp(BaseWarmUp, LoggingMixin):
 
     def dummy_generator(self) -> Generator:
         for i in range(50):
@@ -79,12 +87,10 @@ class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
     def test_stream_engine_interactor(self):
 
         stream = DummyStream()
-        engine = RobustDetector(30, 0.95)
         interactor = StreamEngineInteractor(
             stream,
-            engine,
+            EngineBuilderFactory.get_robust().set_window(30).set_threshold(.95),
             DummyMessageHandler(),
             middleware=[DummyMiddleware()],
-            warm_up=DummyWarmUp(),
-            agg_window_millis=5 * 1000)
+            warm_up=DummyWarmUp())
         interactor.run()

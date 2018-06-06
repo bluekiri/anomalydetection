@@ -20,3 +20,4 @@ mock
 nose
 coverage
 cython
+findspark

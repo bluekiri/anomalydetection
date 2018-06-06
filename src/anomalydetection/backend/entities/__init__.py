@@ -12,6 +12,10 @@ class BaseMessageHandler(Generic[T]):
         raise NotImplementedError("To implement in child classes.")
 
     @classmethod
+    def extract_key(cls, message: T) -> str:
+        raise NotImplementedError("To implement in child classes.")
+
+    @classmethod
     def extract_value(cls, message: T) -> Any:
         raise NotImplementedError("To implement in child classes.")
 

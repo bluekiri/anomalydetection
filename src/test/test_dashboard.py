@@ -1,57 +1,71 @@
 # -*- coding:utf-8 -*- #
-
-from datetime import datetime
+import os
+from datetime import datetime, timedelta
 
 from tornado.testing import AsyncHTTPTestCase
 
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.entities.output_message import AnomalyResult
-from anomalydetection.backend.repository.sqlite import SQLiteRepository
-from anomalydetection.dashboard.app import make_app
-
-from test import config
+from anomalydetection.common.config import Config
+from anomalydetection.dashboard.dashboard import make_app
 
 
 class TestDashboard(AsyncHTTPTestCase):
 
-    headers = {
-       "Cookie": "session=2|1:0|10:1525430996|7:session|48:ODE5MjZkYTMtY"
-                 "jVkMy00ZDNlLWFhNjktNjk5N2NlM2U0ZmFi|cb014ac5f4f81ef35d6"
-                 "4b4af69edb3998eb6aca8e6ca2cfe3ced58787f2a6d31; user=2|1"
-                 ":0|10:1525430996|4:user|16:YWRtaW4gLSBQT0Nz|ba7047c1a2a"
-                 "6af09f7e8f0ca553ffbb35e11c4b0f694a661d9327159f30d312c"
-    }
+    headers = {}
+
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+
+        # Initialize config
+        self.config = Config(
+            "test",
+            open(os.path.dirname(__file__) + "/anomdec-test.yml"))
 
     def setUp(self):
         super().setUp()
 
-        # Insert some data
-        repository = SQLiteRepository(config["DATA_DB_FILE"])
+        conf = self.config.get_as_dict()
 
+        repository = conf["test"][3][0].repository
         repository.initialize()
+
         anom = AnomalyResult(-1, 1, 0.5, False)
-        repository.insert(OutputMessage("app", anom, 1, "none",
-                                        1, ts=datetime.now()))
-        repository.insert(OutputMessage("app", anom, 1, "none",
-                                        1, ts=datetime.now()))
-        repository.insert(OutputMessage("app", anom, 1, "none",
-                                        1, ts=datetime.now()))
-        repository.insert(OutputMessage("app", anom, 1, "none",
-                                        1, ts=datetime.now()))
+        ini_ts = datetime.now() - timedelta(days=1)
+        for i in range(200):
+            repository.insert(
+                OutputMessage("app", anom, 1, "none",
+                              1, ts=ini_ts + timedelta(minutes=1)))
+
+        # Set cookie
+        self.headers["Cookie"] = \
+            "user=2|1:0|10:1528280738|4:user|16:YWRtaW4gLSBQT0Nz|33f8d9829628" \
+            "65b4bc3d7dad42e0da78298b60e945351a3217672c7cfa7d07bb;session=2|1" \
+            ":0|10:1528280738|7:session|48:YjhhMjVhYjEtZTQwMi00NmRmLWFlNWYtYT" \
+            "YxMzY1YjgyZGNk|00f5dcf58b4899aa7dd9e6757941bc5e3cf777b45fcdc52b1" \
+            "c8fb68ed7e45f2e"
 
     def get_app(self):
         from anomalydetection.dashboard.settings import settings
-        settings["conf"]["DATA_DB_FILE"] = config["DATA_DB_FILE"]
+        settings.update({"config": self.config})
         return make_app(settings)
 
     def test_dashboard_homepage(self):
         response = self.fetch("/", method="GET", body=None)
         self.assertEqual(response.code, 200)
 
-    def test_dashboard_homepage_reprocess(self):
-        response = self.fetch("/?window=10&threshold=0.9999&engine=robust",
-                              method="GET", body=None, headers=self.headers,
-                              max_redirects=0)
+    def test_dashboard_homepage_reprocess_robust(self):
+        response = self.fetch(
+            "/?window=10&threshold=0.9999"
+            "&engine=robust&application=app&name=test",
+            method="GET", body=None, headers=self.headers)
+        self.assertEqual(response.code, 200)
+
+    def test_dashboard_homepage_reprocess_cad(self):
+        response = self.fetch(
+            "/?threshold=0.75"
+            "&engine=cad&application=app&name=test",
+            method="GET", body=None, headers=self.headers)
         self.assertEqual(response.code, 200)
 
     def test_dashboard_login(self):
@@ -68,5 +82,7 @@ class TestDashboard(AsyncHTTPTestCase):
 
     def test_dashboard_404(self):
         response = self.fetch("/404", method="GET", body=None,
-                              headers=self.headers)
+                              headers=self.headers,
+                              max_redirects=1)
+        print(response.body)
         self.assertEqual(response.code, 404)

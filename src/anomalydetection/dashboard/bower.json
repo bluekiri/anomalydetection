@@ -41,6 +41,10 @@
         "bower_components/jquery/dist/jquery.slim.js",
         "bower_components/jquery/dist/jquery.slim.js.map"
       ],
+      "inputmask": [
+        "bower_components/inputmask/dist/inputmask/dependencyLibs/**",
+        "bower_components/inputmask/dist/inputmask/*.js"
+      ],
       "font-awesome": {
         "mapping": [
           {
@@ -66,7 +70,6 @@
           }
         ]
       },
-      "inputmask": "bower_components/dist/**",
       "mustache.js": "bower_components/mustache.js/mustache.min.js"
     }
   }

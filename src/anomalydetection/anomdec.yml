@@ -1,0 +1,62 @@
+version: 1
+
+streams:
+
+  - name: kafka
+    backend:
+      type: kafka
+      params:
+        brokers: localhost:9092
+        in: test1
+        out: test2
+    aggregation:
+      function: avg
+      window_millis: 30000
+    engine:
+      type: cad
+      params:
+        min_value: 0
+        max_value: 101
+        threshold: 0.75
+        rest_period: 30
+        max_left_semi_contexts_length: 8
+        max_active_neurons_num: 16
+        num_norm_value_bits: 3
+    middleware:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec0.sqlite
+    warmup:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec0.sqlite
+
+  - name: pubsub
+    backend:
+      type: pubsub
+      params:
+        project: testing
+        auth_file: /dev/null
+        in: test1
+        out: test2
+    engine:
+      type: robust
+      params:
+        window: 30
+        threshold: 0.99999
+    middleware:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec1.sqlite
+    warmup:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec1.sqlite
