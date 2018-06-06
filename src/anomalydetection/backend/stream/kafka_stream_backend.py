@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import logging
+import multiprocessing
 import threading
 import warnings
 from queue import Queue
@@ -178,12 +179,12 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
                 print("Error importing pyspark", e)
                 exit(127)
 
-        # Run in thread.
-        p = threading.Thread(target=helper,
-                             args=(self.queue,
-                                   self.agg_function,
-                                   self.agg_window_millis),
-                             name="PySpark")
+        # Run in multiprocessing, each aggregation runs a spark driver.
+        p = multiprocessing.Process(target=helper,
+                                    args=(self.queue,
+                                          self.agg_function,
+                                          self.agg_window_millis),
+                                    name="PySpark")
         p.start()
 
     def poll(self) -> Generator:
