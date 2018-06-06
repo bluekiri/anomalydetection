@@ -2,10 +2,9 @@
 
 import logging
 import multiprocessing
-import threading
 import warnings
-from queue import Queue
 from typing import Generator
+from multiprocessing import Queue
 
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -13,9 +12,11 @@ from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.stream.aggregation_functions import \
     AggregationFunction
 from anomalydetection.backend.stream import BaseStreamBackend
+from anomalydetection.common.concurrency import Concurrency
 
 
 class KafkaStreamBackend(BaseStreamBackend):
+
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
@@ -98,7 +99,7 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
             bootstrap_servers=self.broker_servers,
             api_version=(0, 10))
 
-        def helper(queue: Queue,
+        def run_spark_job(queue: Queue,
                    _agg_function: AggregationFunction,
                    _agg_window_millis: int):
             try:
@@ -180,12 +181,11 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
                 exit(127)
 
         # Run in multiprocessing, each aggregation runs a spark driver.
-        p = multiprocessing.Process(target=helper,
-                                    args=(self.queue,
-                                          self.agg_function,
-                                          self.agg_window_millis),
-                                    name="PySpark")
-        p.start()
+        Concurrency.run_process(target=run_spark_job,
+                                args=(self.queue,
+                                      self.agg_function,
+                                      self.agg_window_millis),
+                                name="PySpark {}".format(str(self)))
 
     def poll(self) -> Generator:
         while True:
