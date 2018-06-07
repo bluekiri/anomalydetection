@@ -10,8 +10,86 @@ from kafka import KafkaConsumer, KafkaProducer
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.stream.aggregation_functions import \
     AggregationFunction
-from anomalydetection.backend.stream import BaseStreamBackend
+from anomalydetection.backend.stream import BaseStreamBackend, \
+    BasePollingStream, BasePushingStream, BaseStreamAggregation
 from anomalydetection.common.concurrency import Concurrency
+
+
+class KafkaPollingStream(BasePollingStream):
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    def __init__(self,
+                 broker_server: str,
+                 topic: str,
+                 group_id: str) -> None:
+        """
+        Kafka Stream backend constructor.
+
+        :type broker_server:      str.
+        :param broker_server:     broker/s servers.
+        :type       topic:        str.
+        :param       topic:       topic to read from.
+        :type group_id:           str.
+        :param group_id:          consumer id.
+        """
+        super().__init__()
+        self.broker_servers = broker_server.split(",")
+        self.topic = topic
+        self.group_id = group_id
+
+        self.kafka_consumer = KafkaConsumer(
+            self.topic,
+            bootstrap_servers=self.broker_servers,
+            group_id=self.group_id)
+        self.kafka_consumer.subscribe([self.topic])
+
+    def poll(self) -> Generator:
+        while True:
+            self.logger.debug("Polling messages (auto ack). START")
+            try:
+                for msg in self.kafka_consumer:
+                    message = msg.value.decode('utf-8')
+                    self.logger.debug("Message received: {}".format(message))
+                    yield message
+            except Exception as ex:
+                self.logger.error("Error polling messages.", ex)
+
+            self.logger.debug("Polling messages. END")
+
+
+class KafkaPushingStream(BasePushingStream):
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    def __init__(self,
+                 broker_server: str,
+                 output_topic: str) -> None:
+        """
+        Kafka Stream backend constructor.
+
+        :type broker_server:      str.
+        :param broker_server:     broker/s servers.
+        :type topic:              str.
+        :param topic:             topic to write to.
+        """
+        super().__init__()
+        self.broker_servers = broker_server.split(",")
+        self.topic = output_topic
+
+        self.kafka_producer = KafkaProducer(
+            bootstrap_servers=self.broker_servers,
+            api_version=(0, 10))
+
+    def push(self, message: str) -> None:
+        try:
+            self.logger.debug("Pushing message: {}.".format(message))
+            self.kafka_producer.send(self.topic,
+                                     bytearray(message, 'utf-8'))
+        except Exception as ex:
+            self.logger.error("Pushing message failed.", ex)
 
 
 class KafkaStreamBackend(BaseStreamBackend):
@@ -36,67 +114,30 @@ class KafkaStreamBackend(BaseStreamBackend):
         :type group_id:           str.
         :param group_id:          consumer id.
         """
-        super().__init__()
-        self.broker_servers = broker_server.split(",")
-        self.input_topic = input_topic
-        self.output_topic = output_topic
-        self.group_id = group_id
-
-        self.kafka_consumer = KafkaConsumer(
-            self.input_topic,
-            bootstrap_servers=self.broker_servers,
-            group_id=self.group_id)
-        self.kafka_consumer.subscribe([self.input_topic])
-
-        self.kafka_producer = KafkaProducer(
-            bootstrap_servers=self.broker_servers,
-            api_version=(0, 10))
-
-    def poll(self) -> Generator:
-        while True:
-            self.logger.debug("Polling messages (auto ack). START")
-            try:
-                for msg in self.kafka_consumer:
-                    message = msg.value.decode('utf-8')
-                    self.logger.debug("Message received: {}".format(message))
-                    yield message
-            except Exception as ex:
-                self.logger.error("Error polling messages.", ex)
-
-            self.logger.debug("Polling messages. END")
-
-    def push(self, message: str) -> None:
-        try:
-            self.logger.debug("Pushing message: {}.".format(message))
-            self.kafka_producer.send(self.output_topic,
-                                     bytearray(message, 'utf-8'))
-        except Exception as ex:
-            self.logger.error("Pushing message failed.", ex)
+        super().__init__(
+            KafkaPollingStream(broker_server,
+                               input_topic,
+                               group_id),
+            KafkaPushingStream(broker_server, output_topic))
 
 
-class SparkKafkaStreamBackend(BaseStreamBackend):
+class SparkKafkaPollingStream(BasePollingStream, BaseStreamAggregation):
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
     def __init__(self,
                  broker_server: str,
-                 input_topic: str,
-                 output_topic: str,
+                 topic: str,
                  group_id: str,
                  agg_function: AggregationFunction,
                  agg_window_millis: int) -> None:
 
         super().__init__(agg_function, agg_window_millis)
         self.broker_servers = broker_server.split(",")
-        self.input_topic = input_topic
-        self.output_topic = output_topic
+        self.input_topic = topic
         self.group_id = group_id
         self.queue = Queue()
-
-        self.kafka_producer = KafkaProducer(
-            bootstrap_servers=self.broker_servers,
-            api_version=(0, 10))
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
@@ -191,10 +232,24 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
             message = self.queue.get()
             yield message
 
-    def push(self, message: str) -> None:
-        try:
-            self.logger.debug("Pushing message: {}.".format(message))
-            self.kafka_producer.send(self.output_topic,
-                                     bytearray(message, 'utf-8'))
-        except Exception as ex:
-            self.logger.error("Pushing message failed.", ex)
+
+class SparkKafkaStreamBackend(BaseStreamBackend):
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    def __init__(self,
+                 broker_server: str,
+                 input_topic: str,
+                 output_topic: str,
+                 group_id: str,
+                 agg_function: AggregationFunction,
+                 agg_window_millis: int) -> None:
+
+        super().__init__(
+            SparkKafkaPollingStream(broker_server,
+                                    input_topic,
+                                    group_id,
+                                    agg_function,
+                                    agg_window_millis),
+            KafkaPushingStream(broker_server, output_topic))

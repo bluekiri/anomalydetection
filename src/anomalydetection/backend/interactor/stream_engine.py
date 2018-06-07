@@ -8,7 +8,8 @@ from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
 from anomalydetection.backend.store_middleware import Middleware
-from anomalydetection.backend.stream import BaseStreamBackend
+from anomalydetection.backend.stream import BaseStreamBackend, \
+    BaseStreamAggregation
 from anomalydetection.backend.stream import BaseObservable
 
 
@@ -27,8 +28,12 @@ class StreamEngineInteractor(BaseEngineInteractor):
         self.stream = stream
         self.middleware = middleware
         self.warm_up = warm_up
-        self.agg_function = stream.agg_function
-        self.agg_window_millis = stream.agg_window_millis
+        if isinstance(stream, BaseStreamAggregation):
+            self.agg_function = stream.agg_function
+            self.agg_window_millis = stream.agg_window_millis
+        else:
+            self.agg_function = None
+            self.agg_window_millis = None
         self.app_engine = {}
 
     def map_with_engine(self, input_message: InputMessage) -> OutputMessage:

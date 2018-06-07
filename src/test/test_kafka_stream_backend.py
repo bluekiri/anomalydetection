@@ -51,7 +51,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
                 self.logger.info("Next: {}".format(i))
                 self.assertEqual(message, i)
                 self.passed = True
-                kafka.kafka_consumer.unsubscribe()
+                kafka.poll_stream.kafka_consumer.unsubscribe()
                 break
         else:
             raise Exception("Cannot consume published message.")

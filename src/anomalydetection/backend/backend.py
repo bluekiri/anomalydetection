@@ -72,7 +72,7 @@ def produce_messages(config: Config):
     # Send a message each 10ms
     publishers = config.build_publishers()
     for pub in publishers:
-        Observable.interval(10000).subscribe(IntervalObserver(pub))
+        Observable.interval(1000).subscribe(IntervalObserver(pub.push_stream))
 
 
 def main(config: Config):
