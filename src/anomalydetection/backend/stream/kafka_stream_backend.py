@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 
 import logging
-import multiprocessing
 import warnings
 from typing import Generator
 from multiprocessing import Queue
@@ -100,8 +99,8 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
             api_version=(0, 10))
 
         def run_spark_job(queue: Queue,
-                   _agg_function: AggregationFunction,
-                   _agg_window_millis: int):
+                          _agg_function: AggregationFunction,
+                          _agg_window_millis: int):
             try:
                 try:
                     import findspark
