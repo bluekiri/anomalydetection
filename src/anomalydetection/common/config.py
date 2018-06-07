@@ -135,23 +135,34 @@ class Config(object):
         for item in config.config["streams"]:
 
             # Flip topics
-            topic = item["backend"]["params"]["in"]
-            item["backend"]["params"]["in"] = "deleted"
-            item["backend"]["params"]["out"] = topic
+            original_in = str(item["backend"]["params"]["in"])
+            original_out = str(item["backend"]["params"]["out"])
+            item["backend"]["params"]["in"] = original_out
+            item["backend"]["params"]["out"] = original_in
 
             # Topic is not auto created in PubSub
             if item["backend"]["type"] == "pubsub":
                 project = item["backend"]["params"]["project"]
                 try:
+
+                    # Create topics
                     publisher = PublisherClient()
                     publisher.create_topic(
                         publisher.topic_path(project,
-                                             topic))
+                                             original_in))
+                    publisher.create_topic(
+                        publisher.topic_path(project,
+                                             original_out))
 
+                    # And subscriptions
                     subscriber = SubscriberClient()
                     subscriber.create_subscription(
-                        subscriber.subscription_path(project, topic),
-                        subscriber.topic_path(project, topic))
+                        subscriber.subscription_path(project, original_in),
+                        subscriber.topic_path(project, original_in))
+                    subscriber.create_subscription(
+                        subscriber.subscription_path(project, original_out),
+                        subscriber.topic_path(project, original_out))
+
                 except AlreadyExists as _:
                     pass
 

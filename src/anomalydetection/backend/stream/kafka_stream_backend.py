@@ -1,10 +1,9 @@
 # -*- coding:utf-8 -*-
 
 import logging
-import threading
 import warnings
-from queue import Queue
 from typing import Generator
+from multiprocessing import Queue
 
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -12,9 +11,11 @@ from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.stream.aggregation_functions import \
     AggregationFunction
 from anomalydetection.backend.stream import BaseStreamBackend
+from anomalydetection.common.concurrency import Concurrency
 
 
 class KafkaStreamBackend(BaseStreamBackend):
+
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
@@ -97,9 +98,9 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
             bootstrap_servers=self.broker_servers,
             api_version=(0, 10))
 
-        def helper(queue: Queue,
-                   _agg_function: AggregationFunction,
-                   _agg_window_millis: int):
+        def run_spark_job(queue: Queue,
+                          _agg_function: AggregationFunction,
+                          _agg_window_millis: int):
             try:
                 try:
                     import findspark
@@ -178,13 +179,12 @@ class SparkKafkaStreamBackend(BaseStreamBackend):
                 print("Error importing pyspark", e)
                 exit(127)
 
-        # Run in thread.
-        p = threading.Thread(target=helper,
-                             args=(self.queue,
-                                   self.agg_function,
-                                   self.agg_window_millis),
-                             name="PySpark")
-        p.start()
+        # Run in multiprocessing, each aggregation runs a spark driver.
+        Concurrency.run_process(target=run_spark_job,
+                                args=(self.queue,
+                                      self.agg_function,
+                                      self.agg_window_millis),
+                                name="PySpark {}".format(str(self)))
 
     def poll(self) -> Generator:
         while True:
