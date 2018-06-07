@@ -2,11 +2,9 @@
 
 import json
 import logging
-import multiprocessing
 import random
-import threading
 
-from rx import Observable
+from rx import Observable, Observer
 
 from anomalydetection.common.concurrency import Concurrency
 from anomalydetection.common.config import Config
@@ -45,21 +43,36 @@ def produce_messages(config: Config):
 
     apps = ["devel0", "devel1", "devel2"]
 
-    def push(i, publisher):
-        logger.info("Sending message number {}".format(i))
-        from datetime import datetime
-        for app in apps:
-            random.shuffle(vals)
-            publisher.push(json.dumps({
-                "application": app,
-                "ts": str(datetime.now()),
-                "value": vals[0]
-            }))
+    class IntervalObserver(Observer):
+
+        def __init__(self, publisher) -> None:
+            super().__init__()
+            self.publisher = publisher
+
+        def push(self, value):
+            logger.info("Sending message number {}".format(value))
+            from datetime import datetime
+            for app in apps:
+                random.shuffle(vals)
+                self.publisher.push(json.dumps({
+                    "application": app,
+                    "ts": str(datetime.now()),
+                    "value": vals[0]
+                }))
+
+        def on_next(self, value):
+            return self.push(value)
+
+        def on_error(self, error):
+            return super().on_error(error)
+
+        def on_completed(self):
+            return super().on_completed()
 
     # Send a message each 10ms
     publishers = config.build_publishers()
-    Observable.interval(10000).subscribe(lambda i: push(i, publishers[0]))
-    # Observable.interval(10000).subscribe(lambda i: push(i, publishers[1]))
+    for pub in publishers:
+        Observable.interval(10000).subscribe(IntervalObserver(pub))
 
 
 def main(config: Config):
