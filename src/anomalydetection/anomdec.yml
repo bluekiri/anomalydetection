@@ -16,7 +16,7 @@ streams:
       type: cad
       params:
         min_value: 0
-        max_value: 101
+        max_value: 15
         threshold: 0.75
         rest_period: 30
         max_left_semi_contexts_length: 8

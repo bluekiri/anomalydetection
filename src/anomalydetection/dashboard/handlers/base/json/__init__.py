@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import traceback
 
 from tornado.escape import json_encode
@@ -35,10 +34,10 @@ class BaseJSONHandler(BaseHandler):
             }
         }))
 
-    async def response(self, code, chunk):
+    def response(self, code, chunk):
         self.set_status(code)
-        self.write(json.dumps(chunk))
+        self.write(json_encode(chunk))
 
-    async def error(self, status_code, reason):
+    def error(self, status_code, reason):
         self.set_status(status_code, reason)
         self.write_error(self.get_status())

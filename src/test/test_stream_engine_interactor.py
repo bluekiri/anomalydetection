@@ -14,7 +14,7 @@ from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseWarmUp
 from anomalydetection.backend.interactor.stream_engine import \
     StreamEngineInteractor
-from anomalydetection.backend.store_middleware import Middleware
+from anomalydetection.backend.middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend
 from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
 from test import LoggingMixin

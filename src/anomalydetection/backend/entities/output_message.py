@@ -5,6 +5,7 @@ import json
 
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
+from anomalydetection.backend.stream import AggregationFunction
 
 
 class AnomalyResult(object):
@@ -33,7 +34,7 @@ class OutputMessage(object):
                  application: str,
                  anomaly_results: AnomalyResult,
                  agg_window_millis: int,
-                 agg_function: callable,
+                 agg_function: AggregationFunction,
                  agg_value: float,
                  ts: datetime):
         self.application = application
@@ -45,13 +46,13 @@ class OutputMessage(object):
         self.agg_value = agg_value
         self.ts = ts
 
-    def to_dict(self):
+    def to_dict(self, ts2str=False):
         return dict(application=self.application,
                     anomaly_results=self.anomaly_results.to_dict(),
                     agg_window_millis=self.agg_window_millis,
                     agg_function=self.agg_function,
                     agg_value=self.agg_value,
-                    ts=self.ts)
+                    ts=self.ts if not ts2str else str(self.ts))
 
     def to_plain_dict(self):
         me = self.to_dict()
@@ -63,8 +64,7 @@ class OutputMessage(object):
         return InputMessage(self.application, self.agg_value, self.ts)
 
     def __str__(self):
-        response = self.to_dict()
-        response["ts"] = str(response["ts"])  # Datetime to string
+        response = self.to_dict(True)
         return json.dumps(response)
 
 

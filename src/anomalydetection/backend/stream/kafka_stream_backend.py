@@ -58,6 +58,11 @@ class KafkaPollingStream(BasePollingStream):
 
             self.logger.debug("Polling messages. END")
 
+    def __str__(self) -> str:
+        return "Kafka topic: brokers: {}, topic: {}".format(
+            self.broker_servers,
+            self.topic)
+
 
 class KafkaPushingStream(BasePushingStream):
 
@@ -90,6 +95,11 @@ class KafkaPushingStream(BasePushingStream):
                                      bytearray(message, 'utf-8'))
         except Exception as ex:
             self.logger.error("Pushing message failed.", ex)
+
+    def __str__(self) -> str:
+        return "Kafka topic: brokers: {}, topic: {}".format(
+            self.broker_servers,
+            self.topic)
 
 
 class KafkaStreamBackend(BaseStreamBackend):
@@ -135,7 +145,7 @@ class SparkKafkaPollingStream(BasePollingStream, BaseStreamAggregation):
 
         super().__init__(agg_function, agg_window_millis)
         self.broker_servers = broker_server.split(",")
-        self.input_topic = topic
+        self.topic = topic
         self.group_id = group_id
         self.queue = Queue()
 
@@ -185,7 +195,7 @@ class SparkKafkaPollingStream(BasePollingStream, BaseStreamAggregation):
 
                 kafka_stream = KafkaUtils.createDirectStream(
                     ssc,
-                    [self.input_topic],
+                    [self.topic],
                     {"metadata.broker.list": ",".join(self.broker_servers)})
 
                 def aggregate_rdd(_queue, _agg, df, ts):
@@ -231,6 +241,14 @@ class SparkKafkaPollingStream(BasePollingStream, BaseStreamAggregation):
         while True:
             message = self.queue.get()
             yield message
+
+    def __str__(self) -> str:
+        return "Kafka aggregated topic: " \
+               "brokers: {}, topic: {}, func: {}, window: {}ms".format(
+                    self.broker_servers,
+                    self.topic,
+                    self.agg_function.name,
+                    self.agg_window_millis)
 
 
 class SparkKafkaStreamBackend(BaseStreamBackend):

@@ -2,7 +2,7 @@
 import logging
 
 from anomalydetection.backend.repository import BaseRepository
-from anomalydetection.backend.store_middleware import Middleware
+from anomalydetection.backend.middleware import Middleware
 
 
 class StoreRepositoryMiddleware(Middleware):

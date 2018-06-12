@@ -52,6 +52,41 @@ ST.get = function(key, value) {
   return null
 };
 
+let SWHandler = {};
+SWHandler.handle = function(ev) {
+  try {
+    const tick = JSON.parse(ev.data);
+    const app = tick.application;
+    const signal = $('[data-signal]').data("signal");
+    if (signal === tick.signal) {
+      const data = {
+        ts: Date.parse(tick.ts),
+        value: tick.agg_value,
+        lower: tick.anomaly_results.value_lower_limit,
+        upper: tick.anomaly_results.value_upper_limit
+      };
+
+      const len = sources[app].data.ts.length;
+      sources[app].stream(data, len);
+      if (tick.anomaly_results.is_anomaly > 0) {
+        const anomaly_data = {
+          ts: Date.parse(tick.ts),
+          anomaly: tick.agg_value
+        };
+        const len = anomaly_sources[app].data.ts.length;
+        anomaly_sources[app].stream(anomaly_data, len);
+      }
+      console.log("Event added");
+    }
+  } catch (error) {
+    if (error.isPrototypeOf(TypeError)) {
+      // Do nothing
+    } else {
+      console.log(error)
+    }
+  }
+};
+
 $(function(){
 
   // Ignore websockets
@@ -96,7 +131,7 @@ $(function(){
           };
 
           ws.onmessage = function(ev) {
-            f.handleEvent(ev);
+            SWHandler.handle(ev);
           };
 
           ws.onclose = function(ev) {

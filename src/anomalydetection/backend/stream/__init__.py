@@ -56,3 +56,6 @@ class BaseStreamBackend(BasePollingStream, BasePushingStream):
 
     def push(self, message: str) -> None:
         self.push_stream.push(message)
+
+    def __str__(self) -> str:
+        return "↓ {} | ↑ {}".format(self.poll_stream, self.push_stream)

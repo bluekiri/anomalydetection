@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Signal <strong>{{ signal_name }}</strong>{% end %}
+{% block head %}
+	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.15.css"
+        type="text/css" />
+  <script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js"></script>
+  <script src="//cdn.pydata.org/bokeh/release/bokeh-api-0.12.15.min.js"></script>
+  <script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js"></script>
+{% end %}
+{% block nav %}
+<li class="dropdown messages-menu">
+  <a href="#" id="ws-indicator" class="dropdown-toggle" title="WS not connected"
+      data-placement="bottom">
+    <i class="fa fa-circle text-red"></i>
+    <span class="label label-success"></span>
+  </a>
+</li>
+{% end %}
+{% block content %}
+<div class="row">
+  <!-- left column -->
+  <div class="col-md-2">
+    <!-- general form elements -->
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Model settings</h3>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+      <form role="form" method="get">
+        <div class="box-body">
+          <div class="form-group">
+            <label>Application</label>
+            <select name="application" class="form-control">
+              {% for app in applications %}
+                <option class="option"
+                        {% if selected_app == app %}
+                          selected="selected"
+                        {% end %}
+                        value="{{ app }}">{{ app }}</option>
+              {% end %}
+            </select>
+          </div>
+          {#
+          <div class="form-group">
+            <label>Select</label>
+            <select disabled="disabled" name="engine" class="form-control">
+              {% for key, value in engines.items() %}
+                <option class="option"
+                        {% if engine_key == key %}
+                          selected="selected"
+                        {% end %}
+                        value="{{ key }}">{{ value['name'] }}</option>
+              {% end %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>From date</label>
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <input type="text" name="from-date" class="form-control"
+                     value="{{ form_data['from-date'] }}"
+                     data-inputmask="'alias': 'dd-mm-yyyy'" data-datemask="datemask">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>To date</label>
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <input type="text" name="to-date" class="form-control"
+                     value="{{ form_data['to-date'] }}"
+                     data-inputmask="'alias': 'dd-mm-yyyy'" data-datemask="datemask">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="threshold">Threshold</label>
+            <input type="number" class="form-control" id="threshold"
+                   name="threshold" value="{{ form_data['threshold'] }}"
+                   min="0.50" max="1.0" step="0.00000000001"
+                   placeholder="Threshold">
+          </div>
+          <div class="form-group">
+            <label for="window-size">Window size</label>
+            <input type="number" class="form-control" id="window-size"
+                   name="window" value="{{ form_data['window'] }}"
+                   placeholder="Window size">
+          </div>
+          #}
+        </div>
+        {#
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+        #}
+      </form>
+    </div>
+    <!-- /.box -->
+  </div>
+  <div class="col-md-10">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">{{ engine_name }}</h3>
+      </div>
+      <div class="box-body">
+        <div id="plot" data-signal="{{ signal_name }}">
+        </div>
+        <script>
+          let figure, sources = {}, anomaly_sources = {};
+          $(function(){
+
+            $('select[name="application"]').change(function() {
+
+              const value = $(this).val();
+              $("#plot").empty();
+
+              $.ajax("/signals/{{ signal_name }}/data/", {
+                data: {
+                  application: value
+                },
+                success: function(res) {
+
+                  // Figure
+                  const plt = Bokeh.Plotting;
+                  figure = plt.figure({
+                    plot_width: 400,
+                    plot_height: 180,
+                    sizing_mode: "scale_width",
+                    x_axis_type: "datetime",
+                    x_axis_label: "datetime",
+                    y_axis_label: "value/agg value"
+                  });
+
+                  // Prepare data for plotting
+                  const data = {
+                    ts: res.map((item) => Date.parse(item.ts)),
+                    value: res.map((item) => item.agg_value),
+                    lower: res.map((item) => item.value_lower_limit),
+                    upper: res.map((item) => item.value_upper_limit),
+                  };
+
+                  const anomalies = {
+                    ts: res.map((item) => item.is_anomaly ? Date.parse(item.ts) : 0).filter((i) => i > 0),
+                    anomaly: res.map((item) => item.is_anomaly ? item.agg_value : 0).filter((i) => i > 0)
+                  };
+
+                  // Column Data Source
+                  sources[value] = new Bokeh.ColumnDataSource({
+                    data: data
+                  });
+
+                  anomaly_sources[value] = new Bokeh.ColumnDataSource({
+                    data: anomalies
+                  });
+
+                  // Add data
+                  figure.line(
+                      {field: "ts"},
+                      {field: "value"},
+                      {
+                        source: sources[value],
+                        legend: "Value",
+                        line_color: "blue",
+                        line_width: 2
+                      }
+                  );
+                  figure.line(
+                      {field: "ts"},
+                      {field: "lower"},
+                      {
+                        source: sources[value],
+                        legend: "Lower bound",
+                        line_color: "green",
+                        line_width: 0.5
+                      }
+                  );
+                  figure.line(
+                      {field: "ts"},
+                      {field: "upper"},
+                      {
+                        source: sources[value],
+                        legend: "Upper bound",
+                        line_color: "red",
+                        line_width: 0.5
+                      }
+                  );
+                  figure.circle(
+                      {field: "ts"},
+                      {field: "anomaly"},
+                      {
+                        source: anomaly_sources[value],
+                        legend: "Anomaly",
+                        fill_color: "red",
+                        line_color: "red",
+                        line_width: 0,
+                        size: 5
+                      }
+                  );
+
+                  figure._legend.location = "top_left";
+                  plt.show(figure, "#plot")
+                }
+              });
+            }).trigger("change")
+          })
+        </script>
+      </div>
+    </div>
+  </div>
+  <!-- /.col -->
+</div>
+<!-- /.row -->
+
+<script src="/static/vendor/inputmask/inputmask.js"></script>
+<script src="/static/vendor/inputmask/inputmask.dependencyLib.js"></script>
+<script src="/static/vendor/inputmask/inputmask.dependencyLib.jquery.js"></script>
+<script src="/static/vendor/inputmask/jquery.inputmask.js"></script>
+<script src="/static/vendor/inputmask/inputmask.date.extensions.js"></script>
+<script src="/static/vendor/inputmask/inputmask.extensions.js"></script>
+<script>
+  $(function () {
+    $('[data-datemask]').inputmask('dd-mm-yyyy', { 'placeholder': 'dd-mm-yyyy' })
+  })
+</script>
+{% end %}

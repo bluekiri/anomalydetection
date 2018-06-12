@@ -53,6 +53,9 @@ class PubSubPollingStream(BasePollingStream):
             message.ack()
             yield str(message.data, "utf-8")
 
+    def __str__(self) -> str:
+        return "PubSub subscription: {}".format(self._full_subscription_name())
+
 
 class PubSubPushingStream(BasePushingStream):
 
@@ -85,6 +88,9 @@ class PubSubPushingStream(BasePushingStream):
             self.publisher.publish(self._full_topic_name(), encoded)
         except Exception as ex:
             self.logger.error("Pushing message failed.", ex)
+
+    def __str__(self) -> str:
+        return "PubSub topic: {}".format(self._full_topic_name())
 
 
 class PubSubStreamBackend(BaseStreamBackend):

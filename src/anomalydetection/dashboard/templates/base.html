@@ -91,6 +91,7 @@
         <ul class="sidebar-menu">
           <li class="header">MAIN NAVIGATION</li>
           <li><a href="/"><i class="fa fa-home"></i> <span>Home</span></a></li>
+          <li><a href="/signals/"><i class="fa fa-line-chart"></i> <span>Signals</span></a></li>
         </ul>
       </section>
       <!-- /.sidebar -->
@@ -106,8 +107,13 @@
         </h1>
         <div id="after-title"></div>
         <ol class="breadcrumb">
-          <li><a href="/"><strong>Anomaly Detection</strong></a></li>
-          <li class="active">{% block title %}{% end %}</li>
+          <li><a href="/"><strong>Home</strong></a></li>
+          {% try %}
+              {% for item in breadcrumb %}
+              <li class="{{ item[2] }}"><a href="{{ item[0] }}">{{ item[1] }}</a></li>
+              {% end %}
+          {% except %}
+          {% end %}
         </ol>
       </section>
 

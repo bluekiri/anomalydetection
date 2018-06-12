@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from anomalydetection.backend.store_middleware import Middleware
+from anomalydetection.backend.middleware import Middleware
 
 
 class StoreToFileMiddleware(Middleware):

@@ -10,7 +10,7 @@ from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.repository.observable import ObservableRepository
-from anomalydetection.backend.store_middleware.store_repository_middleware import \
+from anomalydetection.backend.middleware.store_repository_middleware import \
     StoreRepositoryMiddleware
 from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.builder import StreamBuilderFactory

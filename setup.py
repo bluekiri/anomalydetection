@@ -15,7 +15,7 @@ install_require = [
     # Google cloud base
     "google-cloud", "google-cloud-pubsub",
     # Dashboard
-    "tornado", "PyYAML", "python-ldap"
+    "tornado", "PyYAML", "python-ldap", "websockets"
 ]
 
 test_require = [

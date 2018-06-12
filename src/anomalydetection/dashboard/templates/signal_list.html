@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Signal list{% end %}
+{% block head %}
+  <script src="/static/vendor/datatables.net/jquery.dataTables.js"></script>
+
+  <link rel="stylesheet"
+        href="/static/vendor/datatables.net-bs/dataTables.bootstrap.css"
+        type="text/css" />
+  <script src="/static/vendor/datatables.net-bs/dataTables.bootstrap.js"></script>
+{% end %}
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-body">
+        <table id="signal-list" class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Source</th>
+            <th>Anomalies target</th>
+          </tr>
+          </thead>
+          {% for key, item in conf.items() %}
+          <tr>
+            <td><a href="/signals/{{ key }}/">{{ key }}</a></td>
+            <td>{{ item[0].poll_stream }}</td>
+            <td>{{ item[0].push_stream }}</td>
+          </tr>
+          {% end %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /.row -->
+<script>
+  $(function () {
+    $('#signal-list').DataTable({
+      'paging': true,
+      'lengthChange': false,
+      'searching': false,
+      'ordering': true,
+      'info': true,
+      'autoWidth': false
+    })
+  })
+</script>
+{% end %}

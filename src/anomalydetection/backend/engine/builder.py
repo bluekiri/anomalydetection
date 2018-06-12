@@ -15,6 +15,8 @@ class BaseBuilder(object):
 
 class CADDetectorBuilder(BaseBuilder):
 
+    type = "cad"
+
     def __init__(self,
                  min_value=-sys.maxsize,
                  max_value=sys.maxsize,
@@ -64,6 +66,8 @@ class CADDetectorBuilder(BaseBuilder):
 
 
 class RobustDetectorBuilder(BaseBuilder):
+
+    type = "robust"
 
     def __init__(self, window=100, threshold=0.9999):
         self.window = window

@@ -88,6 +88,7 @@ class SQLiteRepository(BaseRepository):
         if application:
             stmt = stmt + """AND application = ?"""
             params = (from_ts, to_ts, application)
+        stmt = stmt + """ ORDER BY ts ASC """
         self.conn = sqlite3.connect(self.conn_string)
         cur = self.conn.cursor()
         cursor = cur.execute(stmt, params)
