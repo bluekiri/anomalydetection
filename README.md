@@ -6,7 +6,7 @@ This project born from the need of detect anomalies on multiple signals.
 To achieve this, Bluekiri decided to implement its own system to manage
 multiple signals at the same time in a easy and scalable way.
 
-# Devel mode
+## Devel mode
 
 At this moment, there is a _devel_/_demo_ mode to demonstrate how the system works. It
 generates multiple signals using kafka and pubsub as message systems. Then,
@@ -48,10 +48,6 @@ last the result of these are displayed in realtime by the dashboard.
     ```bash
     sudo apt-get install libsasl2-dev libldap2-dev libssl-dev
     ```
-    
-    Build tools
-    
-    - bower-installer
 
 3. Create a virtualenv
 
@@ -85,6 +81,7 @@ last the result of these are displayed in realtime by the dashboard.
 You can run it as a python module
 
 ```bash
+export SPARK_HOME="<spark home directory>"
 python -m anomalydetection.anomdec devel
 ```
     
@@ -103,13 +100,9 @@ to overwrite the default settings of logging (Is in DEBUG level while developing
 And run it typing
 
 ```bash
+export SPARK_HOME="<spark home directory>"
 python3 -m anomalydetection.anomdec
 ```
-
-## Dashboard login
-
-An actual login process is not already implemented, the default username:password
-is ```admin:admin```.
 
 ## Message format
 
