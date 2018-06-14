@@ -27,3 +27,8 @@ streams:
           type: sqlite
           params:
             database: /tmp/anomdec-test.sqlite
+
+websocket: ws://localhost:5000/ws/
+
+auth:
+  enabled: false

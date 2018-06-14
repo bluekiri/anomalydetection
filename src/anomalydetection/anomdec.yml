@@ -80,3 +80,6 @@ streams:
             database: /tmp/anomdec1.sqlite
 
 websocket: ws://localhost:5000/ws/
+
+auth:
+  enabled: false

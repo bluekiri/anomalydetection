@@ -17,6 +17,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import traceback
+import uuid
 
 from tornado import web
 from tornado.web import RequestHandler
@@ -71,13 +72,29 @@ class BaseHTMLHandler(BaseHandler):
 
 class AuthMixin(RequestHandler):
 
+    def is_auth_enabled(self):
+        try:
+            return self.application.settings['config'].config["auth"]["enabled"]
+        except Exception as _:
+            return True
+
     def data_received(self, chunk):
         pass
 
     def get_current_user(self):
+        session = self.get_secure_cookie("session")
+        if not session and not self.is_auth_enabled():
+            session_uuid = str(uuid.uuid4())
+            self.set_secure_cookie("session", session_uuid)
+            return session_uuid
         return self.get_secure_cookie("session")
 
     def get_display_name(self):
+        user = self.get_secure_cookie("user")
+        if not user and not self.is_auth_enabled():
+            self.set_secure_cookie("user", "anonymous")
+            return "anonymous"
+
         return self.get_secure_cookie("user")
 
 

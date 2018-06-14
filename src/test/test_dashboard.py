@@ -70,19 +70,15 @@ class TestDashboard(AsyncHTTPTestCase):
 
     def test_dashboard_login(self):
         response = self.fetch("/login?next=%2F", method="POST",
-                              body="username=admin&password=admin",
-                              max_redirects=0)
+                              body="username=admin&password=admin")
 
-        self.assertEqual(response.code, 302)
-        self.assertEqual(response.headers._dict['Location'], "/")
+        self.assertEqual(response.code, 200)
 
     def test_dashboard_maintenance(self):
         response = self.fetch("/maintenance", method="GET", body=None)
         self.assertEqual(response.code, 200)
 
     def test_dashboard_404(self):
-        response = self.fetch("/404", method="GET", body=None,
-                              headers=self.headers,
-                              max_redirects=1)
+        response = self.fetch("/404/", method="GET", body=None)
         print(response.body)
         self.assertEqual(response.code, 404)
