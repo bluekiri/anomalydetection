@@ -33,12 +33,11 @@ sys.path.append(__root__)
 class Anomdec(LoggingMixin):
 
     def run(self):
-
         self.logger.info("Starting anomdec")
         try:
             if sys.argv[1] == "dashboard":
                 self.logger.info("Run dashboard")
-                dashboard_main(Config())
+                dashboard_main([], Config())
             elif sys.argv[1] == "backend":
                 self.logger.info("Run backend")
                 backend_main(Config())

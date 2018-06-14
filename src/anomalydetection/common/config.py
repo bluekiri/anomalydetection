@@ -60,6 +60,9 @@ class Config(object):
 
         return streams
 
+    def get_websocket_url(self):
+        return self.config["websocket"]
+
     def get_streams(self):
         streams = []
         for item in self.config["streams"]:

@@ -1,34 +1,120 @@
-# POC Anomaly detection
+# Anomaly Detection Framework
 
 ![N|Bluekiri](var/bluekiri_logo.png?raw=true "Bluekiri")
 
-This project start from the need ofad detect multiple status metric signals in realtime. to achieve this Bluekiri decided to implement our own application for manage multiple signals at the same time in a very easy way. This project able us to listen and detect temporal series in realtime from kafka topics.
+This project born from the need of detect anomalies on multiple signals.
+To achieve this, Bluekiri decided to implement its own system to manage
+multiple signals at the same time in a easy and scalable way.
 
+# Devel mode
 
+At this moment, there is a _devel_/_demo_ mode to demonstrate how the system works. It
+generates multiple signals using kafka and pubsub as message systems. Then,
+those messages are aggregated (or not) and processed by multiple models. At
+last the result of these are displayed in realtime by the dashboard.
 
-# Future Features!
+## Set Up
 
-  - Dashboard for administrate the anomaly detection project, this dashboard will be able to add new topics. 
-  - New connectors to sniff new different feeds like elastic search
+1. Clone the repository
 
+    ```bash
+    git clone https://github.com/bluekiri/anomaly-detection.git
+    ```
 
-# Lets start!
+2. Build and Run the demo will require some dependencies to be installed.
 
-##### Requirements:
-* [Docker] - compose version 3+ (https://docs.docker.com/compose/install/#prerequisites)
+    System binaries
+    
+    - docker [howto](https://docs.docker.com/install/#supported-platforms)
+    - docker-compose [howto](https://docs.docker.com/compose/install/)
+    - python3
+    - pip
+    - virtualenvwrapper
+    - make
+    - nodejs
+    - npm
+    
+    ```bash
+    sudo apt-get install python3 python3-dev python3-pip nodejs npm
+    pip3 install virtualenvwrapper
+    ```
+    
+    System libraries
+    
+    - libsasl2-dev
+    - libldap2-dev
+    - libssl-dev
+    
+    ```bash
+    sudo apt-get install libsasl2-dev libldap2-dev libssl-dev
+    ```
+    
+    Build tools
+    
+    - bower-installer
 
-##### Installation
+3. Create a virtualenv
 
-Open a bash terminal and export a environment variable with your local host ip, this is necessary to set the kafka advertised host.
+    ```bash
+    VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+    source /usr/local/bin/virtualenvwrapper.sh
+    mkvirtualenv --python=/usr/bin/python3 -a anomaly-detection anomaly-detection
+    ```
 
-```sh
-$ export HOST_IP=<your private ip address>
-$ docker-compose up --build
+4. Build
+
+    It's required to run some tasks to get some JavaScript dependencies, download
+    a Apache Spark distributable. These tasks are grouped in a Makefile
+    
+    ```bash
+    make
+    ```
+
+5. Deploy a testing environment on docker
+
+    This will deploy a kafka broker and a pubsub emulator to allow you to test
+    the system.
+
+    ```bash
+    export HOST_IP="<host ip address>"
+    docker-compose up --build
+    ```
+
+## Run in devel mode
+
+You can run it as a python module
+
+```bash
+python -m anomalydetection.anomdec devel
+```
+    
+## Run in normal mode
+
+To run it using your own configuration you have to place a file ```anomdec.yml```
+inside the ```anomdec``` path in user home directory.
+
+```$HOME/anomdec/anomdec.yml```
+
+Take [anomdec.yml](src/anomalydetection/anomdec.yml) as example config file.
+
+Do the same with [logging.yml](src/anomalydetection/logging.yml) if you want
+to overwrite the default settings of logging (Is in DEBUG level while developing).
+
+And run it typing
+
+```bash
+python3 -m anomalydetection.anomdec
 ```
 
-### Emit messages
+## Dashboard login
 
-All feed messages must have the following format:
+An actual login process is not already implemented, the default username:password
+is ```admin:admin```.
+
+## Message format
+
+All feed messages must have the following JSON format:
+
 ```json
 {
     "application": "test1",
@@ -36,4 +122,34 @@ All feed messages must have the following format:
     "ts": "2018-03-16T07:10:15+00:00"
 }
 ```
-In the example the feed topic is named ( **feed** ) and the output kafka topic is named ( **predict**), this is only for the prove of concept, in the future, this will be changed dynamically.
+
+## Status
+
+This project is in the earliest phase of its development. Use it under your
+own responsibility.
+
+## TODO
+
+* Change design to enable processing a signal by multiple models.
+* Put configuration in MongoDB instead of a yaml file.
+* ElasticSearch integration.
+* PubSub aggregate messages.
+* ...
+
+# License
+
+Anomaly Detection Framework
+Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/).

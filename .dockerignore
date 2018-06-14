@@ -1,0 +1,5 @@
+.tox
+node_modules
+cover
+build
+*egg-info

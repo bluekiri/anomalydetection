@@ -96,7 +96,7 @@ def main(config: Config):
 
         # Send to broker or similar
         extra_middleware = [
-            WebSocketDashboardMiddleware(name)
+            WebSocketDashboardMiddleware(name, config.get_websocket_url())
         ]
 
         # Instantiate interactor and run

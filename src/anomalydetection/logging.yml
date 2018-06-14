@@ -8,7 +8,7 @@ root:
 
 loggers:
     anomalydetection:
-        level: WARNING
+        level: INFO
         handlers: [console]
         propagate: no
     anomalydetection.backend.stream:

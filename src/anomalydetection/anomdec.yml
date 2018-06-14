@@ -78,3 +78,5 @@ streams:
           type: sqlite
           params:
             database: /tmp/anomdec1.sqlite
+
+websocket: ws://localhost:5000/ws/

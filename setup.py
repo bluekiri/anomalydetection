@@ -19,9 +19,10 @@
 
 from setuptools import find_packages, setup
 
+
 install_require = [
     # Core dependencies
-    "rx", "jsonschema", "python-dateutil",
+    "rx", "jsonschema", "python-dateutil", "scipy",
     "numpy", "pandas", "statsmodels", "bokeh",
     # Kafka
     "kafka-python",
@@ -31,7 +32,9 @@ install_require = [
     # Google cloud base
     "google-cloud", "google-cloud-pubsub",
     # Dashboard
-    "tornado", "PyYAML", "python-ldap", "websockets"
+    "tornado", "PyYAML", "python-ldap", "websockets",
+    # Spark
+    "findspark"
 ]
 
 test_require = [
@@ -42,7 +45,7 @@ test_require = [
 ]
 
 setup(
-    name='anomdec',
+    name='anomalydetection',
     version='0.0.0',
     description='Anomaly detection bridge',
     url='',
