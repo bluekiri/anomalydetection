@@ -1,12 +1,27 @@
 # -*- coding:utf-8 -*- #
+#
+# Anomaly Detection Framework
+# Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import json
-import logging
 import random
-import time
 
 from rx import Observable, Observer
 
-from anomalydetection.backend.middleware.queue_middleware import \
+from anomalydetection.backend.middleware.websocket_middleware import \
     WebSocketDashboardMiddleware
 from anomalydetection.common.concurrency import Concurrency
 from anomalydetection.common.config import Config
@@ -14,9 +29,6 @@ from anomalydetection.backend.entities.json_input_message_handler import \
     InputJsonMessageHandler
 from anomalydetection.backend.interactor.stream_engine import \
     StreamEngineInteractor
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
 
 
 def produce_messages(config: Config):
@@ -51,8 +63,7 @@ def produce_messages(config: Config):
             super().__init__()
             self.publisher = publisher
 
-        def push(self, value):
-            logger.info("Sending message number {}".format(value))
+        def push(self):
             from datetime import datetime
             for app in apps:
                 random.shuffle(vals)
@@ -63,7 +74,7 @@ def produce_messages(config: Config):
                 }))
 
         def on_next(self, value):
-            return self.push(value)
+            return self.push()
 
         def on_error(self, error):
             return super().on_error(error)
@@ -71,16 +82,13 @@ def produce_messages(config: Config):
         def on_completed(self):
             return super().on_completed()
 
-    # Send a message each 10ms
-    time.sleep(10)
+    # Send a message each 5s
     publishers = config.build_publishers()
     for pub in publishers:
         Observable.interval(5000).subscribe(IntervalObserver(pub.push_stream))
 
 
 def main(config: Config):
-
-    logger.info("Anomaly detection starting")
 
     # Creates stream based on config env vars and a RobustDetector
     def run_live_anomaly_detection(stream, engine_builder,

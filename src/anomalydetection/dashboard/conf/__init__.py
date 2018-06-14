@@ -1,7 +1,0 @@
-import os
-
-SQLITE_DATABASE_FILE = os.getenv("SQLITE_DATABASE_FILE")
-
-config = {
-    "SQLITE_DATABASE_FILE": SQLITE_DATABASE_FILE
-}

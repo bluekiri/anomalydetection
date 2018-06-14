@@ -1,4 +1,20 @@
 # -*- coding:utf-8 -*-
+#
+# Anomaly Detection Framework
+# Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
 import warnings
@@ -13,12 +29,10 @@ from anomalydetection.backend.stream.aggregation_functions import \
 from anomalydetection.backend.stream import BaseStreamBackend, \
     BasePollingStream, BasePushingStream, BaseStreamAggregation
 from anomalydetection.common.concurrency import Concurrency
+from anomalydetection.common.logging import LoggingMixin
 
 
-class KafkaPollingStream(BasePollingStream):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class KafkaPollingStream(BasePollingStream, LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
@@ -64,10 +78,7 @@ class KafkaPollingStream(BasePollingStream):
             self.topic)
 
 
-class KafkaPushingStream(BasePushingStream):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class KafkaPushingStream(BasePushingStream, LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
@@ -102,10 +113,7 @@ class KafkaPushingStream(BasePushingStream):
             self.topic)
 
 
-class KafkaStreamBackend(BaseStreamBackend):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class KafkaStreamBackend(BaseStreamBackend, LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
@@ -131,10 +139,9 @@ class KafkaStreamBackend(BaseStreamBackend):
             KafkaPushingStream(broker_server, output_topic))
 
 
-class SparkKafkaPollingStream(BasePollingStream, BaseStreamAggregation):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class SparkKafkaPollingStream(BasePollingStream,
+                              BaseStreamAggregation,
+                              LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
@@ -251,10 +258,7 @@ class SparkKafkaPollingStream(BasePollingStream, BaseStreamAggregation):
                     self.agg_window_millis)
 
 
-class SparkKafkaStreamBackend(BaseStreamBackend):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class SparkKafkaStreamBackend(BaseStreamBackend, LoggingMixin):
 
     def __init__(self,
                  broker_server: str,

@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+# -*- coding:utf-8 -*- #
 #
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -16,23 +16,40 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.repository import BaseRepository
+import asyncio
+import json
+
+import websockets
+
 from anomalydetection.backend.middleware import Middleware
 from anomalydetection.common.logging import LoggingMixin
 
 
-class StoreRepositoryMiddleware(Middleware, LoggingMixin):
+class WebSocketDashboardMiddleware(Middleware, LoggingMixin):
 
-    def __init__(self, repository: BaseRepository) -> None:
+    def __init__(self, name) -> None:
         super().__init__()
-        self.repository = repository
-        self.repository.initialize()
+        self.name = name
 
     def on_next(self, value):
-        self.repository.insert(value)
+
+        # Create an event loop
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
+        async def ws_send(item):
+            async with websockets.connect('ws://localhost:5000/ws/') as ws:
+                item_dict = item.to_dict(True)
+                item_dict.update({"signal": self.name})
+                self.logger.debug(
+                    "Sending message to Websocket: {}".format(
+                        json.dumps(item_dict)))
+                await ws.send(json.dumps(item_dict))
+
+        # Run with asyncio
+        asyncio.get_event_loop().run_until_complete(ws_send(value))
 
     def on_error(self, error):
-        self.logger.error(error)
+        pass
 
     def on_completed(self):
-        self.logger.info("Completed!")
+        pass

@@ -1,5 +1,20 @@
 # -*- coding:utf-8 -*- #
-import logging
+#
+# Anomaly Detection Framework
+# Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from anomalydetection.backend.engine.builder import BaseBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
@@ -7,12 +22,10 @@ from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
 from anomalydetection.backend.stream import BaseObservable
+from anomalydetection.common.logging import LoggingMixin
 
 
-class BatchEngineInteractor(BaseEngineInteractor):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class BatchEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
     def __init__(self,
                  batch: BaseObservable,

@@ -1,7 +1,22 @@
 # -*- coding:utf-8 -*-
+#
+# Anomaly Detection Framework
+# Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-import logging
 from collections import Generator
 from queue import Queue
 
@@ -10,12 +25,10 @@ from google.cloud import pubsub
 
 from anomalydetection.backend.stream import BaseStreamBackend, \
     BasePollingStream, BasePushingStream
+from anomalydetection.common.logging import LoggingMixin
 
 
-class PubSubPollingStream(BasePollingStream):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class PubSubPollingStream(BasePollingStream, LoggingMixin):
 
     def __init__(self,
                  project_id: str,
@@ -57,10 +70,7 @@ class PubSubPollingStream(BasePollingStream):
         return "PubSub subscription: {}".format(self._full_subscription_name())
 
 
-class PubSubPushingStream(BasePushingStream):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class PubSubPushingStream(BasePushingStream, LoggingMixin):
 
     def __init__(self,
                  project_id: str,
@@ -93,10 +103,7 @@ class PubSubPushingStream(BasePushingStream):
         return "PubSub topic: {}".format(self._full_topic_name())
 
 
-class PubSubStreamBackend(BaseStreamBackend):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+class PubSubStreamBackend(BaseStreamBackend, LoggingMixin):
 
     def __init__(self,
                  project_id: str,
