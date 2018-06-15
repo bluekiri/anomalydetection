@@ -6,6 +6,10 @@ This project born from the need of detect anomalies on multiple signals.
 To achieve this, Bluekiri decided to implement its own system to manage
 multiple signals at the same time in a easy and scalable way.
 
+## Documentation
+
+TODO
+
 ## Devel mode
 
 At this moment, there is a _devel_/_demo_ mode to demonstrate how the system works. It
@@ -18,7 +22,7 @@ last the result of these are displayed in realtime by the dashboard.
 1. Clone the repository
 
     ```bash
-    git clone https://github.com/bluekiri/anomaly-detection.git
+    git clone https://github.com/bluekiri/anomalydetection.git
     ```
 
 2. Build and Run the demo will require some dependencies to be installed.
@@ -36,7 +40,7 @@ last the result of these are displayed in realtime by the dashboard.
     
     ```bash
     sudo apt-get install python3 python3-dev python3-pip nodejs npm
-    pip3 install virtualenvwrapper
+    sudo pip3 install virtualenvwrapper
     ```
     
     System libraries
@@ -54,7 +58,7 @@ last the result of these are displayed in realtime by the dashboard.
     ```bash
     VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
     source /usr/local/bin/virtualenvwrapper.sh
-    mkvirtualenv --python=/usr/bin/python3 -a anomaly-detection anomaly-detection
+    mkvirtualenv --python=/usr/bin/python3 -a anomalydetection anomalydetection
     ```
 
 4. Build
