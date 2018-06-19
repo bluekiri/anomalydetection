@@ -20,11 +20,11 @@
 {% extends "base.html" %}
 {% block title %}Signal <strong>{{ signal_name }}</strong>{% end %}
 {% block head %}
-	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.15.css"
+	<link rel="stylesheet" href="/static/vendor/bokeh/css/bokeh.css"
         type="text/css" />
-  <script src="//cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js"></script>
-  <script src="//cdn.pydata.org/bokeh/release/bokeh-api-0.12.15.min.js"></script>
-  <script src="//cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js"></script>
+  <script src="/static/vendor/bokeh/bokeh.min.js"></script>
+  <script src="/static/vendor/bokeh/bokeh-api.min.js"></script>
+  <script src="/static/vendor/bokeh/bokeh-widgets.min.js"></script>
 {% end %}
 {% block nav %}
 <li class="dropdown messages-menu">

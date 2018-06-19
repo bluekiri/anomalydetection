@@ -16,7 +16,6 @@ from anomalydetection.backend.interactor.stream_engine import \
     StreamEngineInteractor
 from anomalydetection.backend.middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend
-from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
 from test import LoggingMixin
 
 logging.basicConfig()
@@ -27,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 class DummyStream(BaseStreamBackend, LoggingMixin):
 
     def __init__(self) -> None:
-        super().__init__(AggregationFunction.AVG, 1000)
+        super().__init__(None, None)
 
     def poll(self) -> Generator:
         for i in range(5):
@@ -58,6 +57,10 @@ class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
     def validate_message(cls, message: InputMessage) -> bool:
         return True
 
+    @classmethod
+    def extract_extra(cls, message: InputMessage) -> dict:
+        return {"ts": message.ts}
+
 
 class DummyMiddleware(Middleware, LoggingMixin):
 
@@ -84,12 +87,23 @@ class DummyWarmUp(BaseWarmUp, LoggingMixin):
 
 class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
 
-    def test_stream_engine_interactor(self):
+    def test_robust_stream_engine_interactor(self):
 
         stream = DummyStream()
         interactor = StreamEngineInteractor(
             stream,
             EngineBuilderFactory.get_robust().set_window(30).set_threshold(.95),
+            DummyMessageHandler(),
+            middleware=[DummyMiddleware()],
+            warm_up=DummyWarmUp())
+        interactor.run()
+
+    def test_cad_stream_engine_interactor(self):
+
+        stream = DummyStream()
+        interactor = StreamEngineInteractor(
+            stream,
+            EngineBuilderFactory.get_cad(),
             DummyMessageHandler(),
             middleware=[DummyMiddleware()],
             warm_up=DummyWarmUp())

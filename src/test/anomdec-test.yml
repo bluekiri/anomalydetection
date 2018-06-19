@@ -4,7 +4,11 @@ streams:
 
   - name: test
     backend:
-      type: test
+      type: kafka
+      params:
+        brokers: localhost:9092
+        in: test1
+        out: test2
     engine:
       type: cad
       params:

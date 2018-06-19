@@ -4,7 +4,7 @@ NPM = npm
 BOWER = $(abspath ./node_modules/bower-installer/bower-installer.js)
 
 bootstrap:
-	@if [ ! -x $(NPM) ]; then $(NPM) install bower-installer; fi
+	@if [ ! -x $(NPM) ]; then $(NPM) install bower-installer; $(NPM) install bower-npm-resolver; fi
 
 build: bootstrap # build
 	cd src/anomalydetection/dashboard && nodejs $(BOWER) --remove

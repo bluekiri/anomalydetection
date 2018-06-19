@@ -22,7 +22,8 @@
     "admin-lte": "2.4.3",
     "font-awesome": "^4.7.0",
     "jquery": "3.1.1",
-    "mustache.js": "mustache#^2.2.1"
+    "mustache.js": "mustache#^2.2.1",
+    "bokehjs": "npm:bokehjs#0.12.16"
   },
   "resolutions": {
     "jquery": "~3.1.1"
@@ -44,6 +45,9 @@
       "inputmask": [
         "bower_components/inputmask/dist/inputmask/dependencyLibs/**",
         "bower_components/inputmask/dist/inputmask/*.js"
+      ],
+      "bokehjs": [
+        "bower_components/bokehjs/build/**"
       ],
       "font-awesome": {
         "mapping": [

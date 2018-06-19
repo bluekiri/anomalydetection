@@ -21,6 +21,7 @@ from enum import Enum
 
 class AggregationFunction(Enum):
 
+    NONE = "none"
     SUM = "sum"
     AVG = "avg"
     COUNT = "count"
