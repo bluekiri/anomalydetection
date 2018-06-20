@@ -1,5 +1,21 @@
 # -*- coding:utf-8 -*- #
-import os
+#
+# Anomaly Detection Framework
+# Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from datetime import datetime, timedelta
 
 from tornado.testing import AsyncHTTPTestCase
@@ -8,10 +24,12 @@ from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.common.config import Config
+from anomalydetection.common.logging import LoggingMixin
 from anomalydetection.dashboard.dashboard import make_app
+from test import TEST_PATH
 
 
-class TestDashboard(AsyncHTTPTestCase):
+class TestDashboard(AsyncHTTPTestCase, LoggingMixin):
 
     headers = {}
 
@@ -21,7 +39,7 @@ class TestDashboard(AsyncHTTPTestCase):
         # Initialize config
         self.config = Config(
             "test",
-            open(os.path.dirname(__file__) + "/anomdec-test.yml"))
+            open("{}/anomdec-test.yml".format(TEST_PATH)))
 
     def setUp(self):
         super().setUp()
