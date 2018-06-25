@@ -223,7 +223,7 @@ interactor = StreamEngineInteractor(
 interactor.run()
 ```
 
-Of coarse, using it as a Framework is not supported by the dashboard. Otherwise, it
+Of course, using it as a Framework is not supported by the dashboard. Otherwise, it
 is planed to do something similar through a plugin engine in the future.
 
 ## Status
