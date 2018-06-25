@@ -173,9 +173,10 @@ class SparkKafkaPollingStream(BasePollingStream,
                 from pyspark.streaming.kafka import KafkaUtils
                 from pyspark.sql.functions import expr
 
+                # TODO: Pass arguments to SparkSession
                 spark = SparkSession \
                     .builder \
-                    .appName("aggr") \
+                    .appName(str(self)) \
                     .config("spark.jars.packages",
                             "org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.1") \
                     .getOrCreate()
