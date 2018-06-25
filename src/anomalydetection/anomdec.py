@@ -21,7 +21,6 @@ import sys
 from time import sleep
 
 from anomalydetection.backend.backend import main as backend_main
-from anomalydetection.backend.backend import produce_messages
 from anomalydetection.common.config import Config
 from anomalydetection.common.logging import LoggingMixin
 from anomalydetection.dashboard.dashboard import main as dashboard_main
@@ -42,6 +41,8 @@ class Anomdec(LoggingMixin):
                 self.logger.info("Run backend")
                 backend_main(Config())
             elif sys.argv[1] == "devel":
+
+                from anomalydetection.backend.devel_mode import produce_messages
 
                 # Prepare settings for devel mode
                 os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
