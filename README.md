@@ -3,22 +3,39 @@
 
 ![N|Bluekiri](var/bluekiri_logo.png?raw=true "Bluekiri")
 
+## Overview
+
 This project born from the need of detect anomalies on multiple signals.
 To achieve this, Bluekiri decided to implement its own system to manage
 multiple signals at the same time in a easy and scalable way.
+
+## Architecture
+
+This project uses Tornado, RxPy, Apache Spark and WebSockets to aggregate
+and process streams of signals to detect anomalies and display it live on 
+a dashboard.
+
+## Table of content
+
+1. [Documentation](#documentation)
+2. [Getting started](#getting-started)
+    1. [Install](#install)
+    2. [Input messages](#input-messages)
+    3. [Run](#run)
+    4. [Devel mode](#devel-mode)
+3. [Use as Framework](#use-as-framework)
+4. [Status](#status)
+5. [Roadmap](#roadmap)
+6. [License](#license)
+7. [Contributors](#contributors)
 
 ## Documentation
 
 TODO
 
-## Devel mode
+## Getting started
 
-At this moment, there is a _devel_/_demo_ mode to demonstrate how the system works. It
-generates multiple signals using kafka and pubsub as message systems. Then,
-those messages are aggregated (or not) and processed by multiple models. At
-last the result of these are displayed in realtime by the dashboard.
-
-## Set Up
+### Install
 
 1. Clone the repository
 
@@ -30,17 +47,15 @@ last the result of these are displayed in realtime by the dashboard.
 
     System binaries
     
-    - docker [howto](https://docs.docker.com/install/#supported-platforms)
-    - docker-compose [howto](https://docs.docker.com/compose/install/)
+    - build-essential
     - python3
     - pip
     - virtualenvwrapper
-    - make
     - nodejs
     - npm
     
     ```bash
-    sudo apt-get install python3 python3-dev python3-pip nodejs npm
+    sudo apt-get install python3 python3-dev python3-pip nodejs npm build-essential
     sudo pip3 install virtualenvwrapper
     ```
     
@@ -70,27 +85,23 @@ last the result of these are displayed in realtime by the dashboard.
     ```bash
     make
     ```
+     
+### Input messages
 
-5. Deploy a testing environment on docker
+At this moment, there is only one input message parser implementation, and all 
+input messages must have the following JSON format:
 
-    This will deploy a kafka broker and a pubsub emulator to allow you to test
-    the system.
-
-    ```bash
-    export HOST_IP="<host ip address>"
-    docker-compose up --build
-    ```
-
-## Run in devel mode
-
-You can run it as a python module
-
-```bash
-export SPARK_HOME="<spark home directory>"
-python -m anomalydetection.anomdec devel
+```json
+{
+    "application": "test1",
+    "value": 1.5,
+    "ts": "2018-03-16T07:10:15+00:00"
+}
 ```
-    
-## Run in normal mode
+
+You can check this implementation at [json_input_message_handler.py](src/anomalydetection/backend/entities/json_input_message_handler.py#29)
+   
+### Run
 
 To run it using your own configuration you have to place a file ```anomdec.yml```
 inside the ```anomdec``` path in user home directory.
@@ -109,16 +120,85 @@ export SPARK_HOME="<spark home directory>"
 python3 -m anomalydetection.anomdec
 ```
 
-## Message format
+### Devel mode
 
-All feed messages must have the following JSON format:
+At this moment, there is a _devel_/_demo_ mode to demonstrate how the system works. It
+generates multiple signals using kafka and pubsub as message systems. Then,
+those messages are aggregated (or not) and processed by multiple models. At
+last the result of these are displayed in realtime by the dashboard.
 
-```json
-{
-    "application": "test1",
-    "value": 1.5,
-    "ts": "2018-03-16T07:10:15+00:00"
-}
+1. Install dependencies for docker
+
+    - docker [howto](https://docs.docker.com/install/#supported-platforms)
+    - docker-compose [howto](https://docs.docker.com/compose/install/)
+
+2. Deploy a testing environment on docker
+
+    This will deploy a kafka broker and a pubsub emulator to allow you to test
+    the system.
+
+    ```bash
+    export HOST_IP="<host ip address>"
+    docker-compose up --build
+    ```
+
+3. Run in devel mode
+
+    You can run it as a python module
+
+    ```bash
+    export SPARK_HOME="<spark home directory>"
+    python -m anomalydetection.anomdec devel
+    ```
+    
+### Use as Framework
+
+You can also use it as Framework to compose your own workflow and detect anomalies
+anywhere you need.
+
+```python
+# -*- coding:utf-8 -*- #
+
+from anomalydetection.backend.entities.input_message import InputMessage
+from anomalydetection.backend.entities import BaseMessageHandler
+from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
+from anomalydetection.backend.stream import \
+    BaseStreamBackend, \
+    BasePollingStream, \
+    BasePushingStream
+from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.middleware.store_repository_middleware import  \
+    StoreRepositoryMiddleware
+from anomalydetection.backend.repository import BaseRepository
+from anomalydetection.backend.repository.observable import ObservableRepository
+
+class MyStreamInput(BasePollingStream):
+    pass  # IMPLEMENT ME
+    
+class MyStreamOutput(BasePushingStream):
+    pass  # IMPLEMENT ME
+
+class MyStreamBackend(BaseStreamBackend):
+    pass  # IMPLEMENT ME
+    
+class MyModelBuilder(BaseBuilder):
+    pass  # IMPLEMENT ME
+    
+class MyRepository(BaseRepository):
+    pass  # IMPLEMENT ME
+    
+class MyMessageHandler(BaseMessageHandler[InputMessage]):
+    pass  # IMPLEMENT ME
+
+interactor = StreamEngineInteractor(
+    MyStreamBackend(MyStreamInput(), MyStreamOutput()),
+    MyModelBuilder(),
+    MyMessageHandler(),
+    [StoreRepositoryMiddleware(MyRepository("file:///data/data.txt"))],
+    ObservableRepository(MyRepository("file:///data/data.txt"))
+)
+interactor.run()
+
 ```
 
 ## Status
@@ -126,15 +206,17 @@ All feed messages must have the following JSON format:
 This project is in the earliest phase of its development. Use it under your
 own responsibility.
 
-## TODO
+## Roadmap
 
-* Change design to enable processing a signal by multiple models.
-* Put configuration in MongoDB instead of a yaml file.
-* ElasticSearch integration.
-* PubSub aggregate messages.
-* ...
+- [ ] Write tests.
+- [ ] Write docs.
+- [ ] Change some core architecture to enable processing a signal by multiple models.
+- [ ] PubSub aggregate messages in Apache Spark.
+- [ ] Implement a plugin engine.
+- [ ] Persist configuration instead of use an static YAML file.
+- [ ] ElasticSearch repository.
 
-# License
+## License
 
     Anomaly Detection Framework
     Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -152,7 +234,7 @@ own responsibility.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
     
-# Contributors
+## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
