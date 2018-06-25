@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 #
+# Originally ported from https://github.com/smirmik/CAD
+#
+# Contextual Anomaly Detector
+# Copyright (C) 2016 Mikhail Smirnov <smirmik@gmail.com>
+#
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
 #
