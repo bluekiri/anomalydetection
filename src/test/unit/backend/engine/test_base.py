@@ -16,10 +16,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.entities.output_message import AnomalyResult
+import unittest
+
+from anomalydetection.backend.engine import BaseEngine
 
 
-class BaseEngine(object):
+class TestBaseEngine(unittest.TestCase):
 
-    def predict(self, value: float, **kwargs) -> AnomalyResult:
-        raise NotImplementedError("To implement in child classes.")
+    def test_predict(self):
+        with self.assertRaises(NotImplementedError) as ctx:
+            engine = BaseEngine()
+            engine.predict(.0)
+
+        self.assertEqual(ctx.exception.args[0],
+                         "To implement in child classes.")
+

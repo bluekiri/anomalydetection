@@ -16,10 +16,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.entities.output_message import AnomalyResult
+import unittest
+
+from anomalydetection.common.logging import LoggingMixin
 
 
-class BaseEngine(object):
+class TestConcurrency(unittest.TestCase, LoggingMixin):
 
-    def predict(self, value: float, **kwargs) -> AnomalyResult:
-        raise NotImplementedError("To implement in child classes.")
+    expected = ["INFO:test.unit.common.test_logging.TestConcurrency:test"]
+
+    def test_logging(self):
+        with self.assertLogs("test", level="INFO") as ctx:
+            self.logger.info("test")
+            self.assertEqual(ctx.output, self.expected)

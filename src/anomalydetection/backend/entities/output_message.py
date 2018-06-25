@@ -43,6 +43,9 @@ class AnomalyResult(object):
                     anomaly_probability=self.anomaly_probability,
                     is_anomaly=self.is_anomaly)
 
+    def __dict__(self):
+        return self.to_dict()
+
 
 class OutputMessage(object):
 

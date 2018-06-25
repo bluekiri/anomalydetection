@@ -16,10 +16,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.entities.output_message import AnomalyResult
+import unittest
 
 
-class BaseEngine(object):
+class TestContextOperator(unittest.TestCase):
+    pass  # TODO
 
-    def predict(self, value: float, **kwargs) -> AnomalyResult:
-        raise NotImplementedError("To implement in child classes.")
+
+class TestCADDetector(unittest.TestCase):
+    pass  # TODO

@@ -24,7 +24,7 @@
 import operator
 import sys
 
-from anomalydetection.backend.engine.base_engine import BaseEngine
+from anomalydetection.backend.engine import BaseEngine
 from anomalydetection.backend.entities.output_message import AnomalyResult
 
 

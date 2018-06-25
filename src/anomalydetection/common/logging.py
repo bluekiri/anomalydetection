@@ -25,7 +25,7 @@ import yaml
 
 class LoggingMixin(object):
 
-    __loggerConfigured = False
+    __logger_configured = False
 
     @property
     def logger(self):
@@ -33,13 +33,13 @@ class LoggingMixin(object):
                          self.__class__.__name__])\
             .replace("__main__", "anomalydetection")
         root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        if not self.__loggerConfigured:
+        if not self.__logger_configured:
             logging_conf = os.environ["HOME"] + "/anomdec/logging.yml"
             if not os.path.exists(logging_conf):
                 logging_conf = root + '/logging.yml'
             with open(logging_conf, 'rt') as f:
                 config = yaml.load(f.read())
                 logging.config.dictConfig(config)
-            self.__loggerConfigured = True
+            self.__logger_configured = True
 
         return logging.getLogger(name)

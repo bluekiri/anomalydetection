@@ -19,7 +19,7 @@
 import sys
 from collections import OrderedDict
 
-from anomalydetection.backend.engine.base_engine import BaseEngine
+from anomalydetection.backend.engine import BaseEngine
 from anomalydetection.backend.engine.cad_engine import CADDetector
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
@@ -27,7 +27,7 @@ from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 class BaseBuilder(object):
 
     def build(self) -> BaseEngine:
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
 
 class CADDetectorBuilder(BaseBuilder):
