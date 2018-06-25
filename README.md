@@ -23,6 +23,7 @@ a dashboard.
     2. [Input messages](#input-messages)
     3. [Run](#run)
     4. [Devel mode](#devel-mode)
+    5. [Dashboard](#dashboard)
 3. [Use as Framework](#use-as-framework)
 4. [Status](#status)
 5. [Roadmap](#roadmap)
@@ -85,6 +86,19 @@ TODO
     ```bash
     make
     ```
+
+5. Install Spark (Optional)
+
+    If you want to aggregate Kafka topics before detecting anomalies you need an
+    Apache Spark installed. If it is not, you can do it running this command:
+
+    ```bash
+    sudo mkdir /opt/spark
+    sudo chown ${USER} /opt/spark
+    make install-spark
+    ```
+
+    Now you have a clean setup of Apache Spark in ```/opt/spark/spark```.
      
 ### Input messages
 
@@ -150,7 +164,16 @@ last the result of these are displayed in realtime by the dashboard.
     export SPARK_HOME="<spark home directory>"
     python -m anomalydetection.anomdec devel
     ```
-    
+
+### Dashboard
+
+The dashboard is pretty simple and intuitive. It has a Home path, that is not 
+already implemented. In future it will hold a configurable, by user, dashboard.
+
+Then it has a signal list and its detail.
+
+![N|Dashboard](var/dashboard.png?raw=true "Dashboard")
+
 ### Use as Framework
 
 You can also use it as Framework to compose your own workflow and detect anomalies
@@ -198,13 +221,21 @@ interactor = StreamEngineInteractor(
     ObservableRepository(MyRepository("file:///data/data.txt"))
 )
 interactor.run()
-
 ```
+
+Of coarse, using it as a Framework is not supported by the dashboard. Otherwise, it
+is planed to do something similar through a plugin engine in the future.
 
 ## Status
 
 This project is in the earliest phase of its development. Use it under your
 own responsibility.
+
+Tested with:
+
+* Spark 2.2.x
+* Kafka 0.10.x
+* PubSub (Emulator and Service)
 
 ## Roadmap
 
