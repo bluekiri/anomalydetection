@@ -1,5 +1,7 @@
 # Anomaly Detection Framework
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors)
+
+![Build Status](https://travis-ci.org/bluekiri/anomalydetection.svg?branch=master)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-blue.svg)](#contributors)
 
 ![N|Bluekiri](var/bluekiri_logo.png?raw=true "Bluekiri")
 
