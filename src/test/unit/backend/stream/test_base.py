@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*- #
+# -*- coding:utf-8 -*-
 #
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -16,33 +16,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.repository import BaseRepository
-from anomalydetection.backend.repository.sqlite import SQLiteRepository
+import unittest
 
 
-class BaseBuilder(object):
+class TestBaseObservable(unittest.TestCase):
 
-    def build(self) -> BaseRepository:
-        raise NotImplementedError("To implement in child classes.")
+    def test_constructor(self):
+        pass  # TODO
 
-
-class SQLiteBuilder(BaseBuilder):
-
-    def __init__(self,
-                 database: str = None) -> None:
-        super().__init__()
-        self.database = database
-
-    def set_database(self, database):
-        self.database = database
-        return self
-
-    def build(self) -> BaseRepository:
-        return SQLiteRepository(**vars(self).copy())
-
-
-class RepositoryBuilderFactory(object):
-
-    @staticmethod
-    def get_sqlite():
-        return SQLiteBuilder()
+    def test_map(self):
+        pass  # TODO

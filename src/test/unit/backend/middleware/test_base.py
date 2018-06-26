@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+# -*- coding:utf-8 -*- #
 #
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -16,23 +16,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import unittest
+
 from anomalydetection.backend.middleware import Middleware
 
 
-class StoreToFileMiddleware(Middleware):
+class TestMiddleware(unittest.TestCase):
 
-    def __init__(self, filename: str, logger) -> None:
-        super().__init__()
-        self.logger = logger
-        self.filename = filename
+    def test_constructor(self):
+        with self.assertRaises(TypeError) as ctx:
+            Middleware()
 
-    def on_next(self, value):
-        file = open(self.filename, "a")
-        file.write(str(value) + "\n")
-        file.close()
-
-    def on_error(self, error):
-        self.logger.error(error)
-
-    def on_completed(self):
-        self.logger.info("Completed!")
+        self.assertEqual(str(ctx.exception),
+                         "Can't instantiate abstract class Middleware with "
+                         "abstract methods on_completed, on_error, on_next")

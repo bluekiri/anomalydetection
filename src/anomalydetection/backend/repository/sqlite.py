@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import datetime
 import sqlite3
 from sqlite3 import Row
 
@@ -23,6 +23,7 @@ from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.entities.output_message import OutputMessage
 
 from anomalydetection.backend.repository import BaseRepository
+from anomalydetection.backend.stream import AggregationFunction
 
 
 class SQLiteRepository(BaseRepository):
@@ -65,12 +66,13 @@ class SQLiteRepository(BaseRepository):
             anomaly_probability=item[6],
             is_anomaly=item[8]
         )
+        fmt = "%Y-%m-%d %H:%M:%S"
         return OutputMessage(item[0],
                              anom_results,
                              agg_window_millis=item[4],
-                             agg_function=item[2],
+                             agg_function=AggregationFunction(item[2]),
                              agg_value=item[3],
-                             ts=item[1])
+                             ts=datetime.datetime.strptime(item[1], fmt))
 
     def get_applications(self):
         stmt = """
@@ -121,7 +123,7 @@ class SQLiteRepository(BaseRepository):
                          int(anomaly_results.is_anomaly)]
         root_value = ["'%s'" % message.application,
                       "'%s'" % message.ts,
-                      "'%s'" % message.agg_function,
+                      "'%s'" % message.agg_function.value,
                       message.agg_value,
                       int(message.agg_window_millis)]
         values = ", ".join(map(str, root_value + anomaly_value))

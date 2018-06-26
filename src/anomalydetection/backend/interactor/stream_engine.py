@@ -64,7 +64,7 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
         ts = self.message_handler.extract_ts(input_message)
         output = {
-            "application": input_message.application,
+            "application": key,
             "agg_value": value,
             "agg_function": str(self.agg_function),
             "agg_window_millis": self.agg_window_millis,
@@ -102,3 +102,5 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
         # Connect with observers
         rx.connect()
+
+        return rx

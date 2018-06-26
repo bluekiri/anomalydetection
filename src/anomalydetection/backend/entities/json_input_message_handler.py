@@ -21,6 +21,7 @@ import logging
 from datetime import datetime
 
 from jsonschema import validate
+from jsonschema.exceptions import _Error as JsonSchemaError
 
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities import BaseMessageHandler
@@ -63,9 +64,8 @@ class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):
             return InputMessage(data["application"],
                                 data["value"],
                                 data["ts"])
-        except Exception as e:
-            cls.logger.error("Error parsing message", e)
-            return None
+        except JsonSchemaError as ex:
+            raise ex
 
     @classmethod
     def extract_key(cls, message: InputMessage) -> str:
@@ -79,6 +79,7 @@ class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):
     def validate_message(cls, message: InputMessage) -> bool:
         if message:
             return True
+        return False
 
     @classmethod
     def extract_ts(cls, message: InputMessage) -> datetime:

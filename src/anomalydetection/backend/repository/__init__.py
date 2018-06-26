@@ -29,19 +29,19 @@ class BaseRepository(object):
         self.conn = conn
 
     def initialize(self):
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
     def fetch(self, application, from_ts, to_ts):
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
     def insert(self, message: OutputMessage):
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
     def map(self, item: Any) -> OutputMessage:
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
     def get_applications(self) -> List[str]:
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
 
 class BaseObservableRepository(BaseObservable):
@@ -50,7 +50,7 @@ class BaseObservableRepository(BaseObservable):
         self.repository = repository
 
     def _get_observable(self):
-        raise NotImplementedError("To implement on child classes.")
+        raise NotImplementedError("To implement in child classes.")
 
     def get_observable(self):
         return self._get_observable().map(lambda x: self.repository.map(x))

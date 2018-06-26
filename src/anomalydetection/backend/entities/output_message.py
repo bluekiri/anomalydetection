@@ -46,6 +46,18 @@ class AnomalyResult(object):
     def __dict__(self):
         return self.to_dict()
 
+    def __eq__(self, o: object) -> bool:
+        if super().__eq__(o):
+            return True
+        else:
+            if not isinstance(o, type(self)):
+                return False
+            else:
+                return self.value_lower_limit == o.value_lower_limit \
+                    and self.value_upper_limit == o.value_upper_limit \
+                    and self.anomaly_probability == o.anomaly_probability \
+                    and self.is_anomaly == o.is_anomaly
+
 
 class OutputMessage(object):
 
