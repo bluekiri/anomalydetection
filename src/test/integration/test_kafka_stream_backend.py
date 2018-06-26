@@ -21,6 +21,8 @@ import unittest
 from anomalydetection.backend.stream.kafka_stream_backend import \
     KafkaStreamBackend
 from rx import Observable
+
+from anomalydetection.common.logging import LoggingMixin
 from test import config
 
 

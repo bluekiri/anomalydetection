@@ -18,7 +18,10 @@
 
 import unittest
 
-from anomalydetection.backend.engine.builder import *
+from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import CADDetectorBuilder
+from anomalydetection.backend.engine.builder import RobustDetectorBuilder
+from anomalydetection.backend.engine.builder import EngineBuilderFactory
 
 
 class TestBaseBuilder(unittest.TestCase):

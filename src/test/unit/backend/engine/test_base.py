@@ -30,4 +30,3 @@ class TestBaseEngine(unittest.TestCase):
 
         self.assertEqual(ctx.exception.args[0],
                          "To implement in child classes.")
-

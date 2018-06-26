@@ -20,7 +20,6 @@ import numpy as np
 import unittest
 
 from anomalydetection.backend.entities.output_message import AnomalyResult
-
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
 
@@ -90,11 +89,13 @@ class TestRobustDetector(unittest.TestCase):
             [5, 0.0],
         ]
 
+        def nan_map(num):
+            return num if not np.isnan(num) else "nan"
+
         for i, val in enumerate(test_values):
             self.engine._update(val)
-            actual = [self.engine._median, self.engine._mad]
-            expected = statistics[i]
-            # FIXME: Assert list equals
+            actual = list(map(nan_map, [self.engine._median, self.engine._mad]))
+            expected = list(map(nan_map, statistics[i]))
             self.assertListEqual(actual, expected)
 
     def test_predict(self):
