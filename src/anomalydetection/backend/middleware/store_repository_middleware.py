@@ -35,4 +35,4 @@ class StoreRepositoryMiddleware(Middleware, LoggingMixin):
         self.logger.error(error)
 
     def on_completed(self):
-        self.logger.info("Completed!")
+        self.logger.debug("{} completed".format(self))
