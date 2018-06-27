@@ -24,3 +24,4 @@ script:
   - docker-compose up &
   - sleep 5
   - tox -e flake8,travis
+  - codecov --token=$CODECOV_TOKEN
