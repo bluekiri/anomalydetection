@@ -85,5 +85,4 @@ class TestDashboard(AsyncHTTPTestCase, LoggingMixin):
 
     def test_dashboard_404(self):
         response = self.fetch("/404/", method="GET", body=None)
-        print(response.body)
         self.assertEqual(response.code, 404)

@@ -65,9 +65,9 @@ class OutputMessage(object):
                  application: str,
                  anomaly_results: AnomalyResult,
                  agg_window_millis: int,
-                 agg_function: AggregationFunction,
-                 agg_value: float,
-                 ts: datetime):
+                 agg_function: AggregationFunction = AggregationFunction.NONE,
+                 agg_value: float = 0,
+                 ts: datetime = datetime.datetime.now()):
         self.application = application
         self.anomaly_results = anomaly_results
         self.agg_window_millis = agg_window_millis \
@@ -81,7 +81,7 @@ class OutputMessage(object):
         return dict(application=self.application,
                     anomaly_results=self.anomaly_results.to_dict(),
                     agg_window_millis=self.agg_window_millis,
-                    agg_function=self.agg_function,
+                    agg_function=self.agg_function.value,
                     agg_value=self.agg_value,
                     ts=self.ts if not ts2str else str(self.ts))
 

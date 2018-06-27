@@ -72,7 +72,7 @@ class SQLiteRepository(BaseRepository):
                              agg_window_millis=item[4],
                              agg_function=AggregationFunction(item[2]),
                              agg_value=item[3],
-                             ts=datetime.datetime.strptime(item[1], fmt))
+                             ts=datetime.datetime.strptime(item[1][0:19], fmt))
 
     def get_applications(self):
         stmt = """

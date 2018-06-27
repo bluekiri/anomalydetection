@@ -25,7 +25,7 @@ from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
 from anomalydetection.backend.middleware import Middleware
 from anomalydetection.backend.stream import BaseStreamBackend, \
-    BaseStreamAggregation
+    BaseStreamAggregation, AggregationFunction
 from anomalydetection.backend.stream import BaseObservable
 
 # TODO: Change BaseStreamBackend by BasePollingStream to decouple it.
@@ -49,8 +49,8 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
             self.agg_function = stream.poll_stream.agg_function
             self.agg_window_millis = stream.poll_stream.agg_window_millis
         else:
-            self.agg_function = None
-            self.agg_window_millis = None
+            self.agg_function = AggregationFunction.NONE
+            self.agg_window_millis = 0
         self.app_engine = {}
 
     def map_with_engine(self, input_message: InputMessage) -> OutputMessage:
@@ -66,7 +66,7 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
         output = {
             "application": key,
             "agg_value": value,
-            "agg_function": str(self.agg_function),
+            "agg_function": self.agg_function,
             "agg_window_millis": self.agg_window_millis,
             "ts": ts,
             "anomaly_results": anomaly_results

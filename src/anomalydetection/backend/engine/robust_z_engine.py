@@ -18,12 +18,14 @@
 
 import numpy as np
 import scipy.stats as st
+
+from anomalydetection.common.logging import LoggingMixin
 from anomalydetection.backend.engine import BaseEngine
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from statsmodels.robust.scale import mad
 
 
-class RobustDetector(BaseEngine):
+class RobustDetector(BaseEngine, LoggingMixin):
     """
     Anomaly detection engine based in robust statistics:
     median and median absolute deviation.
@@ -32,8 +34,8 @@ class RobustDetector(BaseEngine):
     def __init__(self, window=100, threshold=0.9999):
         """Default values to be determined for the anomaly detection"""
         self._data = np.full((window, 1), fill_value=np.nan)
-        self._median = None
-        self._mad = None
+        self._median = np.nan
+        self._mad = np.nan
         self.threshold = threshold
 
     def _update_buffer(self, value):
@@ -54,8 +56,9 @@ class RobustDetector(BaseEngine):
     def _update_statistics(self):
         """Updates the robust statistics based in the buffered data.
         """
-        self._median = np.median(self._data)
-        self._mad = mad(self._data)[0]
+        if not np.isnan(self._data).any():
+            self._median = np.median(self._data)
+            self._mad = mad(self._data)[0]
 
     def _update(self, value):
         """Updates the buffered data with the new event and the robust statistics.
@@ -102,7 +105,10 @@ class RobustDetector(BaseEngine):
             results['value_upper_limit'] = -1
             results['value_lower_limit'] = -1
         else:
-            z_score = np.abs(value - self._median) / self._mad
+            if self._mad != 0:
+                z_score = np.abs(value - self._median) / self._mad
+            else:
+                z_score = np.inf
             results['anomaly_probability'] = 1 - st.norm.sf(z_score)
             results['is_anomaly'] = int(results['anomaly_probability'] >= self.threshold)
             results['value_upper_limit'] = \

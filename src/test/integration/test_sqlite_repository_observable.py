@@ -23,6 +23,7 @@ from anomalydetection.backend.entities.output_message import OutputMessage, \
     AnomalyResult
 from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
+from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.common.logging import LoggingMixin
 from test import config
 
@@ -34,13 +35,13 @@ class SQLiteObservableRepository(unittest.TestCase, LoggingMixin):
         self.repo = SQLiteRepository(config["SQLITE_DATABASE_FILE"])
         self.repo.initialize()
         anom = AnomalyResult(-1, 1, 0.5, False)
-        self.repo.insert(OutputMessage("app", anom, 1, "none",
+        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
                                        1, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, "none",
+        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
                                        4, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, "none",
+        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
                                        3, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, "none",
+        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
                                        2, ts=datetime.now()))
 
     def test_observable_sqlite(self):

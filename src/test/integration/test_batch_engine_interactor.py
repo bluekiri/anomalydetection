@@ -37,7 +37,7 @@ class DummyBatch(BasePollingStream):
         super().__init__()
 
     def poll(self) -> Generator:
-        for i in range(100):
+        for i in range(1000):
             line = json.dumps({"application": "test",
                                "value": i,
                                "ts": str(datetime.now())})
@@ -46,15 +46,24 @@ class DummyBatch(BasePollingStream):
 
 class TestBatchEngineInteractor(unittest.TestCase, LoggingMixin):
 
-    def test_batch_engine_interactor(self):
+    def test_robust_batch_engine_interactor(self):
 
-        stream = DummyBatch()
         interactor = BatchEngineInteractor(
-            stream,
+            DummyBatch(),
             EngineBuilderFactory.get_robust(),
             InputJsonMessageHandler())
         data = interactor.process()
-        for i in data:
-            self.logger.debug(i)
 
-        assert True
+        for i, item in enumerate(data):
+            self.assertEqual(item.agg_value, i)
+
+    def test_cad_batch_engine_interactor(self):
+
+        interactor = BatchEngineInteractor(
+            DummyBatch(),
+            EngineBuilderFactory.get_cad(),
+            InputJsonMessageHandler())
+        data = interactor.process()
+
+        for i, item in enumerate(data):
+            self.assertEqual(item.agg_value, i)
