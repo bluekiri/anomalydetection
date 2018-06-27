@@ -13,10 +13,14 @@ python:
   - "3.6"
 
 before_install:
-  - docker-compose up
+  - docker pull mongo
+  - docker pull google/cloud-sdk
+  - docker pull wurstmeister/kafka
 
 install:
   - pip install -r requirements.txt
 
 script:
+  - docker-compose up &
+  - sleep 5
   - tox -e flake8,travis
