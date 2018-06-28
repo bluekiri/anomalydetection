@@ -15,15 +15,19 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import os
 import unittest
+from datetime import datetime
 
 from google.api_core.exceptions import AlreadyExists
 from google.cloud.pubsub_v1 import PublisherClient
 from google.cloud.pubsub_v1 import SubscriberClient
 from rx import Observable
 
-from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer
+from anomalydetection.backend.entities.input_message import InputMessage
+from anomalydetection.backend.stream import AggregationFunction
+from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer, \
+    SparkPubsubStreamConsumer
 from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
 from anomalydetection.common.logging import LoggingMixin
 
@@ -74,3 +78,38 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
                 break
         else:
             raise Exception("Cannot consume published message.")
+
+    @unittest.skip("FIXME")
+    def test_pubsub_stream_backend_spark(self):
+
+        project = os.environ["PUBSUB_PROJECT"]
+        subscription = os.environ["PUBSUB_SUBSCRIPTION"]
+        pubsub_producer = PubSubStreamProducer(
+            project,
+            subscription,
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
+
+        def push(arg0):
+            if not self.passed and arg0 > 100:
+                raise Exception("No message received")
+            message = InputMessage("app", 1.5, datetime.now()).to_json()
+            pubsub_producer.push(message)
+
+        def completed():
+            self.assertEqual(self.passed, True)
+            self.logger.debug("Completed")
+
+        Observable.interval(1000) \
+            .map(push) \
+            .subscribe(on_completed=completed)
+
+        agg_consumer = SparkPubsubStreamConsumer(
+            project,
+            subscription,
+            AggregationFunction.AVG,
+            30 * 1000,
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"],
+            {"spark.jars": "streaming-pubsub-serializer_2.11-0.1.jar"})
+
+        for message in agg_consumer.poll():
+            self.logger.info(message)

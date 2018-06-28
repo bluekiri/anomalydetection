@@ -116,7 +116,8 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                  subscription: str,
                  agg_function: AggregationFunction,
                  agg_window_millis: int,
-                 auth_file: str = None) -> None:
+                 auth_file: str = None,
+                 spark_opts: dict = {}) -> None:
 
         super().__init__(agg_function, agg_window_millis)
         if auth_file:
@@ -124,12 +125,14 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 os.getenv("GOOGLE_APPLICATION_CREDENTIALS", auth_file)
         self.project_id = project_id
         self.subscription = subscription
+        self.spark_opts = spark_opts
         self.queue = Queue()
 
         # FIXME: This is not working because the RDD type.
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
-                          _agg_window_millis: int):
+                          _agg_window_millis: int,
+                          spark_opts: dict):
             try:
                 try:
                     import findspark
@@ -142,17 +145,21 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 from pyspark.sql import SparkSession
                 from pyspark.streaming import StreamingContext
                 from pyspark.sql.functions import expr
-                from pyspark.serializers import NoOpSerializer
+                from pyspark.serializers import UTF8Deserializer
                 from pyspark.streaming import DStream
 
-                spark = SparkSession \
+                spark_builder = SparkSession \
                     .builder \
+
+                for k in spark_opts:
+                    spark_builder = spark_builder.config(k, spark_opts[k])
+
+                spark_builder \
                     .appName(str(self)) \
-                    .config("spark.jars", "") \
                     .config("spark.jars.packages",
                             "org.apache.bahir:spark-streaming-pubsub_2.11:2.2.1") \
-                    .getOrCreate()
 
+                spark = spark_builder.getOrCreate()
                 spark.sparkContext.setLogLevel("WARN")
                 ssc = StreamingContext(spark.sparkContext,
                                        (agg_window_millis / 1000))
@@ -189,7 +196,7 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                                   credentials.Builder().build(),
                                   storage_level.DISK_ONLY())
                 _pubsub_stream_des = _pubsub_stream.transform(deserializer)
-                ser = NoOpSerializer()
+                ser = UTF8Deserializer()
                 pubsub_stream = DStream(_pubsub_stream_des, ssc, ser)
 
                 def aggregate_rdd(_queue, _agg, df, ts):
@@ -228,7 +235,8 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
         Concurrency.run_process(target=run_spark_job,
                                 args=(self.queue,
                                       self.agg_function,
-                                      self.agg_window_millis),
+                                      self.agg_window_millis,
+                                      self.spark_opts),
                                 name="PySpark {}".format(str(self)))
 
     def poll(self) -> Generator:
