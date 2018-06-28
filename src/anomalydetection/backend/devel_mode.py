@@ -37,32 +37,33 @@ class DevelConfigWrapper(Config):
     def build_producers(self):
 
         producers = []
+        project = "testing"
         try:
 
             # Create pubsub topics
             publisher = PublisherClient()
             publisher.create_topic(
-                publisher.topic_path("testing",
+                publisher.topic_path(project,
                                      "test1"))
             publisher.create_topic(
-                publisher.topic_path("testing",
+                publisher.topic_path(project,
                                      "test2"))
 
             # Create pubsub subscriptions
             subscriber = SubscriberClient()
             subscriber.create_subscription(
-                subscriber.subscription_path("testing", "test1"),
-                subscriber.topic_path("testing", "test1"))
+                subscriber.subscription_path(project, "test1"),
+                subscriber.topic_path(project, "test1"))
             subscriber.create_subscription(
-                subscriber.subscription_path("testing", "test2"),
-                subscriber.topic_path("testing", "test2"))
+                subscriber.subscription_path(project, "test2"),
+                subscriber.topic_path(project, "test2"))
 
         except AlreadyExists as _:
                     pass
 
         producers.append(
             StreamBuilderFactory.get_pubsub_producer()
-                                .set_project_id("testing")
+                                .set_project_id(project)
                                 .set_output_topic("test1").build())
         producers.append(
             StreamBuilderFactory.get_kafka_producer()

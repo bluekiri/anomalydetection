@@ -61,12 +61,15 @@ streams:
             database: /tmp/anomdec0.sqlite
 
   - name: pubsub
-    backend:
+    source:
       type: pubsub
       params:
         project: testing
         auth_file: /dev/null
         in: test1
+#    aggregation:
+#      function: avg
+#      window_millis: 30000
     engine:
       type: robust
       params:

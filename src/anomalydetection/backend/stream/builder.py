@@ -24,7 +24,8 @@ from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.kafka import KafkaStreamConsumer
 from anomalydetection.backend.stream.kafka import KafkaStreamProducer
 from anomalydetection.backend.stream.kafka import SparkKafkaStreamConsumer
-from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer
+from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer, \
+    SparkPubsubStreamConsumer
 from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
 
 
@@ -76,7 +77,7 @@ class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
         return self
 
     def build(self) -> BaseStreamConsumer:
-        if self.agg_function:
+        if self.agg_function and self.agg_function != AggregationFunction.NONE:
             return SparkKafkaStreamConsumer(**vars(self).copy())
         else:
             args = vars(self).copy()
@@ -133,9 +134,17 @@ class PubSubStreamConsumerBuilder(BaseConsumerBuilder):
         self.auth_file = auth_file
         return self
 
+    def set_agg_function(self, agg_function: AggregationFunction):
+        self.agg_function = agg_function
+        return self
+
+    def set_agg_window_millis(self, agg_window_millis: int):
+        self.agg_window_millis = agg_window_millis
+        return self
+
     def build(self) -> BaseStreamConsumer:
-        if self.agg_function:
-            raise NotImplementedError("Not implemented")
+        if self.agg_function and self.agg_function != AggregationFunction.NONE:
+            SparkPubsubStreamConsumer(**vars(self).copy())
         else:
             args = vars(self).copy()
             del args["agg_function"]

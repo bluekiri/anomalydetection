@@ -70,18 +70,20 @@ class Config(object):
 
     def _get_stream(self, item):
         builder = None
-        backend = item["source"]
-        if backend["type"] == "kafka":
+        source = item["source"]
+        if source["type"] == "kafka":
             builder = StreamBuilderFactory.get_kafka_consumer()
-            builder.set_broker_server(backend["params"]["brokers"])
-            builder.set_input_topic(backend["params"]["in"])
-            if "group_id" in backend["params"]:
-                builder.set_group_id(backend["params"]["group_id"])
+            builder.set_broker_server(source["params"]["brokers"])
+            builder.set_input_topic(source["params"]["in"])
+            if "group_id" in source["params"]:
+                builder.set_group_id(source["params"]["group_id"])
 
-        if backend["type"] == "pubsub":
+        if source["type"] == "pubsub":
             builder = StreamBuilderFactory.get_pubsub_consumer()
-            builder.set_project_id(backend["params"]["project"])
-            builder.set_subscription(backend["params"]["in"])
+            builder.set_project_id(source["params"]["project"])
+            builder.set_subscription(source["params"]["in"])
+            if "auth_file" in source["params"]:
+                builder.set_auth_file(source["params"]["auth_file"])
 
         if "aggregation" in item:
             agg = item["aggregation"]
