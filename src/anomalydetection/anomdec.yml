@@ -21,7 +21,7 @@ version: 1
 streams:
 
   - name: kafka
-    backend:
+    source:
       type: kafka
       params:
         brokers: localhost:9092

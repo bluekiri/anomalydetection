@@ -3,12 +3,11 @@ version: 1
 streams:
 
   - name: test
-    backend:
+    source:
       type: kafka
       params:
         brokers: localhost:9092
         in: test1
-        out: test2
     engine:
       type: cad
       params:
@@ -19,8 +18,9 @@ streams:
         max_left_semi_contexts_length: 8
         max_active_neurons_num: 16
         num_norm_value_bits: 3
-    middleware:
+    sink:
       - name: sqlite
+        type: repository
         repository:
           type: sqlite
           params:

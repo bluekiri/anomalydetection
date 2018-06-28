@@ -71,7 +71,7 @@ class Config(object):
 
     def _get_stream(self, item):
         builder = None
-        backend = item["backend"]
+        backend = item["source"]
         if backend["type"] == "kafka":
             builder = StreamBuilderFactory.get_kafka_consumer()
             builder.set_broker_server(backend["params"]["brokers"])
