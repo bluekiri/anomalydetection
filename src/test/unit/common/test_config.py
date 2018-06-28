@@ -15,15 +15,20 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import os
 import unittest
 
-from anomalydetection.backend.engine.builder import CADDetectorBuilder, \
-    RobustDetectorBuilder
+from anomalydetection.backend.engine.builder import CADDetectorBuilder
+from anomalydetection.backend.engine.builder import RobustDetectorBuilder
 from anomalydetection.backend.repository.builder import SQLiteBuilder
+from anomalydetection.backend.repository.sqlite import SQLiteRepository
+from anomalydetection.backend.sink.repository import RepositorySink
+from anomalydetection.backend.sink.stream import StreamSink
 from anomalydetection.backend.stream import AggregationFunction
-from anomalydetection.backend.stream.builder import KafkaStreamConsumerBuilder, \
-    PubSubStreamConsumerBuilder
+from anomalydetection.backend.stream.builder import KafkaStreamConsumerBuilder
+from anomalydetection.backend.stream.builder import PubSubStreamConsumerBuilder
+from anomalydetection.backend.stream.kafka import KafkaStreamProducer
+from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
 from anomalydetection.common.config import Config
 from anomalydetection.common.logging import LoggingMixin
 
@@ -32,18 +37,25 @@ from test import TEST_PATH
 
 class TestConfig(unittest.TestCase, LoggingMixin):
 
-    mode = "test"
+    MODE = "test"
+    DB_FILE = "test_config.sqlite"
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
         # Initialize config
-        self.config = Config(
-            "test",
+        cls.config = Config(
+            cls.MODE,
             open("{}/anomdec-test.yml".format(TEST_PATH)))
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        os.remove(cls.DB_FILE)
+
     def test_mode(self):
-        self.assertEqual(self.mode, self.config.mode)
+        self.assertEqual(self.MODE, self.config.mode)
 
     def test_get_names(self):
         self.assertEqual([x["name"] for x in self.config.config["streams"]],
@@ -56,7 +68,7 @@ class TestConfig(unittest.TestCase, LoggingMixin):
     def test__get_stream_kafka(self):
         kafka_stream = self.config._get_stream(
             {
-                "backend": {
+                "source": {
                     "type": "kafka",
                     "params": {
                         "brokers": "localhost:9092",
@@ -81,7 +93,7 @@ class TestConfig(unittest.TestCase, LoggingMixin):
     def test__get_stream_pubsub(self):
         pubsub_stream = self.config._get_stream(
             {
-                "backend": {
+                "source": {
                     "type": "pubsub",
                     "params": {
                         "project": "project-id",
@@ -143,3 +155,53 @@ class TestConfig(unittest.TestCase, LoggingMixin):
         self.assertIsInstance(robust, RobustDetectorBuilder)
         self.assertEqual(robust.window, 10)
         self.assertEqual(robust.threshold, 0.999)
+
+    def test__get_sink_sqlite(self):
+        sqlite_sink = self.config._get_sink(
+            {
+                "name": "sqlite",
+                "type": "repository",
+                "repository": {
+                    "type": "sqlite",
+                    "params": {
+                        "database": self.DB_FILE
+                    }
+                }
+            }
+        )
+        self.assertIsInstance(sqlite_sink, RepositorySink)
+        self.assertIsInstance(sqlite_sink.repository, SQLiteRepository)
+
+    def test__get_sink_kafka(self):
+        kafka_stream = self.config._get_sink(
+            {
+                "name": "kafka",
+                "type": "stream",
+                "stream": {
+                    "type": "kafka",
+                    "params": {
+                        "brokers": "localhost:9092",
+                        "out": "out"
+                    }
+                }
+            }
+        )
+        self.assertIsInstance(kafka_stream, StreamSink)
+        self.assertIsInstance(kafka_stream.producer, KafkaStreamProducer)
+
+    def test__get_sink_pubsub(self):
+        pubsub_stream = self.config._get_sink(
+            {
+                "name": "pubsub",
+                "type": "stream",
+                "stream": {
+                    "type": "pubsub",
+                    "params": {
+                        "project": "project",
+                        "out": "out"
+                    }
+                }
+            }
+        )
+        self.assertIsInstance(pubsub_stream, StreamSink)
+        self.assertIsInstance(pubsub_stream.producer, PubSubStreamProducer)

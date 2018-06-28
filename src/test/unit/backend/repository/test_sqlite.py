@@ -29,16 +29,18 @@ from anomalydetection.backend.stream import AggregationFunction
 class TestSQLiteRepository(unittest.TestCase):
 
     APP = "application"
-    DB_FILE = "/tmp/anomalydetection.sqlite3"
+    DB_FILE = "test_sqlite.sqlite3"
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpClass(self):
+        super().setUpClass()
         self.repository = SQLiteRepository(self.DB_FILE)
         self.repository.initialize()
 
-    def tearDown(self):
-        super().tearDown()
-        os.remove(self.DB_FILE)
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        os.remove(cls.DB_FILE)
 
     def test_constructor(self):
         self.assertEqual(self.repository.conn_string, self.DB_FILE)
