@@ -1,4 +1,4 @@
-all: build install
+all: build
 
 NPM = npm
 BOWER = $(abspath ./node_modules/bower-installer/bower-installer.js)

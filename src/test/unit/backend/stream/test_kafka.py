@@ -19,31 +19,19 @@
 import unittest
 
 
-class TestKafkaPollingStream(unittest.TestCase):
+class TestKafkaStreamConsumer(unittest.TestCase):
 
     def test(self):
         pass  # TODO
 
 
-class TestKafkaPushingStream(unittest.TestCase):
+class TestKafkaStreamProducer(unittest.TestCase):
 
     def test(self):
         pass  # TODO
 
 
-class TestKafkaStreamBackend(unittest.TestCase):
-
-    def test(self):
-        pass  # TODO
-
-
-class TestSparkKafkaPollingStream(unittest.TestCase):
-
-    def test(self):
-        pass  # TODO
-
-
-class TestSparkKafkaStreamBackend(unittest.TestCase):
+class TestSparkKafkaStreamConsumer(unittest.TestCase):
 
     def test(self):
         pass  # TODO

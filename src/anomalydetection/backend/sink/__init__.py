@@ -19,5 +19,5 @@
 from rx import Observer
 
 
-class Middleware(Observer):
+class Sink(Observer):
     pass

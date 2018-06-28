@@ -16,23 +16,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.repository import BaseRepository
-from anomalydetection.backend.middleware import Middleware
-from anomalydetection.common.logging import LoggingMixin
+import unittest
 
 
-class StoreRepositoryMiddleware(Middleware, LoggingMixin):
+class TestPubSubStreamConsumer(unittest.TestCase):
 
-    def __init__(self, repository: BaseRepository) -> None:
-        super().__init__()
-        self.repository = repository
-        self.repository.initialize()
+    def test(self):
+        pass  # TODO
 
-    def on_next(self, value):
-        self.repository.insert(value)
 
-    def on_error(self, error):
-        self.logger.error(error)
+class TestPubSubStreamProducer(unittest.TestCase):
 
-    def on_completed(self):
-        self.logger.debug("{} completed".format(self))
+    def test(self):
+        pass  # TODO

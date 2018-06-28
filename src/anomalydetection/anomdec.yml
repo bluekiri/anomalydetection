@@ -26,7 +26,6 @@ streams:
       params:
         brokers: localhost:9092
         in: test1
-        out: test2
     aggregation:
       function: avg
       window_millis: 30000
@@ -40,12 +39,20 @@ streams:
         max_left_semi_contexts_length: 8
         max_active_neurons_num: 16
         num_norm_value_bits: 3
-    middleware:
+    sink:
       - name: sqlite
+        type: repository
         repository:
           type: sqlite
           params:
             database: /tmp/anomdec0.sqlite
+      - name: kafka
+        type: stream
+        stream:
+          type: kafka
+          params:
+            brokers: localhost:9092
+            out: test2
     warmup:
       - name: sqlite
         repository:
@@ -60,18 +67,25 @@ streams:
         project: testing
         auth_file: /dev/null
         in: test1
-        out: test2
     engine:
       type: robust
       params:
         window: 30
         threshold: 0.99999
-    middleware:
+    sink:
       - name: sqlite
+        type: repository
         repository:
           type: sqlite
           params:
             database: /tmp/anomdec1.sqlite
+      - name: pubsub
+        type: stream
+        stream:
+          type: pubsub
+          params:
+            project: testing
+            out: test2
     warmup:
       - name: sqlite
         repository:

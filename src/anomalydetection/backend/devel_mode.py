@@ -23,6 +23,7 @@ from google.api_core.exceptions import AlreadyExists
 from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
 from rx import Observable, Observer
 
+from anomalydetection.backend.stream.builder import StreamBuilderFactory
 from anomalydetection.common.config import Config
 
 
@@ -33,48 +34,42 @@ class DevelConfigWrapper(Config):
         self.mode = str(config.mode)
         self.config = config.config.copy()
 
-    def build_publishers(self):
-        config = Config(self.mode)
-        for item in config.config["streams"]:
-            if "aggregation" in item:
-                del item["aggregation"]
+    def build_producers(self):
 
-        for item in config.config["streams"]:
+        producers = []
+        try:
 
-            # Flip topics
-            original_in = str(item["backend"]["params"]["in"])
-            original_out = str(item["backend"]["params"]["out"])
-            item["backend"]["params"]["in"] = original_out
-            item["backend"]["params"]["out"] = original_in
+            # Create pubsub topics
+            publisher = PublisherClient()
+            publisher.create_topic(
+                publisher.topic_path("testing",
+                                     "test1"))
+            publisher.create_topic(
+                publisher.topic_path("testing",
+                                     "test2"))
 
-            # Topic is not auto created in PubSub
-            if item["backend"]["type"] == "pubsub":
-                project = item["backend"]["params"]["project"]
-                try:
+            # Create pubsub subscriptions
+            subscriber = SubscriberClient()
+            subscriber.create_subscription(
+                subscriber.subscription_path("testing", "test1"),
+                subscriber.topic_path("testing", "test1"))
+            subscriber.create_subscription(
+                subscriber.subscription_path("testing", "test2"),
+                subscriber.topic_path("testing", "test2"))
 
-                    # Create topics
-                    publisher = PublisherClient()
-                    publisher.create_topic(
-                        publisher.topic_path(project,
-                                             original_in))
-                    publisher.create_topic(
-                        publisher.topic_path(project,
-                                             original_out))
-
-                    # And subscriptions
-                    subscriber = SubscriberClient()
-                    subscriber.create_subscription(
-                        subscriber.subscription_path(project, original_in),
-                        subscriber.topic_path(project, original_in))
-                    subscriber.create_subscription(
-                        subscriber.subscription_path(project, original_out),
-                        subscriber.topic_path(project, original_out))
-
-                except AlreadyExists as _:
+        except AlreadyExists as _:
                     pass
 
-        streams = config.get_streams()
-        return streams
+        producers.append(
+            StreamBuilderFactory.get_pubsub_producer()
+                                .set_project_id("testing")
+                                .set_output_topic("test1").build())
+        producers.append(
+            StreamBuilderFactory.get_kafka_producer()
+                                .set_broker_server("localhost:9092")
+                                .set_output_topic("test1").build())
+
+        return producers
 
 
 def produce_messages(config: Config):
@@ -129,6 +124,6 @@ def produce_messages(config: Config):
             return super().on_completed()
 
     # Send a message each 5s
-    publishers = DevelConfigWrapper(config).build_publishers()
+    publishers = DevelConfigWrapper(config).build_producers()
     for pub in publishers:
-        Observable.interval(5000).subscribe(IntervalObserver(pub.push_stream))
+        Observable.interval(5000).subscribe(IntervalObserver(pub))

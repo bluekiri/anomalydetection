@@ -23,31 +23,29 @@ from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
-from anomalydetection.backend.middleware import Middleware
-from anomalydetection.backend.stream import BaseStreamBackend, \
-    BaseStreamAggregation, AggregationFunction
+from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.stream import BaseStreamAggregation
+from anomalydetection.backend.stream import AggregationFunction
+from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.backend.stream import BaseObservable
-
-# TODO: Change BaseStreamBackend by BasePollingStream to decouple it.
-# Interaction Object should also hold a BasePushingStream, to publish results.
 from anomalydetection.common.logging import LoggingMixin
 
 
 class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
     def __init__(self,
-                 stream: BaseStreamBackend,
+                 stream: BaseStreamConsumer,
                  engine_builder: BaseBuilder,
                  message_handler: BaseMessageHandler,
-                 middleware: List[Middleware] = list(),
+                 sinks: List[Sink] = list(),
                  warm_up: BaseObservable = None) -> None:
         super().__init__(engine_builder, message_handler)
         self.stream = stream
-        self.middleware = middleware
+        self.sinks = sinks
         self.warm_up = warm_up
-        if isinstance(stream.poll_stream, BaseStreamAggregation):
-            self.agg_function = stream.poll_stream.agg_function
-            self.agg_window_millis = stream.poll_stream.agg_window_millis
+        if isinstance(stream, BaseStreamAggregation):
+            self.agg_function = stream.agg_function
+            self.agg_window_millis = stream.agg_window_millis
         else:
             self.agg_function = AggregationFunction.NONE
             self.agg_window_millis = 0
@@ -93,12 +91,9 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
             .map(lambda x: self.map_with_engine(x)) \
             .publish()  # This is required for multiple subscriptions
 
-        # Main subscription
-        rx.subscribe(lambda x: self.stream.push(str(x)))
-
-        # Middleware
-        for mw in self.middleware:
-            rx.subscribe(mw)
+        # Sinks
+        for sink in self.sinks:
+            rx.subscribe(sink)
 
         # Connect with observers
         rx.connect()

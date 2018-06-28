@@ -33,7 +33,7 @@ class BaseObservable(object):
         return x
 
 
-class BasePollingStream(BaseObservable):
+class BaseStreamConsumer(BaseObservable):
 
     def poll(self) -> Generator:
         raise NotImplementedError("To implement in child classes.")
@@ -42,7 +42,7 @@ class BasePollingStream(BaseObservable):
         return Observable.from_(self.poll())
 
 
-class BasePushingStream:
+class BaseStreamProducer:
 
     def push(self, message: str) -> None:
         raise NotImplementedError("To implement in child classes.")
@@ -56,22 +56,3 @@ class BaseStreamAggregation(object):
         super().__init__()
         self.agg_function = agg_function
         self.agg_window_millis = agg_window_millis
-
-
-class BaseStreamBackend(BasePollingStream, BasePushingStream):
-
-    def __init__(self,
-                 poll_stream: BasePollingStream,
-                 push_stream: BasePushingStream) -> None:
-        super().__init__()
-        self.poll_stream = poll_stream
-        self.push_stream = push_stream
-
-    def poll(self) -> Generator:
-        return self.poll_stream.poll()
-
-    def push(self, message: str) -> None:
-        self.push_stream.push(message)
-
-    def __str__(self) -> str:
-        return "↓ {} | ↑ {}".format(self.poll_stream, self.push_stream)

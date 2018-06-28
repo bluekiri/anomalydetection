@@ -16,16 +16,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import unittest
+from anomalydetection.backend.stream import BaseStreamProducer
+from anomalydetection.backend.sink import Sink
+from anomalydetection.common.logging import LoggingMixin
 
 
-class TestBaseConsumerBuilder(unittest.TestCase):
+class StreamSink(Sink, LoggingMixin):
 
-    def test(self):
-        pass  # TODO
+    def __init__(self, repository: BaseStreamProducer) -> None:
+        super().__init__()
+        self.producer = repository
 
+    def on_next(self, value):
+        self.producer.push(str(value))
 
-class TestBaseProducerBuilder(unittest.TestCase):
+    def on_error(self, error):
+        self.logger.error(error)
 
-    def test(self):
-        pass  # TODO
+    def on_completed(self):
+        self.logger.debug("{} completed".format(self))

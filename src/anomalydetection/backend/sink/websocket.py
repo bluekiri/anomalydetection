@@ -21,11 +21,11 @@ import json
 
 import websockets
 
-from anomalydetection.backend.middleware import Middleware
+from anomalydetection.backend.sink import Sink
 from anomalydetection.common.logging import LoggingMixin
 
 
-class WebSocketDashboardMiddleware(Middleware, LoggingMixin):
+class WebSocketSink(Sink, LoggingMixin):
 
     def __init__(self, name: str, url: str) -> None:
         super().__init__()

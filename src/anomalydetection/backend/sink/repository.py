@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*- #
+# -*- coding:utf-8 -*-
 #
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -16,17 +16,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import unittest
+from anomalydetection.backend.repository import BaseRepository
+from anomalydetection.backend.sink import Sink
+from anomalydetection.common.logging import LoggingMixin
 
-from anomalydetection.backend.middleware import Middleware
 
+class RepositorySink(Sink, LoggingMixin):
 
-class TestMiddleware(unittest.TestCase):
+    def __init__(self, repository: BaseRepository) -> None:
+        super().__init__()
+        self.repository = repository
+        self.repository.initialize()
 
-    def test_constructor(self):
-        with self.assertRaises(TypeError) as ctx:
-            Middleware()
+    def on_next(self, value):
+        self.repository.insert(value)
 
-        self.assertEqual(str(ctx.exception),
-                         "Can't instantiate abstract class Middleware with "
-                         "abstract methods on_completed, on_error, on_next")
+    def on_error(self, error):
+        self.logger.error(error)
+
+    def on_completed(self):
+        self.logger.debug("{} completed".format(self))

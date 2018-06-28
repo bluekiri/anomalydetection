@@ -22,8 +22,8 @@ from anomalydetection.backend.engine.builder import CADDetectorBuilder, \
     RobustDetectorBuilder
 from anomalydetection.backend.repository.builder import SQLiteBuilder
 from anomalydetection.backend.stream import AggregationFunction
-from anomalydetection.backend.stream.builder import KafkaStreamBuilder, \
-    PubSubStreamBuilder
+from anomalydetection.backend.stream.builder import KafkaStreamConsumerBuilder, \
+    PubSubStreamConsumerBuilder
 from anomalydetection.common.config import Config
 from anomalydetection.common.logging import LoggingMixin
 
@@ -71,12 +71,11 @@ class TestConfig(unittest.TestCase, LoggingMixin):
                 }
             }
         )
-        self.assertIsInstance(kafka_stream, KafkaStreamBuilder)
+        self.assertIsInstance(kafka_stream, KafkaStreamConsumerBuilder)
         self.assertEqual(kafka_stream.agg_window_millis, 60000)
         self.assertEqual(kafka_stream.agg_function, AggregationFunction.AVG)
         self.assertEqual(kafka_stream.broker_server, "localhost:9092")
         self.assertEqual(kafka_stream.input_topic, "in")
-        self.assertEqual(kafka_stream.output_topic, "out")
         self.assertEqual(kafka_stream.group_id, "group_id")
 
     def test__get_stream_pubsub(self):
@@ -93,11 +92,9 @@ class TestConfig(unittest.TestCase, LoggingMixin):
                 }
             }
         )
-        self.assertIsInstance(pubsub_stream, PubSubStreamBuilder)
+        self.assertIsInstance(pubsub_stream, PubSubStreamConsumerBuilder)
         self.assertEqual(pubsub_stream.project_id, "project-id")
         self.assertEqual(pubsub_stream.subscription, "in")
-        self.assertEqual(pubsub_stream.output_topic, "out")
-        self.assertEqual(pubsub_stream.auth_file, "/dev/null")
 
     def test__get_repository_sqlite(self):
         repository = self.config._get_repository(

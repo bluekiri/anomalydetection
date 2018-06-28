@@ -86,7 +86,7 @@ class OutputMessage(object):
                     ts=self.ts if not ts2str else str(self.ts))
 
     def to_plain_dict(self):
-        me = self.to_dict()
+        me = self.to_dict(True)
         me.update(**me['anomaly_results'].copy())
         del me['anomaly_results']
         return me

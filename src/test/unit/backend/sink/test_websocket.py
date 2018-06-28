@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+# -*- coding:utf-8 -*- #
 #
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -19,19 +19,5 @@
 import unittest
 
 
-class TestPubSubPollingStream(unittest.TestCase):
-
-    def test(self):
-        pass  # TODO
-
-
-class TestPubSubPushingStream(unittest.TestCase):
-
-    def test(self):
-        pass  # TODO
-
-
-class TestPubSubStreamBackend(unittest.TestCase):
-
-    def test(self):
-        pass  # TODO
+class TestWebSocketSink(unittest.TestCase):
+    pass  # TODO

@@ -24,46 +24,46 @@ from multiprocessing import Queue
 from kafka import KafkaConsumer, KafkaProducer
 
 from anomalydetection.backend.entities.input_message import InputMessage
-from anomalydetection.backend.stream.aggregation_functions import \
-    AggregationFunction
-from anomalydetection.backend.stream import BaseStreamBackend, \
-    BasePollingStream, BasePushingStream, BaseStreamAggregation
+from anomalydetection.backend.stream import BaseStreamAggregation
+from anomalydetection.backend.stream import BaseStreamConsumer
+from anomalydetection.backend.stream import BaseStreamProducer
+from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
 from anomalydetection.common.concurrency import Concurrency
 from anomalydetection.common.logging import LoggingMixin
 
 
-class KafkaPollingStream(BasePollingStream, LoggingMixin):
+class KafkaStreamConsumer(BaseStreamConsumer, LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
-                 topic: str,
+                 input_topic: str,
                  group_id: str) -> None:
         """
         Kafka Stream backend constructor.
 
         :type broker_server:      str.
         :param broker_server:     broker/s servers.
-        :type       topic:        str.
-        :param       topic:       topic to read from.
+        :type input_topic:        str.
+        :param input_topic:       topic to read from.
         :type group_id:           str.
         :param group_id:          consumer id.
         """
         super().__init__()
         self.broker_servers = broker_server.split(",")
-        self.topic = topic
+        self.topic = input_topic
         self.group_id = group_id
 
-        self.kafka_consumer = KafkaConsumer(
+        self._kafka_consumer = KafkaConsumer(
             self.topic,
             bootstrap_servers=self.broker_servers,
             group_id=self.group_id)
-        self.kafka_consumer.subscribe([self.topic])
+        self._kafka_consumer.subscribe([self.topic])
 
     def poll(self) -> Generator:
         while True:
             self.logger.debug("Polling messages (auto ack). START")
             try:
-                for msg in self.kafka_consumer:
+                for msg in self._kafka_consumer:
                     message = msg.value.decode('utf-8')
                     self.logger.debug("Message received: {}".format(message))
                     yield message
@@ -78,7 +78,7 @@ class KafkaPollingStream(BasePollingStream, LoggingMixin):
             self.topic)
 
 
-class KafkaPushingStream(BasePushingStream, LoggingMixin):
+class KafkaStreamProducer(BaseStreamProducer, LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
@@ -113,46 +113,20 @@ class KafkaPushingStream(BasePushingStream, LoggingMixin):
             self.topic)
 
 
-class KafkaStreamBackend(BaseStreamBackend, LoggingMixin):
+class SparkKafkaStreamConsumer(BaseStreamConsumer,
+                               BaseStreamAggregation,
+                               LoggingMixin):
 
     def __init__(self,
                  broker_server: str,
                  input_topic: str,
-                 output_topic: str,
-                 group_id: str) -> None:
-        """
-        Kafka Stream backend constructor.
-
-        :type broker_server:      str.
-        :param broker_server:     broker/s servers.
-        :type input_topic:        str.
-        :param input_topic:       topic to read from.
-        :type output_topic:       str.
-        :param output_topic:      topic to write to.
-        :type group_id:           str.
-        :param group_id:          consumer id.
-        """
-        super().__init__(
-            KafkaPollingStream(broker_server,
-                               input_topic,
-                               group_id),
-            KafkaPushingStream(broker_server, output_topic))
-
-
-class SparkKafkaPollingStream(BasePollingStream,
-                              BaseStreamAggregation,
-                              LoggingMixin):
-
-    def __init__(self,
-                 broker_server: str,
-                 topic: str,
                  group_id: str,
                  agg_function: AggregationFunction,
                  agg_window_millis: int) -> None:
 
         super().__init__(agg_function, agg_window_millis)
         self.broker_servers = broker_server.split(",")
-        self.topic = topic
+        self.input_topic = input_topic
         self.group_id = group_id
         self.queue = Queue()
 
@@ -203,7 +177,7 @@ class SparkKafkaPollingStream(BasePollingStream,
 
                 kafka_stream = KafkaUtils.createDirectStream(
                     ssc,
-                    [self.topic],
+                    [self.input_topic],
                     {"metadata.broker.list": ",".join(self.broker_servers)})
 
                 def aggregate_rdd(_queue, _agg, df, ts):
@@ -254,25 +228,6 @@ class SparkKafkaPollingStream(BasePollingStream,
         return "Kafka aggregated topic: " \
                "brokers: {}, topic: {}, func: {}, window: {}ms".format(
                     self.broker_servers,
-                    self.topic,
+                    self.input_topic,
                     self.agg_function.name,
                     self.agg_window_millis)
-
-
-class SparkKafkaStreamBackend(BaseStreamBackend, LoggingMixin):
-
-    def __init__(self,
-                 broker_server: str,
-                 input_topic: str,
-                 output_topic: str,
-                 group_id: str,
-                 agg_function: AggregationFunction,
-                 agg_window_millis: int) -> None:
-
-        super().__init__(
-            SparkKafkaPollingStream(broker_server,
-                                    input_topic,
-                                    group_id,
-                                    agg_function,
-                                    agg_window_millis),
-            KafkaPushingStream(broker_server, output_topic))

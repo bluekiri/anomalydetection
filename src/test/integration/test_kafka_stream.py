@@ -18,10 +18,10 @@
 
 import unittest
 
-from anomalydetection.backend.stream.kafka_stream_backend import \
-    KafkaStreamBackend
 from rx import Observable
 
+from anomalydetection.backend.stream.kafka import KafkaStreamConsumer
+from anomalydetection.backend.stream.kafka import KafkaStreamProducer
 from anomalydetection.common.logging import LoggingMixin
 from test import config
 
@@ -38,13 +38,11 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
         message = "hello world!"
 
         self.logger.info("Testing Kafka StreamBackend")
-        kafka = KafkaStreamBackend(self.kafka_broker,
-                                   "test1",
-                                   "test1",
-                                   "test1")
+        kafka_consumer = KafkaStreamConsumer(self.kafka_broker, "test1", "test1")
+        kafka_producer = KafkaStreamProducer(self.kafka_broker, "test1")
 
         self.logger.info("Polling message")
-        messages = kafka.poll()
+        messages = kafka_consumer.poll()
 
         # Publish
         self.logger.info("Publishing message")
@@ -52,7 +50,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
         def push(arg0):
             if not self.passed and arg0 > 10:
                 raise Exception("No message received")
-            kafka.push(message)
+            kafka_producer.push(message)
 
         def completed():
             self.assertEqual(self.passed, True)
@@ -69,7 +67,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
                 self.logger.info("Next: {}".format(i))
                 self.assertEqual(message, i)
                 self.passed = True
-                kafka.poll_stream.kafka_consumer.unsubscribe()
+                kafka_consumer._kafka_consumer.unsubscribe()
                 break
         else:
             raise Exception("Cannot consume published message.")

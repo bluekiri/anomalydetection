@@ -28,16 +28,13 @@ from anomalydetection.backend.engine.builder import BaseBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
-from anomalydetection.backend.stream import BaseStreamBackend
-from anomalydetection.backend.stream import BasePollingStream
-from anomalydetection.backend.stream import BasePushingStream
+from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.common.logging import LoggingMixin
 
 
-class DummyStream(BaseStreamBackend):
+class DummyStream(BaseStreamConsumer):
 
     def __init__(self) -> None:
-        super().__init__(BasePollingStream(), BasePushingStream())
         self.pushed = []
 
     def poll(self) -> Generator:

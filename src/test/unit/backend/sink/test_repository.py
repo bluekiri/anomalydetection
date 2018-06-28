@@ -23,8 +23,8 @@ from typing import List, Any
 from rx import Observable
 
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.middleware.store_repository_middleware import \
-    StoreRepositoryMiddleware
+from anomalydetection.backend.sink.repository import \
+    RepositorySink
 from anomalydetection.backend.repository import BaseRepository
 from anomalydetection.backend.stream import AggregationFunction
 
@@ -54,7 +54,7 @@ class InMemoryRepository(BaseRepository):
         return list(self.storage.keys())
 
 
-class TestStoreRepositoryMiddleware(unittest.TestCase):
+class TestRepository(unittest.TestCase):
 
     RANGE = 10
 
@@ -66,7 +66,7 @@ class TestStoreRepositoryMiddleware(unittest.TestCase):
                                  val, datetime.now())
 
         elements = Observable.from_([build_output(x) for x in range(self.RANGE)])
-        elements.subscribe(StoreRepositoryMiddleware(repository))
+        elements.subscribe(RepositorySink(repository))
 
         self.assertListEqual(repository.get_applications(), ["app"])
         self.assertEqual(len(repository.storage["app"]), self.RANGE)

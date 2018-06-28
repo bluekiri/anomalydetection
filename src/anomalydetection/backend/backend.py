@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.middleware.websocket_middleware import \
-    WebSocketDashboardMiddleware
+from anomalydetection.backend.sink.websocket import \
+    WebSocketSink
 from anomalydetection.common.concurrency import Concurrency
 from anomalydetection.common.config import Config
 from anomalydetection.backend.entities.json_input_message_handler import \
@@ -30,11 +30,11 @@ def main(config: Config):
 
     # Creates stream based on config env vars and a RobustDetector
     def run_live_anomaly_detection(stream, engine_builder,
-                                   middlewares, warmup, name):
+                                   sinks, warmup, name):
 
         # Send to broker or similar
         extra_middleware = [
-            WebSocketDashboardMiddleware(name, config.get_websocket_url())
+            WebSocketSink(name, config.get_websocket_url())
         ]
 
         # Instantiate interactor and run
@@ -42,7 +42,7 @@ def main(config: Config):
             stream,
             engine_builder,
             InputJsonMessageHandler(),
-            middleware=middlewares + extra_middleware,
+            sinks=sinks + extra_middleware,
             warm_up=warmup[0])
         interactor.run()
 

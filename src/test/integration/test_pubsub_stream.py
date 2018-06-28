@@ -20,8 +20,8 @@ import unittest
 
 from google.api_core.exceptions import AlreadyExists
 
-from anomalydetection.backend.stream.pubsub_stream_backend import \
-    PubSubStreamBackend
+from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer
+from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
 from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
 from rx import Observable
 
@@ -49,15 +49,14 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         except AlreadyExists:
             pass
 
-        pubsub = PubSubStreamBackend("testing",
-                                     "test0",
-                                     "test0")
-        messages = pubsub.poll()
+        pubsub_consumer = PubSubStreamConsumer("testing", "test0")
+        pubsub_producer = PubSubStreamProducer("testing", "test0")
+        messages = pubsub_consumer.poll()
 
         def push(arg0):
             if not self.passed and arg0 > 10:
                 raise Exception("No message received")
-            pubsub.push(message)
+            pubsub_producer.push(message)
 
         def completed():
             self.assertEqual(self.passed, True)

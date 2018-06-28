@@ -18,33 +18,39 @@
 
 import uuid
 
-from anomalydetection.backend.stream import BaseStreamBackend
+from anomalydetection.backend.stream import BaseStreamConsumer
+from anomalydetection.backend.stream import BaseStreamProducer
 from anomalydetection.backend.stream import AggregationFunction
-from anomalydetection.backend.stream.kafka_stream_backend import \
-    KafkaStreamBackend, SparkKafkaStreamBackend
-from anomalydetection.backend.stream.pubsub_stream_backend import \
-    PubSubStreamBackend
+from anomalydetection.backend.stream.kafka import KafkaStreamConsumer
+from anomalydetection.backend.stream.kafka import KafkaStreamProducer
+from anomalydetection.backend.stream.kafka import SparkKafkaStreamConsumer
+from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer
+from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
 
 
-class BaseBuilder(object):
+class BaseConsumerBuilder(object):
 
-    def build(self) -> BaseStreamBackend:
-        raise NotImplementedError("To implement on child classes.")
+    def build(self) -> BaseStreamConsumer:
+        raise NotImplementedError("To implement in child classes.")
 
 
-class KafkaStreamBuilder(BaseBuilder):
+class BaseProducerBuilder(object):
+
+    def build(self) -> BaseStreamProducer:
+        raise NotImplementedError("To implement in child classes.")
+
+
+class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
 
     def __init__(self,
                  broker_server: str = None,
                  input_topic: str = None,
-                 output_topic: str = None,
                  group_id: str = str(uuid.uuid4()),
                  agg_function: AggregationFunction = None,
                  agg_window_millis: int = 0) -> None:
         super().__init__()
         self.broker_server = broker_server
         self.input_topic = input_topic
-        self.output_topic = output_topic
         self.group_id = group_id
         self.agg_function = agg_function
         self.agg_window_millis = agg_window_millis
@@ -55,10 +61,6 @@ class KafkaStreamBuilder(BaseBuilder):
 
     def set_input_topic(self, input_topic):
         self.input_topic = input_topic
-        return self
-
-    def set_output_topic(self, output_topic):
-        self.output_topic = output_topic
         return self
 
     def set_group_id(self, group_id):
@@ -73,29 +75,48 @@ class KafkaStreamBuilder(BaseBuilder):
         self.agg_window_millis = agg_window_millis
         return self
 
-    def build(self) -> BaseStreamBackend:
+    def build(self) -> BaseStreamConsumer:
         if self.agg_function:
-            return SparkKafkaStreamBackend(**vars(self).copy())
+            return SparkKafkaStreamConsumer(**vars(self).copy())
         else:
             args = vars(self).copy()
             del args["agg_function"]
             del args["agg_window_millis"]
-            return KafkaStreamBackend(**args)
+            return KafkaStreamConsumer(**args)
 
 
-class PubSubStreamBuilder(BaseBuilder):
+class KafkaStreamProducerBuilder(BaseProducerBuilder):
+
+    def __init__(self,
+                 broker_server: str = None,
+                 output_topic: str = None) -> None:
+        super().__init__()
+        self.broker_server = broker_server
+        self.output_topic = output_topic
+
+    def set_broker_server(self, broker_server):
+        self.broker_server = broker_server
+        return self
+
+    def set_output_topic(self, output_topic):
+        self.output_topic = output_topic
+        return self
+
+    def build(self) -> BaseStreamProducer:
+        return KafkaStreamProducer(**vars(self).copy())
+
+
+class PubSubStreamConsumerBuilder(BaseConsumerBuilder):
 
     def __init__(self,
                  project_id: str = None,
                  subscription: str = None,
-                 output_topic: str = None,
                  auth_file: str = None,
                  agg_function: AggregationFunction = None,
                  agg_window_millis: int = 0) -> None:
         super().__init__()
         self.project_id = project_id
         self.subscription = subscription
-        self.output_topic = output_topic
         self.auth_file = auth_file
         self.agg_function = agg_function
         self.agg_window_millis = agg_window_millis
@@ -108,6 +129,35 @@ class PubSubStreamBuilder(BaseBuilder):
         self.subscription = subscription
         return self
 
+    def set_auth_file(self, auth_file: str):
+        self.auth_file = auth_file
+        return self
+
+    def build(self) -> BaseStreamConsumer:
+        if self.agg_function:
+            raise NotImplementedError("Not implemented")
+        else:
+            args = vars(self).copy()
+            del args["agg_function"]
+            del args["agg_window_millis"]
+            return PubSubStreamConsumer(**args)
+
+
+class PubSubStreamProducerBuilder(BaseProducerBuilder):
+
+    def __init__(self,
+                 project_id: str = None,
+                 output_topic: str = None,
+                 auth_file: str = None) -> None:
+        super().__init__()
+        self.project_id = project_id
+        self.output_topic = output_topic
+        self.auth_file = auth_file
+
+    def set_project_id(self, project_id):
+        self.project_id = project_id
+        return self
+
     def set_output_topic(self, output_topic):
         self.output_topic = output_topic
         return self
@@ -116,22 +166,24 @@ class PubSubStreamBuilder(BaseBuilder):
         self.auth_file = auth_file
         return self
 
-    def build(self) -> BaseStreamBackend:
-        if self.agg_function:
-            raise NotImplementedError("Not implemented")
-        else:
-            args = vars(self).copy()
-            del args["agg_function"]
-            del args["agg_window_millis"]
-            return PubSubStreamBackend(**args)
+    def build(self) -> BaseStreamProducer:
+        return PubSubStreamProducer(**vars(self).copy())
 
 
 class StreamBuilderFactory(object):
 
     @staticmethod
-    def get_kafka():
-        return KafkaStreamBuilder()
+    def get_kafka_consumer():
+        return KafkaStreamConsumerBuilder()
 
     @staticmethod
-    def get_pubsub():
-        return PubSubStreamBuilder()
+    def get_kafka_producer():
+        return KafkaStreamProducerBuilder()
+
+    @staticmethod
+    def get_pubsub_consumer():
+        return PubSubStreamConsumerBuilder()
+
+    @staticmethod
+    def get_pubsub_producer():
+        return PubSubStreamProducerBuilder()

@@ -18,6 +18,15 @@
 
 import unittest
 
+from anomalydetection.backend.sink import Sink
 
-class TestWebSocketDashboardMiddleware(unittest.TestCase):
-    pass  # TODO
+
+class TestMiddleware(unittest.TestCase):
+
+    def test_constructor(self):
+        with self.assertRaises(TypeError) as ctx:
+            Sink()
+
+        self.assertEqual(str(ctx.exception),
+                         "Can't instantiate abstract class Sink with "
+                         "abstract methods on_completed, on_error, on_next")

@@ -27,11 +27,11 @@ from anomalydetection.backend.entities.json_input_message_handler import \
 from anomalydetection.backend.interactor.batch_engine import \
     BatchEngineInteractor
 from anomalydetection.backend.stream import \
-    BasePollingStream
+    BaseStreamConsumer
 from anomalydetection.common.logging import LoggingMixin
 
 
-class DummyBatch(BasePollingStream):
+class DummyBatch(BaseStreamConsumer):
 
     def __init__(self) -> None:
         super().__init__()

@@ -23,12 +23,12 @@ from queue import Queue
 from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud import pubsub
 
-from anomalydetection.backend.stream import BaseStreamBackend, \
-    BasePollingStream, BasePushingStream
+from anomalydetection.backend.stream import BaseStreamConsumer
+from anomalydetection.backend.stream import BaseStreamProducer
 from anomalydetection.common.logging import LoggingMixin
 
 
-class PubSubPollingStream(BasePollingStream, LoggingMixin):
+class PubSubStreamConsumer(BaseStreamConsumer, LoggingMixin):
 
     def __init__(self,
                  project_id: str,
@@ -70,11 +70,11 @@ class PubSubPollingStream(BasePollingStream, LoggingMixin):
         return "PubSub subscription: {}".format(self._full_subscription_name())
 
 
-class PubSubPushingStream(BasePushingStream, LoggingMixin):
+class PubSubStreamProducer(BaseStreamProducer, LoggingMixin):
 
     def __init__(self,
                  project_id: str,
-                 topic: str,
+                 output_topic: str,
                  auth_file: str = None) -> None:
 
         super().__init__()
@@ -82,14 +82,14 @@ class PubSubPushingStream(BasePushingStream, LoggingMixin):
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = \
                 os.getenv("GOOGLE_APPLICATION_CREDENTIALS", auth_file)
         self.project_id = project_id
-        self.topic = topic
+        self.output_topic = output_topic
         self.queue = Queue()
         self.publisher = pubsub.PublisherClient()
 
     def _full_topic_name(self):
         return "projects/{}/{}/{}".format(self.project_id,
                                           "topics",
-                                          self.topic)
+                                          self.output_topic)
 
     def push(self, message: str) -> None:
         try:
@@ -101,16 +101,3 @@ class PubSubPushingStream(BasePushingStream, LoggingMixin):
 
     def __str__(self) -> str:
         return "PubSub topic: {}".format(self._full_topic_name())
-
-
-class PubSubStreamBackend(BaseStreamBackend, LoggingMixin):
-
-    def __init__(self,
-                 project_id: str,
-                 subscription: str,
-                 output_topic: str,
-                 auth_file: str = None) -> None:
-
-        super().__init__(
-            PubSubPollingStream(project_id, subscription, auth_file),
-            PubSubPushingStream(project_id, output_topic, auth_file))

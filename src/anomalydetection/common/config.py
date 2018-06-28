@@ -23,8 +23,10 @@ import yaml
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.repository.observable import ObservableRepository
-from anomalydetection.backend.middleware.store_repository_middleware import \
-    StoreRepositoryMiddleware
+from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink.repository import \
+    RepositorySink
+from anomalydetection.backend.sink.stream import StreamSink
 from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
 
@@ -71,20 +73,16 @@ class Config(object):
         builder = None
         backend = item["backend"]
         if backend["type"] == "kafka":
-            builder = StreamBuilderFactory.get_kafka()
+            builder = StreamBuilderFactory.get_kafka_consumer()
             builder.set_broker_server(backend["params"]["brokers"])
             builder.set_input_topic(backend["params"]["in"])
-            builder.set_output_topic(backend["params"]["out"])
             if "group_id" in backend["params"]:
                 builder.set_group_id(backend["params"]["group_id"])
 
         if backend["type"] == "pubsub":
-            builder = StreamBuilderFactory.get_pubsub()
+            builder = StreamBuilderFactory.get_pubsub_consumer()
             builder.set_project_id(backend["params"]["project"])
             builder.set_subscription(backend["params"]["in"])
-            builder.set_output_topic(backend["params"]["out"])
-            if "auth_file" in backend["params"]:
-                builder.set_auth_file(backend["params"]["auth_file"])
 
         if "aggregation" in item:
             agg = item["aggregation"]
@@ -133,7 +131,7 @@ class Config(object):
         if not self.built:
             self.built = list(zip(self.get_streams(),
                                   self.get_engines(),
-                                  self.get_middlewares(),
+                                  self.get_sinks(),
                                   self.get_warmup()))
         return self.built
 
@@ -143,23 +141,23 @@ class Config(object):
         named = list(zip(keys, values))
         return dict((x, y) for x, y in named)
 
-    def get_middlewares(self):
-        middlewares = []
+    def get_sinks(self):
+        sinks = []
         for item in self.config["streams"]:
 
-            if "middleware" not in item:
-                middlewares.append(None)
+            if "sink" not in item:
+                sinks.append(None)
                 continue
 
             mid_list = []
-            for mid_item in item["middleware"]:
-                builder = self._get_repository(mid_item["repository"])
+            for mid_item in item["sink"]:
+                builder = self._get_sink(mid_item)
                 if builder:
-                    mid_list.append(StoreRepositoryMiddleware(builder.build()))
+                    mid_list.append(builder)
 
-            middlewares.append(mid_list)
+            sinks.append(mid_list)
 
-        return middlewares
+        return sinks
 
     def get_warmup(self):
         warmups = []
@@ -186,3 +184,23 @@ class Config(object):
             if "database" in repository["params"]:
                 builder.set_database(repository["params"]["database"])
         return builder
+
+    def _get_sink(self, sink) -> Sink:
+        if sink["type"] == "repository":
+            builder = self._get_repository(sink["repository"])
+            if builder:
+                return RepositorySink(builder.build())
+        if sink["type"] == "stream":
+            stream = sink["stream"]
+            if stream["type"] == "kafka":
+                builder = StreamBuilderFactory.get_kafka_producer()
+                builder.set_broker_server(stream["params"]["brokers"])
+                builder.set_output_topic(stream["params"]["out"])
+                return StreamSink(builder.build())
+            if stream["type"] == "pubsub":
+                builder = StreamBuilderFactory.get_pubsub_producer()
+                builder.set_project_id(stream["params"]["project"])
+                builder.set_output_topic(stream["params"]["out"])
+                if "auth_file" in stream["params"]:
+                    builder.set_auth_file(stream["params"]["auth_file"])
+                return StreamSink(builder.build())
