@@ -18,8 +18,9 @@
 
 import unittest
 
-from anomalydetection.backend.repository.builder import BaseBuilder, SQLiteBuilder, \
-    RepositoryBuilderFactory
+from anomalydetection.backend.repository.builder import BaseBuilder
+from anomalydetection.backend.repository.builder import SQLiteBuilder
+from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
 
 

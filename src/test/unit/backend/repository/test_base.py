@@ -23,7 +23,8 @@ from datetime import datetime
 from rx import Observable
 
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.repository import BaseRepository, BaseObservableRepository
+from anomalydetection.backend.repository import BaseRepository
+from anomalydetection.backend.repository import BaseObservableRepository
 from anomalydetection.backend.stream import AggregationFunction
 
 

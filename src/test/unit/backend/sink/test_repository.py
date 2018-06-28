@@ -23,9 +23,8 @@ from typing import List, Any
 from rx import Observable
 
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.sink.repository import \
-    RepositorySink
 from anomalydetection.backend.repository import BaseRepository
+from anomalydetection.backend.sink.repository import RepositorySink
 from anomalydetection.backend.stream import AggregationFunction
 
 

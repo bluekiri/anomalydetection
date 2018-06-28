@@ -27,10 +27,8 @@ from anomalydetection.backend.engine import BaseEngine
 from anomalydetection.backend.engine.builder import BaseBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import AnomalyResult
-from anomalydetection.backend.interactor.batch_engine import \
-    BatchEngineInteractor
-from anomalydetection.backend.stream import \
-    BaseStreamConsumer
+from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
+from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.common.logging import LoggingMixin
 
 

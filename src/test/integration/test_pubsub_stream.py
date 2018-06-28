@@ -19,12 +19,12 @@
 import unittest
 
 from google.api_core.exceptions import AlreadyExists
+from google.cloud.pubsub_v1 import PublisherClient
+from google.cloud.pubsub_v1 import SubscriberClient
+from rx import Observable
 
 from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer
 from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
-from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
-from rx import Observable
-
 from anomalydetection.common.logging import LoggingMixin
 
 

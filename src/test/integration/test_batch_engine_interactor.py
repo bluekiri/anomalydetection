@@ -24,10 +24,8 @@ from datetime import datetime
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities.json_input_message_handler import \
     InputJsonMessageHandler
-from anomalydetection.backend.interactor.batch_engine import \
-    BatchEngineInteractor
-from anomalydetection.backend.stream import \
-    BaseStreamConsumer
+from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
+from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.common.logging import LoggingMixin
 
 

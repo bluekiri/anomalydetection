@@ -21,9 +21,10 @@ from typing import Any
 
 from anomalydetection.backend.engine import BaseEngine
 from anomalydetection.backend.engine.builder import BaseBuilder
-from anomalydetection.backend.entities import BaseMessageHandler, T
+from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import AnomalyResult
-from anomalydetection.backend.interactor import BaseEngineInteractor, BaseWarmUp
+from anomalydetection.backend.interactor import BaseEngineInteractor
+from anomalydetection.backend.interactor import BaseWarmUp
 
 
 class TestBaseWarmUp(unittest.TestCase):
@@ -59,7 +60,7 @@ class DummyMessageHandler(BaseMessageHandler):
         return message["value"]
 
     @classmethod
-    def validate_message(cls, message: T) -> bool:
+    def validate_message(cls, message: dict) -> bool:
         return True
 
 

@@ -20,8 +20,8 @@ import json
 import unittest
 from datetime import datetime
 
-from anomalydetection.backend.entities.input_message import InputMessage, \
-    InputMessageHandler
+from anomalydetection.backend.entities.input_message import InputMessage
+from anomalydetection.backend.entities.input_message import InputMessageHandler
 
 
 class TestInputMessage(unittest.TestCase):

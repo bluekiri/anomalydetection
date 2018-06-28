@@ -24,8 +24,7 @@ from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.backend.sink import Sink
-from anomalydetection.backend.sink.repository import \
-    RepositorySink
+from anomalydetection.backend.sink.repository import RepositorySink
 from anomalydetection.backend.sink.stream import StreamSink
 from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.builder import StreamBuilderFactory

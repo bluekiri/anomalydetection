@@ -20,7 +20,8 @@ import os
 import unittest
 from datetime import datetime
 
-from anomalydetection.backend.entities.output_message import AnomalyResult, OutputMessage
+from anomalydetection.backend.entities.output_message import AnomalyResult
+from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
 from anomalydetection.backend.stream import AggregationFunction
 

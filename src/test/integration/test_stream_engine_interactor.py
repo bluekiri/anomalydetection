@@ -17,7 +17,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import datetime
-import logging
 import unittest
 from collections import Generator
 
@@ -32,10 +31,6 @@ from anomalydetection.backend.interactor.stream_engine import StreamEngineIntera
 from anomalydetection.backend.sink import Sink
 from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.common.logging import LoggingMixin
-
-logging.basicConfig()
-logger = logging.getLogger(__package__)
-logger.setLevel(logging.DEBUG)
 
 
 class DummyStream(BaseStreamConsumer, LoggingMixin):
