@@ -26,7 +26,9 @@ config = {
     "SQLITE_DATABASE_FILE": os.getenv("SQLITE_DATABASE_FILE", "/tmp/database.sqlite"),
 }
 
-os.environ["SQLITE_DATABASE_FILE"] = config["SQLITE_DATABASE_FILE"]
-os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
-os.environ["PUBSUB_PROJECT_ID"] = "testing"
-os.environ["ASYNC_TEST_TIMEOUT"] = "100"
+# If this is set, do not use PubSub emulator
+if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
+    os.environ["SQLITE_DATABASE_FILE"] = config["SQLITE_DATABASE_FILE"]
+    os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
+    os.environ["PUBSUB_PROJECT_ID"] = "testing"
+    os.environ["ASYNC_TEST_TIMEOUT"] = "100"

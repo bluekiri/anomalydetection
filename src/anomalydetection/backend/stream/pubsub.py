@@ -20,6 +20,7 @@ import os
 from collections import Generator
 from queue import Queue
 
+from anomalydetection import BASE_PATH
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
 from google.cloud.pubsub_v1.subscriber.message import Message
@@ -128,11 +129,12 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
         self.spark_opts = spark_opts
         self.queue = Queue()
 
-        # FIXME: This is not working because the RDD type.
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
                           _agg_window_millis: int,
-                          spark_opts: dict):
+                          _spark_opts: dict = {},
+                          _environment: dict = {}):
+            os.environ.update(_environment)
             try:
                 try:
                     import findspark
@@ -144,20 +146,23 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
 
                 from pyspark.sql import SparkSession
                 from pyspark.streaming import StreamingContext
-                from pyspark.sql.functions import expr
-                from pyspark.serializers import UTF8Deserializer
+                from pyspark.sql.functions import expr, window
+                from pyspark.serializers import NoOpSerializer
                 from pyspark.streaming import DStream
+                from pyspark.streaming.kafka import utf8_decoder
 
                 spark_builder = SparkSession \
                     .builder \
 
-                for k in spark_opts:
-                    spark_builder = spark_builder.config(k, spark_opts[k])
+                for k in _spark_opts:
+                    spark_builder = spark_builder.config(k, _spark_opts[k])
 
                 spark_builder \
                     .appName(str(self)) \
                     .config("spark.jars.packages",
                             "org.apache.bahir:spark-streaming-pubsub_2.11:2.2.1") \
+                    .config("spark.jars",
+                            BASE_PATH + "/lib/streaming-pubsub-serializer_2.11-0.1.jar")
 
                 spark = spark_builder.getOrCreate()
                 spark.sparkContext.setLogLevel("WARN")
@@ -196,36 +201,42 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                                   credentials.Builder().build(),
                                   storage_level.DISK_ONLY())
                 _pubsub_stream_des = _pubsub_stream.transform(deserializer)
-                ser = UTF8Deserializer()
-                pubsub_stream = DStream(_pubsub_stream_des, ssc, ser)
+                ser = NoOpSerializer()
+                pubsub_stream = DStream(_pubsub_stream_des, ssc, ser).map(utf8_decoder)
 
                 def aggregate_rdd(_queue, _agg, df, ts):
 
+                    secs = int(self.agg_window_millis / 1000)
+                    win = window("ts",
+                                 "{}  seconds".format(secs))
                     if df.first():
                         aggs = df \
-                            .groupBy("application") \
+                            .groupBy("application", win) \
                             .agg(_agg.alias("value")) \
                             .collect()
 
                         for row in aggs:
-                            self.logger.debug("Pushing message to queue")
-                            _queue.put(
-                                InputMessage(row["application"],
-                                             value=row["value"],
-                                             ts=ts).to_json())
+                            message = InputMessage(row["application"],
+                                                   value=row["value"],
+                                                   ts=ts)
+                            self.logger.debug(
+                                "Enqueue: {}".format(message.to_json()))
+                            _queue.put(message.to_json())
                     else:
                         self.logger.warn("Empty RDD")
 
                 # Create kafka stream
                 pubsub_stream \
-                    .map(lambda x: x[1]) \
                     .foreachRDD(lambda ts, rdd:
                                 aggregate_rdd(queue, agg,
                                               spark.read.json(rdd), ts))
 
                 # Run
                 ssc.start()
-                ssc.awaitTermination()
+                if "timeout" in _spark_opts:
+                    ssc.awaitTerminationOrTimeout(_spark_opts["timeout"])
+                else:
+                    ssc.awaitTermination()
 
             except Exception as e:
                 print("Error importing pyspark", e)
@@ -236,7 +247,8 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                                 args=(self.queue,
                                       self.agg_function,
                                       self.agg_window_millis,
-                                      self.spark_opts),
+                                      self.spark_opts,
+                                      os.environ.copy()),
                                 name="PySpark {}".format(str(self)))
 
     def poll(self) -> Generator:

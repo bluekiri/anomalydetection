@@ -34,33 +34,43 @@ from anomalydetection.common.logging import LoggingMixin
 
 class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
+    MESSAGE = """{"test": "test"}"""
+
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
         self.passed = False
 
-    def test_pubsub_stream_backend(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
-        message = "hello world!"
+        cls.project = os.environ.get("PUBSUB_PROJECT", "testing")
+        cls.subscription = os.environ.get("PUBSUB_SUBSCRIPTION", "test0")
+        cls.credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", None)
+        cls.topic = cls.subscription
 
         try:
             publisher = PublisherClient()
-            publisher.create_topic(publisher.topic_path("testing", "test0"))
+            publisher.create_topic(publisher.topic_path(cls.project,
+                                                        cls.subscription))
 
             subscriber = SubscriberClient()
             subscriber.create_subscription(
-                subscriber.subscription_path("testing", "test0"),
-                subscriber.topic_path("testing", "test0"))
+                subscriber.subscription_path(cls.project, cls.subscription),
+                subscriber.topic_path(cls.project, cls.subscription))
         except AlreadyExists:
             pass
 
-        pubsub_consumer = PubSubStreamConsumer("testing", "test0")
-        pubsub_producer = PubSubStreamProducer("testing", "test0")
+    def test_pubsub_stream_backend(self):
+
+        pubsub_consumer = PubSubStreamConsumer(self.project, self.subscription)
+        pubsub_producer = PubSubStreamProducer(self.project, self.topic)
         messages = pubsub_consumer.poll()
 
         def push(arg0):
             if not self.passed and arg0 > 10:
                 raise Exception("No message received")
-            pubsub_producer.push(message)
+            pubsub_producer.push(self.MESSAGE)
 
         def completed():
             self.assertEqual(self.passed, True)
@@ -73,27 +83,28 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         # Poll
         if messages:
             for msg in messages:
-                self.assertEqual(message, msg)
+                self.assertEqual(self.MESSAGE, msg)
                 self.passed = True
                 break
         else:
             raise Exception("Cannot consume published message.")
 
-    @unittest.skip("FIXME")
+    @unittest.skip("This could not be tested with PubSub emulator.")
     def test_pubsub_stream_backend_spark(self):
 
-        project = os.environ["PUBSUB_PROJECT"]
-        subscription = os.environ["PUBSUB_SUBSCRIPTION"]
+        project = os.environ.get("PUBSUB_PROJECT", self.project)
+        subscription = os.environ.get("PUBSUB_SUBSCRIPTION", self.subscription)
+        credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", None)
         pubsub_producer = PubSubStreamProducer(
             project,
             subscription,
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
+            credentials)
 
         def push(arg0):
-            if not self.passed and arg0 > 100:
+            if arg0 > 40 and not self.passed:
                 raise Exception("No message received")
-            message = InputMessage("app", 1.5, datetime.now()).to_json()
-            pubsub_producer.push(message)
+            pubsub_producer.push(
+                InputMessage("app", 1.5, datetime.now()).to_json())
 
         def completed():
             self.assertEqual(self.passed, True)
@@ -107,9 +118,10 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             project,
             subscription,
             AggregationFunction.AVG,
-            30 * 1000,
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"],
-            {"spark.jars": "streaming-pubsub-serializer_2.11-0.1.jar"})
+            10 * 1000,
+            credentials,
+            spark_opts={"timeout": 30 * 1000})
 
         for message in agg_consumer.poll():
             self.logger.info(message)
+            self.passed = True

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
+import os
 import warnings
 from typing import Generator
 from multiprocessing import Queue
@@ -122,17 +122,22 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                  input_topic: str,
                  group_id: str,
                  agg_function: AggregationFunction,
-                 agg_window_millis: int) -> None:
+                 agg_window_millis: int,
+                 spark_opts: dict = {}) -> None:
 
         super().__init__(agg_function, agg_window_millis)
         self.broker_servers = broker_server.split(",")
         self.input_topic = input_topic
         self.group_id = group_id
         self.queue = Queue()
+        self.spark_opts = spark_opts
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
-                          _agg_window_millis: int):
+                          _agg_window_millis: int,
+                          _spark_opts: dict = {},
+                          _environment: dict = {}):
+            os.environ.update(_environment)
             try:
                 try:
                     import findspark
@@ -145,16 +150,20 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                 from pyspark.sql import SparkSession
                 from pyspark.streaming import StreamingContext
                 from pyspark.streaming.kafka import KafkaUtils
-                from pyspark.sql.functions import expr
+                from pyspark.sql.functions import expr, window
 
-                # TODO: Pass arguments to SparkSession
-                spark = SparkSession \
+                spark_builder = SparkSession \
                     .builder \
+
+                for k in _spark_opts:
+                    spark_builder = spark_builder.config(k, _spark_opts[k])
+
+                spark_builder = spark_builder \
                     .appName(str(self)) \
                     .config("spark.jars.packages",
-                            "org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.1") \
-                    .getOrCreate()
+                            "org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.1")
 
+                spark = spark_builder.getOrCreate()
                 spark.sparkContext.setLogLevel("WARN")
                 ssc = StreamingContext(spark.sparkContext,
                                        (agg_window_millis / 1000))
@@ -182,18 +191,22 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
 
                 def aggregate_rdd(_queue, _agg, df, ts):
 
+                    secs = int(self.agg_window_millis / 1000)
+                    win = window("ts",
+                                 "{}  seconds".format(secs))
                     if df.first():
                         aggs = df \
-                            .groupBy("application") \
+                            .groupBy("application", win) \
                             .agg(_agg.alias("value")) \
                             .collect()
 
                         for row in aggs:
-                            logging.debug("Pushing message to queue")
-                            _queue.put(
-                                InputMessage(row["application"],
-                                             value=row["value"],
-                                             ts=ts).to_json())
+                            message = InputMessage(row["application"],
+                                                   value=row["value"],
+                                                   ts=ts)
+                            self.logger.debug(
+                                "Enqueue: {}".format(message.to_json()))
+                            _queue.put(message.to_json())
                     else:
                         warnings.warn("Empty RDD")
 
@@ -206,18 +219,25 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
 
                 # Run
                 ssc.start()
-                ssc.awaitTermination()
+                if "timeout" in _spark_opts:
+                    ssc.awaitTerminationOrTimeout(_spark_opts["timeout"])
+                    ssc.stop(True, True)
+                else:
+                    ssc.awaitTermination()
 
             except Exception as e:
                 print("Error importing pyspark", e)
                 exit(127)
 
         # Run in multiprocessing, each aggregation runs a spark driver.
-        Concurrency.run_process(target=run_spark_job,
-                                args=(self.queue,
-                                      self.agg_function,
-                                      self.agg_window_millis),
-                                name="PySpark {}".format(str(self)))
+        pid = Concurrency.run_process(target=run_spark_job,
+                                      args=(self.queue,
+                                            self.agg_function,
+                                            self.agg_window_millis,
+                                            self.spark_opts,
+                                            os.environ.copy()),
+                                      name="PySpark {}".format(str(self)))
+        self.pid = pid
 
     def poll(self) -> Generator:
         while True:

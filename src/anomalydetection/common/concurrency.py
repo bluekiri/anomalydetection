@@ -16,37 +16,51 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
 import multiprocessing
 import threading
 
-from rx import Observable
 from rx.concurrency.mainloopscheduler.asyncioscheduler import asyncio
 
 
 class Concurrency(object):
 
-    lock = threading.Lock()
-    supervised = False
-    threads = []
-    processes = []
+    queues_lock = threading.Lock()
+    threads_lock = threading.Lock()
+    processes_lock = threading.Lock()
+
+    threads = {}
+    processes = {}
     queues = {}
 
+    _threads = []
+    _processes = []
+
     @staticmethod
-    def supervise() -> None:
+    def get_queue(name, mp=False):
+        if name not in Concurrency.queues:
+            with Concurrency.queues_lock:
+                if name not in Concurrency.queues:
+                    if mp:
+                        Concurrency.queues[name] = multiprocessing.Queue()
+                    else:
+                        Concurrency.queues[name] = asyncio.Queue()
+        return Concurrency.queues[name]
 
-        def debug_threads_or_processes(threads_or_processes):
-            for item in threads_or_processes:
-                logging.info(item)
+    @staticmethod
+    def append_process(process):
+        with Concurrency.processes_lock:
+            Concurrency._processes.append(process)
+            process.start()
+            Concurrency.processes[process.pid] = \
+                Concurrency._processes.index(process)
 
-        if not Concurrency.supervised:
-            with Concurrency.lock:
-                if not Concurrency.supervised:
-                    Observable.interval(5000).subscribe(
-                        lambda x: debug_threads_or_processes(Concurrency.threads))
-                    Observable.interval(5000).subscribe(
-                        lambda x: debug_threads_or_processes(Concurrency.processes))
-                    Concurrency.supervised = True
+    @staticmethod
+    def append_thread(thread):
+        with Concurrency.threads_lock:
+            Concurrency._threads.append(thread)
+            thread.start()
+            Concurrency.threads[thread.ident] = \
+                Concurrency._threads.index(thread)
 
     @staticmethod
     def run_thread(group=None,
@@ -64,24 +78,11 @@ class Concurrency(object):
             kwargs=kwargs)
         if not join:
             thread.daemon = True
-        thread.start()
-        Concurrency.threads.append(thread)
+        Concurrency.append_thread(thread)
         if join:
             thread.join(timeout)
 
-        Concurrency.supervise()
         return thread.ident
-
-    @staticmethod
-    def get_queue(name, mp=False):
-        if name not in Concurrency.queues:
-            with Concurrency.lock:
-                if name not in Concurrency.queues:
-                    if mp:
-                        Concurrency.queues[name] = multiprocessing.Queue()
-                    else:
-                        Concurrency.queues[name] = asyncio.Queue()
-        return Concurrency.queues[name]
 
     @staticmethod
     def run_process(group=None,
@@ -99,12 +100,20 @@ class Concurrency(object):
             kwargs=kwargs)
         if not join:
             process.daemon = True
-        process.start()
-        Concurrency.processes.append(process)
+        Concurrency.append_process(process)
         if join:
             process.join(timeout)
 
-        Concurrency.supervise()
         return process.pid
 
-    # TODO: Implement terminate
+    @staticmethod
+    def get_thread(ident):
+        return Concurrency._threads[Concurrency.threads[ident]]
+
+    @staticmethod
+    def get_process(pid):
+        return Concurrency._processes[Concurrency.processes[pid]]
+
+    @staticmethod
+    def kill_process(pid):
+        Concurrency.get_process(pid).terminate()
