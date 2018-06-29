@@ -78,7 +78,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             self.assertEqual(self.passed, True)
 
         Observable.interval(1000) \
-            .take(2) \
+            .take(20) \
             .map(push) \
             .subscribe(on_completed=completed)
 
