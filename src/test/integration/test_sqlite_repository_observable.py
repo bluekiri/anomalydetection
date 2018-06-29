@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import unittest
 from datetime import datetime
 
@@ -25,24 +26,38 @@ from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
 from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.common.logging import LoggingMixin
-from test import config
 
 
 class SQLiteObservableRepository(unittest.TestCase, LoggingMixin):
 
+    DB_FILE = "/tmp/test_sqlite_observable.sqlite"
+    ANOM = AnomalyResult(-1, 1, 0.5, False)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.repo = SQLiteRepository(cls.DB_FILE)
+        cls.repo.initialize()
+        cls.repo.insert(
+            OutputMessage("app", cls.ANOM, 1, AggregationFunction.NONE,
+                          1, ts=datetime.now()))
+        cls.repo.insert(
+            OutputMessage("app", cls.ANOM, 1, AggregationFunction.NONE,
+                          4, ts=datetime.now()))
+        cls.repo.insert(
+            OutputMessage("app", cls.ANOM, 1, AggregationFunction.NONE,
+                          3, ts=datetime.now()))
+        cls.repo.insert(
+            OutputMessage("app", cls.ANOM, 1, AggregationFunction.NONE,
+                          2, ts=datetime.now()))
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        os.remove(cls.DB_FILE)
+
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
-        self.repo = SQLiteRepository(config["SQLITE_DATABASE_FILE"])
-        self.repo.initialize()
-        anom = AnomalyResult(-1, 1, 0.5, False)
-        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
-                                       1, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
-                                       4, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
-                                       3, ts=datetime.now()))
-        self.repo.insert(OutputMessage("app", anom, 1, AggregationFunction.NONE,
-                                       2, ts=datetime.now()))
 
     def test_observable_sqlite(self):
         obs_rep = ObservableRepository(self.repo, application="app")

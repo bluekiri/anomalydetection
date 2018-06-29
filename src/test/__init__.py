@@ -21,14 +21,8 @@ import os
 
 TEST_PATH = os.path.realpath(os.path.dirname(__file__))
 
-config = {
-    "KAFKA_BROKER": os.getenv("KAFKA_BROKER", "localhost:9092"),
-    "SQLITE_DATABASE_FILE": os.getenv("SQLITE_DATABASE_FILE", "/tmp/database.sqlite"),
-}
-
 # If this is set, do not use PubSub emulator
 if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
-    os.environ["SQLITE_DATABASE_FILE"] = config["SQLITE_DATABASE_FILE"]
     os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
     os.environ["PUBSUB_PROJECT_ID"] = "testing"
     os.environ["ASYNC_TEST_TIMEOUT"] = "100"

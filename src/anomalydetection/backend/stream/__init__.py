@@ -21,7 +21,7 @@ from typing import Any
 
 from rx import Observable
 
-from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
+from anomalydetection.backend.stream.agg.functions import AggregationFunction
 
 
 class BaseObservable(object):

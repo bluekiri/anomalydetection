@@ -22,7 +22,7 @@ from queue import Queue
 
 from anomalydetection import BASE_PATH
 from anomalydetection.backend.entities.input_message import InputMessage
-from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
+from anomalydetection.backend.stream.agg.functions import AggregationFunction
 from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud import pubsub
 
@@ -51,6 +51,7 @@ class PubSubStreamConsumer(BaseStreamConsumer, LoggingMixin):
         self.subscriber = pubsub.SubscriberClient()
         self.subs = self.subscriber.subscribe(self._full_subscription_name(),
                                               callback=self.__enqueue)
+        self.subscribed = True
 
     def _full_subscription_name(self):
         return "projects/{}/{}/{}".format(self.project_id,
@@ -63,13 +64,19 @@ class PubSubStreamConsumer(BaseStreamConsumer, LoggingMixin):
         self.queue.put(message)
 
     def __dequeue(self) -> Message:
-        return self.queue.get()
+        return self.queue.get(timeout=1)
+
+    def unsubscribe(self):
+        self.subscribed = False
 
     def poll(self) -> Generator:
-        while True:
-            message = self.__dequeue()
-            message.ack()
-            yield str(message.data, "utf-8")
+        while self.subscribed:
+            try:
+                message = self.__dequeue()
+                message.ack()
+                yield str(message.data, "utf-8")
+            except Exception:
+                pass
 
     def __str__(self) -> str:
         return "PubSub subscription: {}".format(self._full_subscription_name())
@@ -128,6 +135,7 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
         self.subscription = subscription
         self.spark_opts = spark_opts
         self.queue = Queue()
+        self.subscribed = True
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
@@ -243,18 +251,27 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 exit(127)
 
         # Run in multiprocessing, each aggregation runs a spark driver.
-        Concurrency.run_process(target=run_spark_job,
-                                args=(self.queue,
-                                      self.agg_function,
-                                      self.agg_window_millis,
-                                      self.spark_opts,
-                                      os.environ.copy()),
-                                name="PySpark {}".format(str(self)))
+        pid = Concurrency.run_process(target=run_spark_job,
+                                      args=(self.queue,
+                                            self.agg_function,
+                                            self.agg_window_millis,
+                                            self.spark_opts,
+                                            os.environ.copy()),
+                                      name="PySpark {}".format(str(self)))
+        self.pid = pid
+
+    def unsubscribe(self):
+        self.subscribed = False
+        self.queue.close()
+        self.queue.join_thread()
 
     def poll(self) -> Generator:
-        while True:
-            message = self.queue.get()
-            yield message
+        while self.subscribed:
+            try:
+                message = self.queue.get(timeout=2)
+                yield message
+            except Exception as _:
+                pass
 
     def __str__(self) -> str:
         return "PubSub aggregated subscription: " \

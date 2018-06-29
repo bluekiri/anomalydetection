@@ -27,7 +27,7 @@ from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.stream import BaseStreamAggregation
 from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.backend.stream import BaseStreamProducer
-from anomalydetection.backend.stream.aggregation_functions import AggregationFunction
+from anomalydetection.backend.stream.agg.functions import AggregationFunction
 from anomalydetection.common.concurrency import Concurrency
 from anomalydetection.common.logging import LoggingMixin
 
@@ -52,6 +52,7 @@ class KafkaStreamConsumer(BaseStreamConsumer, LoggingMixin):
         self.broker_servers = broker_server.split(",")
         self.topic = input_topic
         self.group_id = group_id
+        self.subscribed = True
 
         self._kafka_consumer = KafkaConsumer(
             self.topic,
@@ -59,8 +60,12 @@ class KafkaStreamConsumer(BaseStreamConsumer, LoggingMixin):
             group_id=self.group_id)
         self._kafka_consumer.subscribe([self.topic])
 
+    def unsubscribe(self):
+        self.subscribed = False
+        self._kafka_consumer.unsubscribe()
+
     def poll(self) -> Generator:
-        while True:
+        while self.subscribed:
             self.logger.debug("Polling messages (auto ack). START")
             try:
                 for msg in self._kafka_consumer:
@@ -131,6 +136,7 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
         self.group_id = group_id
         self.queue = Queue()
         self.spark_opts = spark_opts
+        self.subscribed = True
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
@@ -239,10 +245,18 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                                       name="PySpark {}".format(str(self)))
         self.pid = pid
 
+    def unsubscribe(self):
+        self.subscribed = False
+        self.queue.close()
+        self.queue.join_thread()
+
     def poll(self) -> Generator:
-        while True:
-            message = self.queue.get()
-            yield message
+        while self.subscribed:
+            try:
+                message = self.queue.get(timeout=2)
+                yield message
+            except Exception as _:
+                pass
 
     def __str__(self) -> str:
         return "Kafka aggregated topic: " \

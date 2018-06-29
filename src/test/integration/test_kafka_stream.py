@@ -15,21 +15,19 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import os
 import unittest
 from datetime import datetime
 
-from anomalydetection.backend.stream.aggregation_functions import \
-    AggregationFunction
-
-from anomalydetection.backend.entities.input_message import InputMessage
 from rx import Observable
 
-from anomalydetection.backend.stream.kafka import KafkaStreamConsumer, \
-    SparkKafkaStreamConsumer
+from anomalydetection.backend.entities.input_message import InputMessage
+from anomalydetection.backend.stream.agg.functions import AggregationFunction
+from anomalydetection.backend.stream.kafka import KafkaStreamConsumer
+from anomalydetection.backend.stream.kafka import SparkKafkaStreamConsumer
 from anomalydetection.backend.stream.kafka import KafkaStreamProducer
+from anomalydetection.common.concurrency import Concurrency
 from anomalydetection.common.logging import LoggingMixin
-from test import config
 
 
 class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
@@ -38,66 +36,47 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
 
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
-        self.passed = False
-        self.kafka_broker = config["KAFKA_BROKER"]
+        self.kafka_broker = os.environ.get("KAFKA_BROKER", "localhost:9092")
 
     def test_kafka_stream_backend(self):
+
+        is_passed = False
 
         self.logger.info("Testing Kafka StreamBackend")
         kafka_consumer = KafkaStreamConsumer(self.kafka_broker, "test1", "test1")
         kafka_producer = KafkaStreamProducer(self.kafka_broker, "test1")
 
-        self.logger.info("Polling message")
-        messages = kafka_consumer.poll()
-
-        # Publish
-        self.logger.info("Publishing message")
-
-        def push(arg0):
-            if not self.passed and arg0 > 10:
-                raise Exception("No message received")
+        def push(_):
             kafka_producer.push(self.MESSAGE)
 
         def completed():
-            self.assertEqual(self.passed, True)
-            self.logger.debug("Completed")
+            kafka_consumer.unsubscribe()
+            self.assertEqual(is_passed, True)
 
         Observable.interval(1000) \
+            .take(2) \
             .map(push) \
             .subscribe(on_completed=completed)
 
         # Poll
+        messages = kafka_consumer.poll()
         if messages:
-            self.logger.info("Messages found, iterate it")
-            for i in messages:
-                self.logger.info("Next: {}".format(i))
-                self.assertEqual(self.MESSAGE, i)
-                self.passed = True
-                kafka_consumer._kafka_consumer.unsubscribe()
+            for message in messages:
+                self.assertEqual(message, self.MESSAGE)
+                kafka_consumer.unsubscribe()
+                is_passed = True
                 break
+            self.assertEqual(is_passed, True)
         else:
             raise Exception("Cannot consume published message.")
 
-    @unittest.skip("Spark timeout infinities this test.")
     def test_kafka_stream_backend_spark(self):
+
+        is_passed = False
 
         topic = "test1"
         group_id = "test1"
         kafka_producer = KafkaStreamProducer(self.kafka_broker, "test1")
-
-        def push(arg0):
-            if arg0 > 40 and not self.passed:
-                raise Exception("No message received")
-            kafka_producer.push(
-                InputMessage("app", 1.5, datetime.now()).to_json())
-
-        def completed():
-            self.assertEqual(self.passed, True)
-            self.logger.debug("Completed")
-
-        Observable.interval(1000) \
-            .map(push) \
-            .subscribe(on_completed=completed)
 
         agg_consumer = SparkKafkaStreamConsumer(
             self.kafka_broker,
@@ -105,8 +84,29 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             group_id,
             AggregationFunction.AVG,
             10 * 1000,
-            spark_opts={"timeout": 30 * 1000})
+            spark_opts={"timeout": 20 * 1000})
 
-        for message in agg_consumer.poll():
-            self.logger.info(message)
-            self.passed = True
+        def push(_):
+            kafka_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
+
+        def completed():
+            agg_consumer.unsubscribe()
+            self.assertEqual(is_passed, True)
+            Concurrency.kill_process(agg_consumer.pid)
+
+        Observable.interval(1000) \
+            .take(40) \
+            .map(push) \
+            .subscribe(on_completed=completed)
+
+        messages = agg_consumer.poll()
+        if messages:
+            for message in messages:
+                self.logger.info(message)
+                is_passed = True
+                agg_consumer.unsubscribe()
+                break
+
+            self.assertEqual(is_passed, True)
+        else:
+            raise Exception("Cannot consume published message.")

@@ -9,13 +9,13 @@ env:
   - KAFKA_ADVERTISED_HOST_NAME=localhost
 
 python:
-  - "3.5"
   - "3.6"
 
 before_install:
   - docker pull mongo
   - docker pull google/cloud-sdk
   - docker pull wurstmeister/kafka
+  - ./bin/ci/travis/before-install.sh
 
 install:
   - pip install -r requirements.txt
