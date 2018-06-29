@@ -49,26 +49,25 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         super().setUpClass()
 
         cls.project = os.environ.get("PUBSUB_PROJECT", "testing")
-        cls.subscription = os.environ.get("PUBSUB_SUBSCRIPTION", "test0")
         cls.credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", None)
-        cls.topic = cls.subscription
 
-        try:
-            publisher = PublisherClient()
-            publisher.create_topic(publisher.topic_path(cls.project,
-                                                        cls.subscription))
+        for subscription in ["test0", "test1"]:
+            try:
+                publisher = PublisherClient()
+                publisher.create_topic(publisher.topic_path(cls.project,
+                                                            subscription))
 
-            subscriber = SubscriberClient()
-            subscriber.create_subscription(
-                subscriber.subscription_path(cls.project, cls.subscription),
-                subscriber.topic_path(cls.project, cls.subscription))
-        except AlreadyExists:
-            pass
+                subscriber = SubscriberClient()
+                subscriber.create_subscription(
+                    subscriber.subscription_path(cls.project, subscription),
+                    subscriber.topic_path(cls.project, subscription))
+            except AlreadyExists:
+                pass
 
     def test_pubsub_stream_backend(self):
 
-        pubsub_consumer = PubSubStreamConsumer(self.project, self.subscription)
-        pubsub_producer = PubSubStreamProducer(self.project, self.topic)
+        pubsub_consumer = PubSubStreamConsumer(self.project, "test0")
+        pubsub_producer = PubSubStreamProducer(self.project, "test0")
         messages = pubsub_consumer.poll()
 
         def push(_):
@@ -97,8 +96,9 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
     def test_pubsub_stream_backend_spark(self):
 
         project = os.environ.get("PUBSUB_PROJECT", self.project)
-        subscription = os.environ.get("PUBSUB_SUBSCRIPTION", self.subscription)
+        subscription = os.environ.get("PUBSUB_SUBSCRIPTION", "test1")
         credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", None)
+
         pubsub_producer = PubSubStreamProducer(
             project,
             subscription,

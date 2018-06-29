@@ -74,9 +74,9 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
 
         is_passed = False
 
-        topic = "test1"
-        group_id = "test1"
-        kafka_producer = KafkaStreamProducer(self.kafka_broker, "test1")
+        topic = "test2"
+        group_id = "test2"
+        kafka_producer = KafkaStreamProducer(self.kafka_broker, "test2")
 
         agg_consumer = SparkKafkaStreamConsumer(
             self.kafka_broker,
