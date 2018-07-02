@@ -71,7 +71,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
         else:
             raise Exception("Cannot consume published message.")
 
-    @patch("anomalydetection.backend.stream.pubsub.SparkPubsubStreamConsumer.unsubscribe")
+    @patch("anomalydetection.backend.stream.kafka.SparkKafkaStreamConsumer.unsubscribe")
     @patch("anomalydetection.common.concurrency.Concurrency.run_process")
     def test_kafka_stream_backend_spark(self, run_process, unsubscribe):
 
