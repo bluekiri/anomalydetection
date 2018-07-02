@@ -6,7 +6,7 @@ services:
   - docker
 
 env:
-  - KAFKA_ADVERTISED_HOST_NAME=localhost,PUBSUB_PROJECT="eco-spirit-208613",GOOGLE_APPLICATION_CREDENTIALS=/tmp/eco-spirit-208613-5c70334d972b.json,SPARK_HOME=/tmp/spark
+  - KAFKA_ADVERTISED_HOST_NAME=localhost PUBSUB_PROJECT="eco-spirit-208613" SPARK_HOME=/tmp/spark GOOGLE_APPLICATION_CREDENTIALS=/tmp/eco-spirit-208613-5c70334d972b.json
 
 python:
   - "3.6"
@@ -15,6 +15,7 @@ before_install:
   - docker pull mongo
   - docker pull google/cloud-sdk
   - docker pull wurstmeister/kafka
+  - docker pull wurstmeister/zookeeper
   - ./bin/ci/travis/before-install.sh
 
 install:
