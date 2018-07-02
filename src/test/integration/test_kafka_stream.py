@@ -43,9 +43,11 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
 
         is_passed = False
 
-        self.logger.info("Testing Kafka StreamBackend")
-        kafka_consumer = KafkaStreamConsumer(self.kafka_broker, "test1", "test1")
-        kafka_producer = KafkaStreamProducer(self.kafka_broker, "test1")
+        topic = "test1"
+        group_id = "test1"
+
+        kafka_consumer = KafkaStreamConsumer(self.kafka_broker, topic, group_id)
+        kafka_producer = KafkaStreamProducer(self.kafka_broker, topic)
 
         def push(_):
             kafka_producer.push(self.MESSAGE)
@@ -82,7 +84,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
 
         topic = "test2"
         group_id = "test2"
-        kafka_producer = KafkaStreamProducer(self.kafka_broker, "test2")
+        kafka_producer = KafkaStreamProducer(self.kafka_broker, topic)
 
         agg_consumer = SparkKafkaStreamConsumer(
             self.kafka_broker,

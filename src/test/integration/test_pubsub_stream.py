@@ -121,6 +121,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         else:
             raise Exception("Cannot consume published message.")
 
+    @unittest.skip("FIXME")
     @patch("anomalydetection.backend.stream.pubsub.SparkPubsubStreamConsumer.unsubscribe")
     @patch("anomalydetection.common.concurrency.Concurrency.run_process")
     def test_pubsub_stream_backend_spark(self, run_process, unsubscribe):
