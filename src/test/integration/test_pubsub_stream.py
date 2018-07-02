@@ -152,7 +152,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
         def completed():
             agg_consumer.unsubscribe()
-            self.assertEqual(self.passed, True)
+            self.assertEqual(is_passed, True)
             Concurrency.kill_process(agg_consumer.pid)
 
         Observable.interval(1000) \
@@ -164,10 +164,10 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         if messages:
             for message in messages:
                 self.logger.info(message)
-                self.passed = True
+                is_passed = True
                 agg_consumer.unsubscribe()
                 break
 
-            self.assertEqual(self.passed, True)
+            self.assertEqual(is_passed, True)
         else:
             raise Exception("Cannot consume published message.")
