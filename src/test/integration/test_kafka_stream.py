@@ -75,7 +75,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
     @patch("anomalydetection.common.concurrency.Concurrency.run_process")
     def test_kafka_stream_backend_spark(self, run_process, unsubscribe):
 
-        unsubscribe.side_effect = lambda x: None
+        unsubscribe.side_effect = lambda: None
         run_process.side_effect = Concurrency.run_thread
 
         is_passed = False
