@@ -19,6 +19,7 @@ import os
 import unittest
 from datetime import datetime
 
+from mock import patch
 from rx import Observable
 
 from anomalydetection.backend.entities.input_message import InputMessage
@@ -70,7 +71,10 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
         else:
             raise Exception("Cannot consume published message.")
 
-    def test_kafka_stream_backend_spark(self):
+    @patch("anomalydetection.common.concurrency.Concurrency.run_process")
+    def test_kafka_stream_backend_spark(self, run_process):
+
+        run_process.side_effect = Concurrency.run_thread
 
         is_passed = False
 

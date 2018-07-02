@@ -20,6 +20,8 @@ import os
 import unittest
 from datetime import datetime
 
+from mock import patch
+
 from anomalydetection.common.concurrency import Concurrency
 from google.api_core.exceptions import AlreadyExists
 from google.cloud.pubsub_v1 import PublisherClient
@@ -93,7 +95,10 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             raise Exception("Cannot consume published message.")
 
     @unittest.skip("FIXME: This could not be tested with PubSub emulator.")
-    def test_pubsub_stream_backend_spark(self):
+    @patch("anomalydetection.common.concurrency.Concurrency.run_process")
+    def test_pubsub_stream_backend_spark(self, run_process):
+
+        run_process.side_effect = Concurrency.run_thread
 
         project = os.environ.get("PUBSUB_PROJECT", self.project)
         subscription = os.environ.get("PUBSUB_SUBSCRIPTION", "test1")
