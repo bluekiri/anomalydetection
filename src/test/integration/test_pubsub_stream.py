@@ -38,6 +38,8 @@ from anomalydetection.common.logging import LoggingMixin
 
 class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
+    project = None
+
     MESSAGE = """{"test": "test"}"""
 
     def __init__(self, methodName='runTest'):
@@ -58,7 +60,10 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
                 publisher = PublisherClient()
                 publisher.create_topic(publisher.topic_path(cls.project,
                                                             subscription))
+            except AlreadyExists:
+                pass
 
+            try:
                 subscriber = SubscriberClient()
                 subscriber.create_subscription(
                     subscriber.subscription_path(cls.project, subscription),
@@ -66,7 +71,28 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             except AlreadyExists:
                 pass
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        publisher = PublisherClient()
+        subscriber = SubscriberClient()
+
+        for topic in ["test0", "test1"]:
+            try:
+                publisher.delete_topic(
+                    publisher.topic_path(cls.project, topic))
+            except Exception as ex:
+                raise ex
+
+            try:
+                subscriber.delete_subscription(
+                    subscriber.subscription_path(cls.project, topic))
+            except Exception as ex:
+                raise ex
+
     def test_pubsub_stream_backend(self):
+
+        is_passed = False
 
         pubsub_consumer = PubSubStreamConsumer(self.project, "test0")
         pubsub_producer = PubSubStreamProducer(self.project, "test0")
@@ -76,7 +102,8 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             pubsub_producer.push(self.MESSAGE)
 
         def completed():
-            self.assertEqual(self.passed, True)
+            pubsub_consumer.unsubscribe()
+            self.assertEqual(is_passed, True)
 
         Observable.interval(1000) \
             .take(20) \
@@ -87,17 +114,20 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         if messages:
             for msg in messages:
                 self.assertEqual(self.MESSAGE, msg)
-                self.passed = True
+                is_passed = True
                 break
 
-            self.assertEqual(self.passed, True)
+            self.assertEqual(is_passed, True)
         else:
             raise Exception("Cannot consume published message.")
 
-    @unittest.skip("FIXME: This could not be tested with PubSub emulator.")
+    @patch("anomalydetection.backend.stream.pubsub.SparkPubsubStreamConsumer.unsubscribe")
     @patch("anomalydetection.common.concurrency.Concurrency.run_process")
-    def test_pubsub_stream_backend_spark(self, run_process):
+    def test_pubsub_stream_backend_spark(self, run_process, unsubscribe):
 
+        is_passed = False
+
+        unsubscribe.side_efect = lambda x: None
         run_process.side_effect = Concurrency.run_thread
 
         project = os.environ.get("PUBSUB_PROJECT", self.project)
@@ -123,7 +153,6 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         def completed():
             agg_consumer.unsubscribe()
             self.assertEqual(self.passed, True)
-            self.completed = True
             Concurrency.kill_process(agg_consumer.pid)
 
         Observable.interval(1000) \
@@ -135,7 +164,6 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         if messages:
             for message in messages:
                 self.logger.info(message)
-                self.assertEqual(message, self.MESSAGE)
                 self.passed = True
                 agg_consumer.unsubscribe()
                 break
