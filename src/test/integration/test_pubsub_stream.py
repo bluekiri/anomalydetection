@@ -151,9 +151,8 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             pubsub_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
 
         def completed():
-            agg_consumer.unsubscribe()
             self.assertEqual(is_passed, True)
-            Concurrency.kill_process(agg_consumer.pid)
+            agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
             .take(40) \
@@ -165,7 +164,6 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             for message in messages:
                 self.logger.info(message)
                 is_passed = True
-                agg_consumer.unsubscribe()
                 break
 
             self.assertEqual(is_passed, True)
