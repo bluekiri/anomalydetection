@@ -6,10 +6,7 @@ services:
   - docker
 
 env:
-  - KAFKA_ADVERTISED_HOST_NAME=localhost
-  - PUBSUB_PROJECT="eco-spirit-208613"
-  - GOOGLE_APPLICATION_CREDENTIALS=/tmp/eco-spirit-208613-5c70334d972b.json
-  - SPARK_HOME=/tmp/spark
+  - KAFKA_ADVERTISED_HOST_NAME=localhost,PUBSUB_PROJECT="eco-spirit-208613",GOOGLE_APPLICATION_CREDENTIALS=/tmp/eco-spirit-208613-5c70334d972b.json,SPARK_HOME=/tmp/spark
 
 python:
   - "3.6"
