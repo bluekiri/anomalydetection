@@ -127,7 +127,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
         is_passed = False
 
-        unsubscribe.side_efect = lambda x: None
+        unsubscribe.side_effect = lambda x: None
         run_process.side_effect = Concurrency.run_thread
 
         project = os.environ.get("PUBSUB_PROJECT", self.project)
