@@ -19,7 +19,7 @@ import os
 import unittest
 from datetime import datetime
 
-from mock import patch
+from unittest.mock import patch
 from rx import Observable
 
 from anomalydetection.backend.entities.input_message import InputMessage

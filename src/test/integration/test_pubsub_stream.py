@@ -20,7 +20,7 @@ import os
 import unittest
 from datetime import datetime
 
-from mock import patch
+from unittest.mock import patch
 
 from anomalydetection.common.concurrency import Concurrency
 from google.api_core.exceptions import AlreadyExists
