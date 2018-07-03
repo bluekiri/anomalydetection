@@ -53,8 +53,9 @@ class TestConcurrency(unittest.TestCase, LoggingMixin):
                                            args=(42, q, wait),
                                            join=True,
                                            timeout=1.0)
-            time.sleep(2)
-            print(Concurrency.get_thread(ident).isAlive())
+            time.sleep(5)
+            if Concurrency.get_thread(ident).isAlive():
+                raise TimeoutError("Timeout")
 
     def test_run_thread_no_join(self):
 

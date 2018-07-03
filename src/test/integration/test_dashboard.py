@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import os
 from datetime import datetime, timedelta
 
 from tornado.testing import AsyncHTTPTestCase
@@ -32,20 +32,19 @@ from test import TEST_PATH
 class TestDashboard(AsyncHTTPTestCase, LoggingMixin):
 
     headers = {}
+    config = None
 
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
 
-        # Initialize config
-        self.config = Config(
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.config = Config(
             "test",
             open("{}/anomdec-test.yml".format(TEST_PATH)))
 
-    def setUp(self):
-        super().setUp()
-
-        conf = self.config.get_as_dict()
-
+        conf = cls.config.get_as_dict()
         repository = conf["test"][3][0].repository
         repository.initialize()
 
@@ -55,6 +54,12 @@ class TestDashboard(AsyncHTTPTestCase, LoggingMixin):
             repository.insert(
                 OutputMessage("app", anom, 1, AggregationFunction.NONE,
                               1, ts=ini_ts + timedelta(minutes=1)))
+
+    @classmethod
+    def tearDownClass(cls):
+        conf = cls.config.get_as_dict()
+        repository = conf["test"][3][0].repository
+        os.remove(repository.conn_string)
 
     def get_app(self):
         from anomalydetection.dashboard.settings import settings

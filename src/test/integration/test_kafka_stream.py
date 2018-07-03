@@ -93,14 +93,13 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             group_id,
             AggregationFunction.AVG,
             10 * 1000,
-            spark_opts={"timeout": 25},
+            spark_opts={"timeout": 30},
             multiprocessing=False)
 
         def push(_):
             kafka_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
 
         def completed():
-            self.assertEqual(is_passed, True)
             agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
@@ -118,5 +117,5 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
         else:
             raise Exception("Cannot consume published message.")
 
-        Concurrency.get_thread(agg_consumer.pid).join(30)
+        Concurrency.get_thread(agg_consumer.pid).join(30.0)
         self.assertEqual(is_passed, True)

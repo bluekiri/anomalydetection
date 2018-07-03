@@ -127,12 +127,9 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                  agg_window_millis: int,
                  auth_file: str = None,
                  spark_opts: dict={},
-                 multiprocessing=True) -> None:
+                 multiprocessing=False) -> None:
 
         super().__init__(agg_function, agg_window_millis)
-        if auth_file:
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = \
-                os.getenv("GOOGLE_APPLICATION_CREDENTIALS", auth_file)
         self.project_id = project_id
         self.subscription = subscription
         self.spark_opts = spark_opts
@@ -142,6 +139,8 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
             self.queue = MultiprocessingQueue()
         else:
             self.queue = Queue()
+
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = auth_file
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
@@ -174,6 +173,7 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 spark_builder \
                     .appName(str(self)) \
                     .config("spark.jars.packages",
+                            "org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.1,"
                             "org.apache.bahir:spark-streaming-pubsub_2.11:2.2.1") \
                     .config("spark.jars",
                             BASE_PATH + "/lib/streaming-pubsub-serializer_2.11-0.1.jar")
@@ -199,14 +199,14 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 elif _agg_function == AggregationFunction.P99:
                     agg = expr("percentile(value, 0.99)")
 
+                deserializer = \
+                    ssc._jvm.org.apache.spark.streaming.pubsub.SparkPubsubMessageSerializer()  # noqa: E501
                 pubsub_utils = \
                     ssc._jvm.org.apache.spark.streaming.pubsub.PubsubUtils
                 credentials = \
                     ssc._jvm.org.apache.spark.streaming.pubsub.SparkGCPCredentials
                 storage_level = \
                     ssc._jvm.org.apache.spark.storage.StorageLevel
-                deserializer = \
-                    ssc._jvm.org.apache.spark.streaming.pubsub.SparkPubsubMessageSerializer()  # noqa: E501
 
                 _pubsub_stream = pubsub_utils \
                     .createStream(ssc._jssc,
@@ -252,12 +252,15 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 ssc.start()
                 if "timeout" in _spark_opts:
                     ssc.awaitTerminationOrTimeout(_spark_opts["timeout"])
+                    ssc.stop()
+                    spark.stop()
                 else:
                     ssc.awaitTermination()
+                    ssc.stop()
+                    spark.stop()
 
             except Exception as e:
-                print("Error importing pyspark", e)
-                exit(127)
+                raise e
 
         # Run in multiprocessing, each aggregation runs a spark driver.
         runner = Concurrency.run_process \

@@ -24,6 +24,7 @@ from queue import Queue as Queue
 
 from kafka import KafkaConsumer, KafkaProducer
 
+from anomalydetection import BASE_PATH
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.stream import BaseStreamAggregation
 from anomalydetection.backend.stream import BaseStreamConsumer
@@ -173,7 +174,10 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                 spark_builder = spark_builder \
                     .appName(str(self)) \
                     .config("spark.jars.packages",
-                            "org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.1")
+                            "org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.1,"
+                            "org.apache.bahir:spark-streaming-pubsub_2.11:2.2.1") \
+                    .config("spark.jars",
+                            BASE_PATH + "/lib/streaming-pubsub-serializer_2.11-0.1.jar")
 
                 spark = spark_builder.getOrCreate()
                 spark.sparkContext.setLogLevel("WARN")
@@ -236,13 +240,15 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                 ssc.start()
                 if "timeout" in _spark_opts:
                     ssc.awaitTerminationOrTimeout(_spark_opts["timeout"])
-                    ssc.stop(True, True)
+                    ssc.stop()
+                    spark.stop()
                 else:
                     ssc.awaitTermination()
+                    ssc.stop()
+                    spark.stop()
 
             except Exception as e:
-                print("Error importing pyspark", e)
-                exit(127)
+                raise e
 
         # Run in multiprocessing, each aggregation runs a spark driver.
         runner = Concurrency.run_process \

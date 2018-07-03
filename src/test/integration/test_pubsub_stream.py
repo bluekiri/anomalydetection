@@ -119,6 +119,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         if messages:
             for msg in messages:
                 self.assertEqual(self.MESSAGE, msg)
+                pubsub_consumer.unsubscribe()
                 is_passed = True
                 break
 
@@ -149,14 +150,13 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             AggregationFunction.AVG,
             10 * 1000,
             self.credentials,
-            spark_opts={"timeout": 25},
-            multiprocessing=False)
+            spark_opts={"timeout": 30},
+            multiprocessing=True)
 
         def push(_):
             pubsub_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
 
         def completed():
-            self.assertEqual(is_passed, True)
             agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
@@ -174,5 +174,5 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         else:
             raise Exception("Cannot consume published message.")
 
-        Concurrency.get_thread(agg_consumer.pid).join(30)
+        Concurrency.get_thread(agg_consumer.pid).join(30.0)
         self.assertEqual(is_passed, True)
