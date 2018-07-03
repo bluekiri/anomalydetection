@@ -18,7 +18,8 @@
 
 import os
 from collections import Generator
-from queue import Queue
+from multiprocessing import Queue as MultiprocessingQueue
+from queue import Queue as Queue
 
 from anomalydetection import BASE_PATH
 from anomalydetection.backend.entities.input_message import InputMessage
@@ -125,7 +126,8 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                  agg_function: AggregationFunction,
                  agg_window_millis: int,
                  auth_file: str = None,
-                 spark_opts: dict = {}) -> None:
+                 spark_opts: dict={},
+                 multiprocessing=True) -> None:
 
         super().__init__(agg_function, agg_window_millis)
         if auth_file:
@@ -134,8 +136,12 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
         self.project_id = project_id
         self.subscription = subscription
         self.spark_opts = spark_opts
-        self.queue = Queue()
         self.subscribed = True
+        self.multiprocessing = multiprocessing
+        if self.multiprocessing:
+            self.queue = MultiprocessingQueue()
+        else:
+            self.queue = Queue()
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
@@ -254,13 +260,16 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                 exit(127)
 
         # Run in multiprocessing, each aggregation runs a spark driver.
-        pid = Concurrency.run_process(target=run_spark_job,
-                                      args=(self.queue,
-                                            self.agg_function,
-                                            self.agg_window_millis,
-                                            self.spark_opts,
-                                            os.environ.copy()),
-                                      name="PySpark {}".format(str(self)))
+        runner = Concurrency.run_process \
+            if self.multiprocessing \
+            else Concurrency.run_thread
+        pid = runner(target=run_spark_job,
+                     args=(self.queue,
+                           self.agg_function,
+                           self.agg_window_millis,
+                           self.spark_opts,
+                           os.environ.copy()),
+                     name="PySpark {}".format(str(self)))
         self.pid = pid
 
     def unsubscribe(self):

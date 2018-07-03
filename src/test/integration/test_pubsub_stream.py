@@ -149,7 +149,8 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             AggregationFunction.AVG,
             10 * 1000,
             self.credentials,
-            spark_opts={"timeout": 25})
+            spark_opts={"timeout": 25},
+            multiprocessing=False)
 
         def push(_):
             pubsub_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
@@ -159,7 +160,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
-            .take(100) \
+            .take(50) \
             .map(push) \
             .subscribe(on_completed=completed)
 

@@ -93,7 +93,8 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             group_id,
             AggregationFunction.AVG,
             10 * 1000,
-            spark_opts={"timeout": 25})
+            spark_opts={"timeout": 25},
+            multiprocessing=False)
 
         def push(_):
             kafka_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
@@ -103,7 +104,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
-            .take(100) \
+            .take(50) \
             .map(push) \
             .subscribe(on_completed=completed)
 

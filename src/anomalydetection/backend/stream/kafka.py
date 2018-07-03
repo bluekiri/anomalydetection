@@ -19,7 +19,8 @@
 import os
 import warnings
 from typing import Generator
-from multiprocessing import Queue
+from multiprocessing import Queue as MultiprocessingQueue
+from queue import Queue as Queue
 
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -128,15 +129,20 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                  group_id: str,
                  agg_function: AggregationFunction,
                  agg_window_millis: int,
-                 spark_opts: dict = {}) -> None:
+                 spark_opts: dict={},
+                 multiprocessing=True) -> None:
 
         super().__init__(agg_function, agg_window_millis)
         self.broker_servers = broker_server.split(",")
         self.input_topic = input_topic
         self.group_id = group_id
-        self.queue = Queue()
         self.spark_opts = spark_opts
         self.subscribed = True
+        self.multiprocessing = multiprocessing
+        if self.multiprocessing:
+            self.queue = MultiprocessingQueue()
+        else:
+            self.queue = Queue()
 
         def run_spark_job(queue: Queue,
                           _agg_function: AggregationFunction,
@@ -239,13 +245,16 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                 exit(127)
 
         # Run in multiprocessing, each aggregation runs a spark driver.
-        pid = Concurrency.run_process(target=run_spark_job,
-                                      args=(self.queue,
-                                            self.agg_function,
-                                            self.agg_window_millis,
-                                            self.spark_opts,
-                                            os.environ.copy()),
-                                      name="PySpark {}".format(str(self)))
+        runner = Concurrency.run_process \
+            if self.multiprocessing \
+            else Concurrency.run_thread
+        pid = runner(target=run_spark_job,
+                     args=(self.queue,
+                           self.agg_function,
+                           self.agg_window_millis,
+                           self.spark_opts,
+                           os.environ.copy()),
+                     name="PySpark {}".format(str(self)))
         self.pid = pid
 
     def unsubscribe(self):
