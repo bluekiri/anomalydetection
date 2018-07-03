@@ -94,8 +94,13 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
         is_passed = False
 
-        pubsub_consumer = PubSubStreamConsumer(self.project, "test0")
-        pubsub_producer = PubSubStreamProducer(self.project, "test0")
+        subscription = "test0"
+        topic = "test0"
+
+        pubsub_consumer = PubSubStreamConsumer(self.project, subscription,
+                                               self.credentials)
+        pubsub_producer = PubSubStreamProducer(self.project, topic,
+                                               self.credentials)
         messages = pubsub_consumer.poll()
 
         def push(_):
@@ -121,7 +126,6 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         else:
             raise Exception("Cannot consume published message.")
 
-    @unittest.skip("FIXME")
     @patch("anomalydetection.backend.stream.pubsub.SparkPubsubStreamConsumer.unsubscribe")
     @patch("anomalydetection.common.concurrency.Concurrency.run_process")
     def test_pubsub_stream_backend_spark(self, run_process, unsubscribe):
@@ -131,21 +135,20 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
         unsubscribe.side_effect = lambda: None
         run_process.side_effect = Concurrency.run_thread
 
-        project = os.environ.get("PUBSUB_PROJECT", self.project)
-        subscription = os.environ.get("PUBSUB_SUBSCRIPTION", "test1")
-        credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", None)
+        subscription = "test1"
+        topic = "test1"
 
         pubsub_producer = PubSubStreamProducer(
-            project,
-            subscription,
-            credentials)
+            self.project,
+            topic,
+            self.credentials)
 
         agg_consumer = SparkPubsubStreamConsumer(
-            project,
+            self.project,
             subscription,
             AggregationFunction.AVG,
             10 * 1000,
-            credentials,
+            self.credentials,
             spark_opts={"timeout": 20 * 1000})
 
         def push(_):

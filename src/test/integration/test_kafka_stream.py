@@ -77,13 +77,14 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
     @patch("anomalydetection.common.concurrency.Concurrency.run_process")
     def test_kafka_stream_backend_spark(self, run_process, unsubscribe):
 
+        is_passed = False
+
         unsubscribe.side_effect = lambda: None
         run_process.side_effect = Concurrency.run_thread
 
-        is_passed = False
-
         topic = "test2"
         group_id = "test2"
+
         kafka_producer = KafkaStreamProducer(self.kafka_broker, topic)
 
         agg_consumer = SparkKafkaStreamConsumer(
