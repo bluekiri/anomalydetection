@@ -254,6 +254,8 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
         runner = Concurrency.run_process \
             if self.multiprocessing \
             else Concurrency.run_thread
+
+        Concurrency.get_lock("spark").acquire()
         pid = runner(target=run_spark_job,
                      args=(self.queue,
                            self.agg_function,
@@ -261,6 +263,7 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                            self.spark_opts,
                            os.environ.copy()),
                      name="PySpark {}".format(str(self)))
+        Concurrency.schedule_release("spark", 30)
         self.pid = pid
 
     def unsubscribe(self):

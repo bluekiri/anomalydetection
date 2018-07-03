@@ -45,9 +45,10 @@ class Anomdec(LoggingMixin):
                 from anomalydetection.backend.devel_mode import produce_messages
 
                 # Prepare settings for devel mode
-                os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
-                os.environ["PUBSUB_PROJECT_ID"] = "testing"
-                os.environ["ASYNC_TEST_TIMEOUT"] = "100"
+                if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
+                    os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
+                    os.environ["PUBSUB_PROJECT_ID"] = "testing"
+                    os.environ["ASYNC_TEST_TIMEOUT"] = "100"
 
                 self.logger.info("Creating configuration")
                 config = Config("devel")

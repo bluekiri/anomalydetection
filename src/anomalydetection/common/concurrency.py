@@ -18,6 +18,7 @@
 
 import multiprocessing
 import threading
+import time
 
 from rx.concurrency.mainloopscheduler.asyncioscheduler import asyncio
 
@@ -27,10 +28,12 @@ class Concurrency(object):
     queues_lock = threading.Lock()
     threads_lock = threading.Lock()
     processes_lock = threading.Lock()
+    locks_lock = threading.Lock()
 
     threads = {}
     processes = {}
     queues = {}
+    locks = {}
 
     _threads = []
     _processes = []
@@ -117,3 +120,19 @@ class Concurrency(object):
     @staticmethod
     def kill_process(pid):
         Concurrency.get_process(pid).terminate()
+
+    @staticmethod
+    def get_lock(name):
+        if name not in Concurrency.locks:
+            with Concurrency.locks_lock:
+                if name not in Concurrency.locks:
+                    Concurrency.locks[name] = threading.Lock()
+        return Concurrency.locks[name]
+
+    @staticmethod
+    def schedule_release(name, timeout=0):
+        def release_async(_timeout):
+            time.sleep(_timeout)
+            Concurrency.get_lock(name).release()
+        Concurrency.run_thread(target=release_async,
+                               args=(timeout,))

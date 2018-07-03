@@ -144,7 +144,7 @@ class PubSubStreamConsumerBuilder(BaseConsumerBuilder):
 
     def build(self) -> BaseStreamConsumer:
         if self.agg_function and self.agg_function != AggregationFunction.NONE:
-            SparkPubsubStreamConsumer(**vars(self).copy())
+            return SparkPubsubStreamConsumer(**vars(self).copy())
         else:
             args = vars(self).copy()
             del args["agg_function"]

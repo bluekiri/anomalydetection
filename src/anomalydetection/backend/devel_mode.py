@@ -44,19 +44,19 @@ class DevelConfigWrapper(Config):
             publisher = PublisherClient()
             publisher.create_topic(
                 publisher.topic_path(project,
-                                     "test1"))
+                                     "test10"))
             publisher.create_topic(
                 publisher.topic_path(project,
-                                     "test2"))
+                                     "test20"))
 
             # Create pubsub subscriptions
             subscriber = SubscriberClient()
             subscriber.create_subscription(
-                subscriber.subscription_path(project, "test1"),
-                subscriber.topic_path(project, "test1"))
+                subscriber.subscription_path(project, "test10"),
+                subscriber.topic_path(project, "test10"))
             subscriber.create_subscription(
-                subscriber.subscription_path(project, "test2"),
-                subscriber.topic_path(project, "test2"))
+                subscriber.subscription_path(project, "test20"),
+                subscriber.topic_path(project, "test20"))
 
         except AlreadyExists as _:
                     pass
@@ -64,7 +64,7 @@ class DevelConfigWrapper(Config):
         producers.append(
             StreamBuilderFactory.get_pubsub_producer()
                                 .set_project_id(project)
-                                .set_output_topic("test1").build())
+                                .set_output_topic("test10").build())
         producers.append(
             StreamBuilderFactory.get_kafka_producer()
                                 .set_broker_server("localhost:9092")

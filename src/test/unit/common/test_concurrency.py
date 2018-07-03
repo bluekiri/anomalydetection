@@ -26,9 +26,18 @@ from anomalydetection.common.logging import LoggingMixin
 
 class TestConcurrency(unittest.TestCase, LoggingMixin):
 
+    LOCK = "lock"
+
     @staticmethod
     def compute(res, queue, wait=0):
         time.sleep(wait)
+        queue.put(res)
+
+    def compute_lock(self, res, queue, wait1=0, wait2=0):
+        time.sleep(wait1)
+        Concurrency.get_lock(self.LOCK).acquire()
+        time.sleep(wait2)
+        Concurrency.get_lock(self.LOCK).release()
         queue.put(res)
 
     def test_run_thread(self):
@@ -111,3 +120,25 @@ class TestConcurrency(unittest.TestCase, LoggingMixin):
         time.sleep(wait*2)
         with self.assertRaises(Empty) as ex:  # noqa: F841
             q.get_nowait()
+
+    def test_get_lock(self):
+
+        q = Queue()
+        Concurrency.run_thread(target=self.compute_lock,
+                               name="lock_3",
+                               args=(42, q, 4, 1),
+                               join=False)
+
+        Concurrency.run_thread(target=self.compute_lock,
+                               name="lock_2",
+                               args=(45, q, 2, 9),
+                               join=False)
+
+        Concurrency.run_thread(target=self.compute_lock,
+                               name="lock_1",
+                               args=(47, q, 1, 1),
+                               join=False)
+
+        self.assertEqual(47, q.get())
+        self.assertEqual(45, q.get())
+        self.assertEqual(42, q.get())
