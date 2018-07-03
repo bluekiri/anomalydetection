@@ -70,3 +70,11 @@ class TestEMADetector(unittest.TestCase):
 
         anomaly = self.engine.predict(12, **{"ts": datetime.now()})
         self.assertEqual(anomaly.is_anomaly, True)
+
+        # Check that it is adjusting
+        for i in range(1, 50):
+            self.engine.predict(12, **{"ts": datetime.now()})
+            self.engine.predict(13, **{"ts": datetime.now()})
+
+        anomaly = self.engine.predict(12.5, **{"ts": datetime.now()})
+        self.assertEqual(anomaly.is_anomaly, False)
