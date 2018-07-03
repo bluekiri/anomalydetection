@@ -103,7 +103,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
-            .take(40) \
+            .take(100) \
             .map(push) \
             .subscribe(on_completed=completed)
 

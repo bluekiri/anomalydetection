@@ -212,7 +212,10 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                                                    ts=ts)
                             self.logger.debug(
                                 "Enqueue: {}".format(message.to_json()))
-                            _queue.put(message.to_json())
+                            try:
+                                _queue.put(message.to_json())
+                            except AssertionError as ex:
+                                self.logger.warn(str(ex))
                     else:
                         warnings.warn("Empty RDD")
 
