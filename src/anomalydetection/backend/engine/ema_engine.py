@@ -40,11 +40,11 @@ class EMADetector(BaseEngine):
     def _ema(self, data, window):
         weights = np.exp(np.linspace(-1., 0., window))
         weights /= weights.sum()
-        ema = np.convolve(data[:,[0]][:,0], weights)[len(data)-1:-len(data)+1]
+        ema = np.convolve(data[:, [0]][:, 0], weights)[len(data)-1:-len(data)+1]
         return ema
 
     def _calc_std(self, data):
-        return np.std(data[:,[0]][:,0])
+        return np.std(data[:, [0]][:, 0])
 
     def _update(self, value):
         self._update_buffer(value)
