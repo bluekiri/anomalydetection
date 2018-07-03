@@ -79,7 +79,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
 
         is_passed = False
 
-        unsubscribe.side_effect = lambda: None
+        unsubscribe.return_value = None
         run_process.side_effect = Concurrency.run_thread
 
         topic = "test2"
@@ -104,7 +104,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             agg_consumer.unsubscribe()
 
         Observable.interval(1000) \
-            .take(50) \
+            .take(30) \
             .map(push) \
             .subscribe(on_completed=completed)
 
@@ -115,6 +115,8 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
                 is_passed = True
                 break
 
-            self.assertEqual(is_passed, True)
         else:
             raise Exception("Cannot consume published message.")
+
+        Concurrency.get_thread(agg_consumer.pid).join(30)
+        self.assertEqual(is_passed, True)

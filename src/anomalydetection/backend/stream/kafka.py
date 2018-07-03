@@ -259,8 +259,11 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
 
     def unsubscribe(self):
         self.subscribed = False
-        self.queue.close()
-        self.queue.join_thread()
+        if isinstance(self.queue, MultiprocessingQueue):
+            self.queue.close()
+            self.queue.join_thread()
+        elif isinstance(self.queue, Queue):
+            self.queue.join()
 
     def poll(self) -> Generator:
         while self.subscribed:
