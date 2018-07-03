@@ -93,7 +93,7 @@ class TestKafkaStreamBackend(unittest.TestCase, LoggingMixin):
             group_id,
             AggregationFunction.AVG,
             10 * 1000,
-            spark_opts={"timeout": 20 * 1000})
+            spark_opts={"timeout": 25})
 
         def push(_):
             kafka_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())

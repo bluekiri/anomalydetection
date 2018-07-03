@@ -149,7 +149,7 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
             AggregationFunction.AVG,
             10 * 1000,
             self.credentials,
-            spark_opts={"timeout": 20 * 1000})
+            spark_opts={"timeout": 25})
 
         def push(_):
             pubsub_producer.push(InputMessage("app", 1.5, datetime.now()).to_json())
