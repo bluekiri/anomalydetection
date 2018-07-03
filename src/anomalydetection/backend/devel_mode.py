@@ -70,6 +70,11 @@ class DevelConfigWrapper(Config):
                                 .set_broker_server("localhost:9092")
                                 .set_output_topic("test1").build())
 
+        producers.append(
+            StreamBuilderFactory.get_kafka_producer()
+                                .set_broker_server("localhost:9092")
+                                .set_output_topic("test3").build())
+
         return producers
 
 

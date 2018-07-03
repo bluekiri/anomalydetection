@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 from anomalydetection.backend.engine import BaseEngine
 from anomalydetection.backend.engine.cad_engine import CADDetector
+from anomalydetection.backend.engine.ema_engine import EMADetector
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
 
@@ -102,6 +103,26 @@ class RobustDetectorBuilder(BaseBuilder):
         return RobustDetector(**vars(self).copy())
 
 
+class EMADetectorBuilder(BaseBuilder):
+
+    type = "ema"
+
+    def __init__(self, window=100, threshold=0.9999):
+        self.window = window
+        self.threshold = threshold
+
+    def set_window(self, window):
+        self.window = window
+        return self
+
+    def set_threshold(self, threshold):
+        self.threshold = threshold
+        return self
+
+    def build(self) -> EMADetector:
+        return EMADetector(**vars(self).copy())
+
+
 class EngineBuilderFactory(object):
 
     engines = OrderedDict(
@@ -114,6 +135,10 @@ class EngineBuilderFactory(object):
                 "key": "cad",
                 "name": "CADDetector"
             }),
+            ("ema", {
+                "key": "ema",
+                "name": "EMADetector"
+            }),
         ]
     )
 
@@ -124,3 +149,7 @@ class EngineBuilderFactory(object):
     @staticmethod
     def get_cad():
         return CADDetectorBuilder()
+
+    @staticmethod
+    def get_ema():
+        return EMADetectorBuilder()

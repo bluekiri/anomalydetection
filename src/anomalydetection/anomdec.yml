@@ -96,6 +96,38 @@ streams:
           params:
             database: /tmp/anomdec1.sqlite
 
+  - name: kafka_ema
+    source:
+      type: kafka
+      params:
+        brokers: localhost:9092
+        in: test3
+    engine:
+      type: ema
+      params:
+        window: 30
+        threshold: 2
+    sink:
+      - name: sqlite
+        type: repository
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec2.sqlite
+      - name: kafka
+        type: stream
+        stream:
+          type: kafka
+          params:
+            brokers: localhost:9092
+            out: test4
+    warmup:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec2.sqlite
+
 websocket: ws://localhost:5000/ws/
 
 auth:

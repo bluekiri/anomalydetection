@@ -18,7 +18,7 @@
 
 import unittest
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseBuilder, EMADetectorBuilder
 from anomalydetection.backend.engine.builder import CADDetectorBuilder
 from anomalydetection.backend.engine.builder import RobustDetectorBuilder
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
@@ -97,6 +97,24 @@ class TestRobustDetectorBuilder(unittest.TestCase):
         self.assertEqual(self.builder.threshold, self.THRESHOLD)
 
 
+class TestEMADetectorBuilder(unittest.TestCase):
+
+    WINDOW = 10
+    THRESHOLD = .99
+
+    def setUp(self):
+        super().setUp()
+        self.builder = EMADetectorBuilder()
+
+    def test_set_window(self):
+        self.builder.set_window(self.WINDOW)
+        self.assertEqual(self.builder.window, self.WINDOW)
+
+    def test_set_threshold(self):
+        self.builder.set_threshold(self.THRESHOLD)
+        self.assertEqual(self.builder.threshold, self.THRESHOLD)
+
+
 class TestEngineBuilderFactory(unittest.TestCase):
 
     def test_get_robust(self):
@@ -106,3 +124,7 @@ class TestEngineBuilderFactory(unittest.TestCase):
     def test_get_cad(self):
         builder = EngineBuilderFactory.get_cad()
         self.assertIsInstance(builder, CADDetectorBuilder)
+
+    def test_get_ema(self):
+        builder = EngineBuilderFactory.get_ema()
+        self.assertIsInstance(builder, EMADetectorBuilder)

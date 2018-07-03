@@ -69,6 +69,11 @@ class Chart(RequestHandler):
             if "window" in data:
                 engine_builder.set_window(int(data["window"]))
 
+        if data["engine"] == "ema":
+            engine_builder = EngineBuilderFactory.get_robust()
+            if "window" in data:
+                engine_builder.set_window(int(data["window"]))
+
         if "threshold" in data:
             engine_builder.set_threshold(float(data["threshold"]))
 
