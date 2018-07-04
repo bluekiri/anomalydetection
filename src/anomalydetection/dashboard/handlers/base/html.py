@@ -76,7 +76,7 @@ class AuthMixin(RequestHandler):
         try:
             return self.application.settings['config'].config["auth"]["enabled"]
         except Exception as _:
-            return True
+            return False
 
     def data_received(self, chunk):
         pass
