@@ -123,6 +123,11 @@ class Config(object):
             if "window" in engine["params"]:
                 builder.set_window(engine["params"]["window"])
 
+        if engine["type"] == "ema":
+            builder = EngineBuilderFactory.get_ema()
+            if "window" in engine["params"]:
+                builder.set_window(engine["params"]["window"])
+
         if "threshold" in engine["params"]:
             builder.set_threshold(engine["params"]["threshold"])
 

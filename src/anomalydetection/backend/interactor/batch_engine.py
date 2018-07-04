@@ -23,6 +23,7 @@ from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
 from anomalydetection.backend.stream import BaseObservable
 from anomalydetection.common.logging import LoggingMixin
+from anomalydetection.backend.stream import AggregationFunction
 
 
 class BatchEngineInteractor(BaseEngineInteractor, LoggingMixin):
@@ -48,8 +49,8 @@ class BatchEngineInteractor(BaseEngineInteractor, LoggingMixin):
         output = {
             "application": key,
             "agg_value": value,
-            "agg_function": None,
-            "agg_window_millis": None,
+            "agg_function": AggregationFunction.NONE,
+            "agg_window_millis": 0,
             "ts": ts,
             "anomaly_results": anomaly_results
         }

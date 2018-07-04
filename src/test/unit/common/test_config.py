@@ -19,6 +19,7 @@ import os
 import unittest
 
 from anomalydetection.backend.engine.builder import CADDetectorBuilder
+from anomalydetection.backend.engine.builder import EMADetectorBuilder
 from anomalydetection.backend.engine.builder import RobustDetectorBuilder
 from anomalydetection.backend.repository.builder import SQLiteBuilder
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
@@ -52,7 +53,10 @@ class TestConfig(unittest.TestCase, LoggingMixin):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        os.remove(cls.DB_FILE)
+        try:
+            os.remove(cls.DB_FILE)
+        except FileNotFoundError as _:
+            pass
 
     def test_mode(self):
         self.assertEqual(self.MODE, self.config.mode)
@@ -155,6 +159,20 @@ class TestConfig(unittest.TestCase, LoggingMixin):
         self.assertIsInstance(robust, RobustDetectorBuilder)
         self.assertEqual(robust.window, 10)
         self.assertEqual(robust.threshold, 0.999)
+
+    def test__get_engine_ema(self):
+        ema = self.config._get_engine(
+            {
+                "type": "ema",
+                "params": {
+                    "window": 45,
+                    "threshold": 2.5
+                }
+            }
+        )
+        self.assertIsInstance(ema, EMADetectorBuilder)
+        self.assertEqual(ema.window, 45)
+        self.assertEqual(ema.threshold, 2.5)
 
     def test__get_sink_sqlite(self):
         sqlite_sink = self.config._get_sink(
