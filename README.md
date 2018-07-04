@@ -242,8 +242,9 @@ Tested with:
 
 ## Roadmap
 
+- [x] PubSub aggregate messages in Apache Spark.
+- [ ] Lab to test and tune engines.
 - [ ] Enable processing a signal by multiple models.
-- [ ] PubSub aggregate messages in Apache Spark.
 - [ ] Implement a plugin engine.
 - [ ] Persist configuration instead of use an static YAML file.
 - [ ] ElasticSearch repository.

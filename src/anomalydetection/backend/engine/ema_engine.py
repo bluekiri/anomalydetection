@@ -27,10 +27,10 @@ class EMADetector(BaseEngine):
 
     def __init__(self, window=100, threshold=2.0) -> None:
         super().__init__()
-        self._data = np.full((window, 4), fill_value=np.nan)
-        self._window = window
+        self.window = window
+        self.threshold = threshold
         self._std = np.nan
-        self._threshold = threshold
+        self._data = np.full((window, 4), fill_value=np.nan)
 
     def _extractor(self, **kwargs):
         if isinstance(kwargs["ts"], datetime):
@@ -68,9 +68,9 @@ class EMADetector(BaseEngine):
             result['value_upper_limit'] = -1
             result['value_lower_limit'] = -1
         else:
-            prediction = self._ema(self._data, self._window)[0]
-            l_b = prediction - self._std * self._threshold
-            u_b = prediction + self._std * self._threshold
+            prediction = self._ema(self._data, self.window)[0]
+            l_b = prediction - self._std * self.threshold
+            u_b = prediction + self._std * self.threshold
             result['anomaly_probability'] = 0 if (u_b > value > l_b) else 1
             result['is_anomaly'] = False if (u_b > value > l_b) else True
             result['value_upper_limit'] = u_b
