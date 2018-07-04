@@ -19,6 +19,7 @@
 import datetime
 import sys
 
+from anomalydetection.backend.stream import FileObservable
 from anomalydetection.common.logging import LoggingMixin
 from tornado.escape import json_encode
 
@@ -37,7 +38,6 @@ from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.dashboard.handlers.base.html import SecureHTMLHandler
 from anomalydetection.dashboard.handlers.base.json.secure_json import SecureJSONHandler
 from anomalydetection.dashboard.helpers.engine import EngineBuilderForm
-from anomalydetection.tools.file_engine import FileObservable
 
 
 class Chart(RequestHandler):
