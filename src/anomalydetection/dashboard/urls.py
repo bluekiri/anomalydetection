@@ -21,10 +21,10 @@ from anomalydetection.dashboard.handlers.web.main import Home
 from anomalydetection.dashboard.handlers.web.main import Maintenance
 from anomalydetection.dashboard.handlers.web.main import MaintenanceEnable
 from anomalydetection.dashboard.handlers.web.main import MaintenanceDisable
-from anomalydetection.dashboard.handlers.web.signal import \
-    SignalList, \
-    SignalDetail, \
-    SignalData
+from anomalydetection.dashboard.handlers.web.signal import SignalList
+from anomalydetection.dashboard.handlers.web.signal import SignalDetail
+from anomalydetection.dashboard.handlers.web.signal import SignalData
+from anomalydetection.dashboard.handlers.web.signal import SignalSandbox
 from anomalydetection.dashboard.handlers.ws.websocket import WebSocket
 
 from anomalydetection.dashboard.handlers.web.errors import NotFound
@@ -32,6 +32,7 @@ from anomalydetection.dashboard.handlers.web.errors import NotFound
 urls = [
     (r'/?', Home),
     (r'/signals/?', SignalList),
+    (r'/signals/sandbox/?', SignalSandbox),
     (r'/signals/([^/]*)/?', SignalDetail),
     (r'/signals/([^/]*)/data/?', SignalData),
     (r'/maintenance/disable/?', MaintenanceDisable),

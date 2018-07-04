@@ -16,14 +16,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from tornado.web import UIModule
+import unittest
+
+from anomalydetection.backend.engine.builder import CADDetectorBuilder
+
+from anomalydetection.common.logging import LoggingMixin
+from anomalydetection.dashboard.helpers.engine import EngineBuilderForm
 
 
-class UIError(UIModule):
-    def render(self, error):
-        return self.render_string("error.html", error=error)
+class TestEngineBuilderForm(unittest.TestCase, LoggingMixin):
 
-
-class UIFormInput(UIModule):
-    def render(self, input):
-        return self.render_string("ui/input.html", input=input)
+    def test_get_form(self):
+        helper = EngineBuilderForm(CADDetectorBuilder())
+        form = helper.get_form()
+        self.assertIsInstance(form, list)

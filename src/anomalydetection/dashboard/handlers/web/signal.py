@@ -19,6 +19,11 @@
 import datetime
 import sys
 
+from anomalydetection.common.logging import LoggingMixin
+from tornado.escape import json_encode
+
+from anomalydetection.backend.entities.json_input_message_handler import \
+    InputJsonMessageHandler
 from bokeh.embed import components
 from bokeh.plotting import figure
 import pandas as pd
@@ -31,6 +36,8 @@ from anomalydetection.backend.interactor.batch_engine import BatchEngineInteract
 from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.dashboard.handlers.base.html import SecureHTMLHandler
 from anomalydetection.dashboard.handlers.base.json.secure_json import SecureJSONHandler
+from anomalydetection.dashboard.helpers.engine import EngineBuilderForm
+from anomalydetection.tools.file_engine import FileObservable
 
 
 class Chart(RequestHandler):
@@ -127,6 +134,55 @@ class SignalData(SecureJSONHandler):
                 for x in observable.get_observable().to_blocking()]
 
         self.response(200, data)
+
+
+class SignalSandbox(SecureHTMLHandler, LoggingMixin):
+
+    template = "signal_sandbox.html"
+
+    @web.asynchronous
+    async def get(self):
+
+        input_data = {k: v[0].decode("utf-8")
+                      for k, v in self.request.arguments.items()}
+
+        engines = EngineBuilderFactory.engines
+        engine = input_data["engine"] if "engine" in input_data else "robust"
+        file_input_value = input_data["file"] if "file" in input_data else ""
+
+        engine_builder = EngineBuilderFactory.get(engine)
+        for k in filter(lambda x: x.startswith("set"), input_data):
+            try:
+                engine_builder = engine_builder.set(k.replace("set_", ""),
+                                                    input_data[k])
+            except NotImplementedError as ex:
+                self.logger.warning(str(ex))
+
+        form = EngineBuilderForm(engine_builder).get_form()
+
+        data = []
+        if file_input_value:
+            interactor = BatchEngineInteractor(
+                FileObservable(file_input_value),
+                engine_builder,
+                InputJsonMessageHandler())
+
+            data = [x.to_plain_dict()
+                    for x in interactor.process()]
+
+        file_input = {
+            "label": "Input file (JSON)",
+            "name": "file",
+            "type": "text",
+            "value": file_input_value,
+            "placeholder": "Local file to play with",
+            "id": "input_file"
+        }
+
+        self.response(signal_name="Sandbox", engine_key=engine,
+                      engine_name=engine, engines=engines,
+                      form=form, file_input=file_input,
+                      data=json_encode(data))
 
 
 class SignalDetail(SecureHTMLHandler, Chart):

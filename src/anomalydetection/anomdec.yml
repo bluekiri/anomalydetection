@@ -26,9 +26,9 @@ streams:
       params:
         brokers: localhost:9092
         in: test1
-    aggregation:
-      function: avg
-      window_millis: 30000
+#    aggregation:
+#      function: avg
+#      window_millis: 30000
     engine:
       type: cad
       params:

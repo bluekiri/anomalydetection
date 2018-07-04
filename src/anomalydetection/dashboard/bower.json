@@ -20,7 +20,7 @@
   "dependencies": {
     "bootstrap": "^3.3.7",
     "admin-lte": "2.4.3",
-    "font-awesome": "^4.7.0",
+    "fontawesome-free": "npm:@fortawesome/fontawesome-free#5.1.0",
     "jquery": "3.1.1",
     "mustache.js": "mustache#^2.2.1",
     "bokehjs": "npm:bokehjs#0.12.16"
@@ -49,31 +49,9 @@
       "bokehjs": [
         "bower_components/bokehjs/build/**"
       ],
-      "font-awesome": {
-        "mapping": [
-          {
-            "bower_components/font-awesome/css/font-awesome.min.css": "css/font-awesome.min.css"
-          },
-          {
-            "bower_components/font-awesome/fonts/FontAwesome.otf": "fonts/FontAwesome.otf"
-          },
-          {
-            "bower_components/font-awesome/fonts/fontawesome-webfont.eot": "fonts/fontawesome-webfont.eot"
-          },
-          {
-            "bower_components/font-awesome/fonts/fontawesome-webfont.svg": "fonts/fontawesome-webfont.svg"
-          },
-          {
-            "bower_components/font-awesome/fonts/fontawesome-webfont.ttf": "fonts/fontawesome-webfont.ttf"
-          },
-          {
-            "bower_components/font-awesome/fonts/fontawesome-webfont.woff": "fonts/fontawesome-webfont.woff"
-          },
-          {
-            "bower_components/font-awesome/fonts/fontawesome-webfont.woff2": "fonts/fontawesome-webfont.woff2"
-          }
-        ]
-      },
+      "fontawesome-free": [
+        "bower_components/fontawesome-free/**"
+      ],
       "mustache.js": "bower_components/mustache.js/mustache.min.js"
     }
   }
