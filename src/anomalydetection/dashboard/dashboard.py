@@ -31,7 +31,7 @@ def make_app(kwargs):
     return Application(urls, **kwargs)
 
 
-def main(callables=[], config: Config = Config()):
+def main(callables=[], config: Config = lambda: Config()):
     settings.update({"config": config})
     app = make_app(settings)
     port = os.getenv("PORT", "5000")

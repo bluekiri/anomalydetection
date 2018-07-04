@@ -18,6 +18,8 @@
 
 import logging
 import os
+
+from anomalydetection.common.logging import LoggingMixin
 import yaml
 
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
@@ -30,7 +32,7 @@ from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
 
 
-class Config(object):
+class Config(LoggingMixin):
 
     def __init__(self,
                  mode: str = "regular",
@@ -44,7 +46,7 @@ class Config(object):
                     self.config = \
                         yaml.load(open(os.environ["HOME"] + "/anomdec/anomdec.yml"))
                 except FileNotFoundError as e:
-                    logging.info("Cannot load default configuration.")
+                    self.logger.error("Cannot load default configuration.")
             elif self.mode == "devel":
                 self.config = yaml.load(open(self.root + "/anomdec.yml"))
         else:
