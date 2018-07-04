@@ -18,8 +18,9 @@
 
 import unittest
 
-from anomalydetection.backend.engine.builder import BaseBuilder, EMADetectorBuilder
+from anomalydetection.backend.engine.builder import BaseBuilder
 from anomalydetection.backend.engine.builder import CADDetectorBuilder
+from anomalydetection.backend.engine.builder import EMADetectorBuilder
 from anomalydetection.backend.engine.builder import RobustDetectorBuilder
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
 
