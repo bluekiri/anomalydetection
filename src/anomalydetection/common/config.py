@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
 import os
 
 from anomalydetection.common.logging import LoggingMixin
@@ -38,6 +37,7 @@ class Config(LoggingMixin):
                  mode: str = "regular",
                  yaml_stream=None) -> None:
         super().__init__()
+        self.built = None
         self.mode = mode
         self.root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         if not yaml_stream:
@@ -46,12 +46,11 @@ class Config(LoggingMixin):
                     self.config = \
                         yaml.load(open(os.environ["HOME"] + "/anomdec/anomdec.yml"))
                 except FileNotFoundError as e:
-                    self.logger.error("Cannot load default configuration.")
+                    self.logger.error("Cannot load configuration. \n{}".format(str(e)))
             elif self.mode == "devel":
                 self.config = yaml.load(open(self.root + "/anomdec.yml"))
         else:
             self.config = yaml.load(yaml_stream)
-        self.built = None
 
     def get_names(self):
         streams = []

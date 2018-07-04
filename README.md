@@ -188,23 +188,13 @@ anywhere you need.
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
-from anomalydetection.backend.stream import \
-    BaseStreamBackend, \
-    BasePollingStream, \
-    BasePushingStream
+from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.backend.engine.builder import BaseBuilder
-from anomalydetection.backend.middleware.store_repository_middleware import  \
-    StoreRepositoryMiddleware
+from anomalydetection.backend.sink.repository import RepositorySink
 from anomalydetection.backend.repository import BaseRepository
 from anomalydetection.backend.repository.observable import ObservableRepository
 
-class MyStreamInput(BasePollingStream):
-    pass  # IMPLEMENT ME
-    
-class MyStreamOutput(BasePushingStream):
-    pass  # IMPLEMENT ME
-
-class MyStreamBackend(BaseStreamBackend):
+class MyStreamInput(BaseStreamConsumer):
     pass  # IMPLEMENT ME
     
 class MyModelBuilder(BaseBuilder):
@@ -217,10 +207,10 @@ class MyMessageHandler(BaseMessageHandler[InputMessage]):
     pass  # IMPLEMENT ME
 
 interactor = StreamEngineInteractor(
-    MyStreamBackend(MyStreamInput(), MyStreamOutput()),
+    MyStreamInput(),
     MyModelBuilder(),
     MyMessageHandler(),
-    [StoreRepositoryMiddleware(MyRepository("file:///data/data.txt"))],
+    [RepositorySink(MyRepository("file:///data/data.txt"))],
     ObservableRepository(MyRepository("file:///data/data.txt"))
 )
 interactor.run()
