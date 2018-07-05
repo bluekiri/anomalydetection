@@ -30,6 +30,7 @@ class EMADetector(BaseEngine):
         self.window = window
         self.threshold = threshold
         self._std = np.nan
+        self._ew_std = np.nan
         self._data = np.full((window, 4), fill_value=np.nan)
 
     def _extractor(self, **kwargs):
@@ -38,10 +39,11 @@ class EMADetector(BaseEngine):
             return [ts.weekday(), ts.hour, ts.minute]
 
     def _ema(self, data, window):
-        weights = np.exp(np.linspace(-1., 0., window))
+        weights = np.exp(np.linspace(-1., 1., window))
         weights /= weights.sum()
-        ema = np.convolve(data[:, [0]][:, 0], weights)[len(data)-1:-len(data)+1]
-        return ema
+        ema = np.convolve(data[:, [0]][:, 0],
+                          np.flip(weights, 0))
+        return ema[len(data)-1:-len(data)+1]
 
     def _calc_std(self, data):
         return np.std(data[:, [0]][:, 0])

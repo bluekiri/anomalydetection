@@ -1,4 +1,5 @@
-/*
+{#
+
  Anomaly Detection Framework
  Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
 
@@ -14,21 +15,11 @@
 
  You should have received a copy of the GNU Affero General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 
-.no-css {
-  all: unset;
-}
-
-.alert {
-  margin-bottom: 0px;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index:99999;
-  width: 30%;
-}
-
-.main-header .sidebar-toggle:before {
-  content: none !important;
-}
+#}
+<div class="form-group">
+  <label for="{{ input['name'] }}">{{ input['label'] }}</label>
+  <input type="{{ input['type'] }}" class="form-control" id="{{ input['id'] }}"
+         name="{{ input['name'] }}" value="{{ input['value'] }}"
+         placeholder="{{ input['placeholder'] }}">
+</div>

@@ -33,6 +33,16 @@ class BaseObservable(object):
         return x
 
 
+class FileObservable(BaseObservable):
+
+    def __init__(self, file) -> None:
+        super().__init__()
+        self.file = file
+
+    def get_observable(self):
+        return Observable.from_(open(self.file).readlines())
+
+
 class BaseStreamConsumer(BaseObservable):
 
     def poll(self) -> Generator:

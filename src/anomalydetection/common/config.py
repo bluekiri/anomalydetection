@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
 import os
+
+from anomalydetection.common.logging import LoggingMixin
 import yaml
 
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
@@ -30,12 +31,13 @@ from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
 
 
-class Config(object):
+class Config(LoggingMixin):
 
     def __init__(self,
                  mode: str = "regular",
                  yaml_stream=None) -> None:
         super().__init__()
+        self.built = None
         self.mode = mode
         self.root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         if not yaml_stream:
@@ -44,12 +46,11 @@ class Config(object):
                     self.config = \
                         yaml.load(open(os.environ["HOME"] + "/anomdec/anomdec.yml"))
                 except FileNotFoundError as e:
-                    logging.info("Cannot load default configuration.")
+                    self.logger.error("Cannot load configuration. \n{}".format(str(e)))
             elif self.mode == "devel":
                 self.config = yaml.load(open(self.root + "/anomdec.yml"))
         else:
             self.config = yaml.load(yaml_stream)
-        self.built = None
 
     def get_names(self):
         streams = []

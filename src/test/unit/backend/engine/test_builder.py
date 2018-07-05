@@ -129,3 +129,7 @@ class TestEngineBuilderFactory(unittest.TestCase):
     def test_get_ema(self):
         builder = EngineBuilderFactory.get_ema()
         self.assertIsInstance(builder, EMADetectorBuilder)
+
+    def test_get(self):
+        builder = EngineBuilderFactory.get("ema")
+        self.assertIsInstance(builder, EMADetectorBuilder)

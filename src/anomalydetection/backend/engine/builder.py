@@ -30,6 +30,18 @@ class BaseBuilder(object):
     def build(self) -> BaseEngine:
         raise NotImplementedError("To implement in child classes.")
 
+    def set(self, name, value):
+        def raise_exception(*args, **kwargs):
+            raise NotImplementedError()
+        func_name = "set_{}".format(name)
+        func = getattr(self, func_name, raise_exception)
+        try:
+            return func(value)
+        except NotImplementedError as ex:
+            raise NotImplementedError(
+                "Calling undefined function: {}.{}()".format(
+                    self.__class__.__name__, func_name))
+
 
 class CADDetectorBuilder(BaseBuilder):
 
@@ -52,31 +64,31 @@ class CADDetectorBuilder(BaseBuilder):
         self.num_norm_value_bits = num_norm_value_bits
 
     def set_min_value(self, value):
-        self.min_value = value
+        self.min_value = int(value)
         return self
 
     def set_max_value(self, value):
-        self.max_value = value
+        self.max_value = int(value)
         return self
 
     def set_threshold(self, threshold):
-        self.threshold = threshold
+        self.threshold = float(threshold)
         return self
 
     def set_rest_period(self, rest_period):
-        self.rest_period = rest_period
+        self.rest_period = int(rest_period)
         return self
 
     def set_max_left_semi_contexts_length(self, max_left_semi_contexts_length):
-        self.max_left_semi_contexts_length = max_left_semi_contexts_length
+        self.max_left_semi_contexts_length = int(max_left_semi_contexts_length)
         return self
 
     def set_max_active_neurons_num(self, max_active_neurons_num):
-        self.max_active_neurons_num = max_active_neurons_num
+        self.max_active_neurons_num = int(max_active_neurons_num)
         return self
 
     def set_num_norm_value_bits(self, num_norm_value_bits):
-        self.num_norm_value_bits = num_norm_value_bits
+        self.num_norm_value_bits = int(num_norm_value_bits)
         return self
 
     def build(self) -> CADDetector:
@@ -92,11 +104,11 @@ class RobustDetectorBuilder(BaseBuilder):
         self.threshold = threshold
 
     def set_window(self, window):
-        self.window = window
+        self.window = int(window)
         return self
 
     def set_threshold(self, threshold):
-        self.threshold = threshold
+        self.threshold = float(threshold)
         return self
 
     def build(self) -> RobustDetector:
@@ -112,11 +124,11 @@ class EMADetectorBuilder(BaseBuilder):
         self.threshold = threshold
 
     def set_window(self, window):
-        self.window = window
+        self.window = int(window)
         return self
 
     def set_threshold(self, threshold):
-        self.threshold = threshold
+        self.threshold = float(threshold)
         return self
 
     def build(self) -> EMADetector:
@@ -141,6 +153,19 @@ class EngineBuilderFactory(object):
             }),
         ]
     )
+
+    @staticmethod
+    def get(name) -> BaseBuilder:
+        def raise_exception():
+            raise NotImplementedError()
+        func_name = "get_{}".format(name)
+        func = getattr(EngineBuilderFactory, func_name, raise_exception)
+        try:
+            return func()
+        except NotImplementedError as ex:
+            raise NotImplementedError(
+                "Calling undefined function: {}.{}()".format(
+                    "EngineBuilderFactory", func_name))
 
     @staticmethod
     def get_robust():
