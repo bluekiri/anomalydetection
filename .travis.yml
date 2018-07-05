@@ -12,17 +12,15 @@ python:
   - "3.6"
 
 before_install:
-  - docker pull mongo
-  - docker pull google/cloud-sdk
-  - docker pull wurstmeister/kafka
-  - docker pull wurstmeister/zookeeper
+  - ./bin/run-docker-environment.sh
+  - ./bin/wait-for-docker-environment.sh
   - ./bin/ci/travis/before-install.sh
 
 install:
   - pip install -r requirements.txt
 
 script:
-  - docker-compose up &
-  - sleep 5
   - tox -e flake8,travis
-  - codecov --token=$CODECOV_TOKEN
+
+after_success:
+  - ./bin/ci/travis/after-success.sh
