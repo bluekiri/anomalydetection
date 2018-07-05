@@ -32,11 +32,11 @@ class InputMessage:
                  value: float,
                  ts: Any):
         """
-        This is the parser format of a kafka message.
+        This is the parser of a json message
 
-        :param application: Sender application
-        :param value: Value
-        :param ts: datetime or current time stamp string in ISO 8601
+        :param application:  application
+        :param value:        value
+        :param ts:           datetime or current time stamp string in ISO 8601
         """
         if isinstance(ts, str):
             self.ts = dateutil.parser.parse(ts)

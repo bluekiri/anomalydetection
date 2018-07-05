@@ -23,27 +23,67 @@ T = TypeVar('T')
 
 
 class BaseMessageHandler(Generic[T]):
+    """
+    Base message handler
+    """
 
     @classmethod
-    def parse_message(cls, message: str) -> T:
+    def parse_message(cls, message: Any) -> T:
+        """
+        Parse or transform an input message and returns it
+
+        :param message:  message serialized in a string
+        :return:         parsed message
+        """
         raise NotImplementedError("To implement in child classes.")
 
     @classmethod
     def extract_key(cls, message: T) -> str:
+        """
+        Extracts the key of the message, this value is used to group messages
+
+        :param message:  parsed message
+        :return:         word
+        """
         raise NotImplementedError("To implement in child classes.")
 
     @classmethod
-    def extract_value(cls, message: T) -> Any:
+    def extract_value(cls, message: T) -> float:
+        """
+        Extracts the value of the message, this value is that is given to
+        make the prediction
+
+        :param message:  parsed message
+        :return:         a float value
+        """
         raise NotImplementedError("To implement in child classes.")
 
     @classmethod
     def validate_message(cls, message: T) -> bool:
+        """
+        Validates a message
+
+        :param message:  validates if a message is valid or not
+        :return:         True if is valid, False if is not
+        """
         raise NotImplementedError("To implement in child classes.")
 
     @classmethod
     def extract_ts(cls, message: T) -> datetime:
+        """
+        Extract the datetime of the message
+
+        :param message:   parsed message
+        :return:          a datetime object
+        """
         return datetime.now()
 
     @classmethod
     def extract_extra(cls, message: T) -> dict:
+        """
+        Extract extra data from the parsed message
+
+        :param message:    parsed message
+        :return:           a dict of extra values
+        """
         return {}

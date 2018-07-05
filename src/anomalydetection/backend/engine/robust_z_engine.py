@@ -26,78 +26,34 @@ from statsmodels.robust.scale import mad
 
 
 class RobustDetector(BaseEngine, LoggingMixin):
-    """
-    Anomaly detection engine based in robust statistics:
-    median and median absolute deviation.
-    """
 
-    def __init__(self, window=100, threshold=0.9999):
-        """Default values to be determined for the anomaly detection"""
+    def __init__(self, window=100, threshold=0.9999) -> None:
+        """
+        Anomaly detection engine based in robust statistics,
+        median and median absolute deviation.
+
+        :param window:     window of samples to work with
+        :param threshold:  threshold for confidence
+        """
         self._data = np.full((window, 1), fill_value=np.nan)
         self._median = np.nan
         self._mad = np.nan
         self.threshold = threshold
 
     def _update_buffer(self, value):
-        """Updates the buffered data with the new event.
-
-        Appends the event at the end of self._data and clears the first
-        registry in a FIFO fashion.
-        Keeps the size of self._data constant.
-
-        Parameters
-        ----------
-        value: float
-            Value to be included in the last position of buffer.
-        """
         self._data[:-1] = self._data[1:]
         self._data[-1] = value
 
     def _update_statistics(self):
-        """Updates the robust statistics based in the buffered data.
-        """
         if not np.isnan(self._data).any():
             self._median = np.median(self._data)
             self._mad = mad(self._data)[0]
 
     def _update(self, value):
-        """Updates the buffered data with the new event and the robust statistics.
-
-        Appends the event at the end of self._data and clears the first
-        registry in a FIFO fashion.
-        Once the buffer is updated, updates the median and mad
-
-        Parameters
-        ----------
-        value: float
-            Value to be included in the last position of buffer.
-        """
         self._update_buffer(value=value)
         self._update_statistics()
 
-    def predict(self, value, **kwargs) -> AnomalyResult:
-        """
-        Return the probability of being an outlier
-
-        Calculates the probability of value being an anomaly with respect past events.
-        Once it has been computed, the buffer data is updated and the statistic parameters
-        recalculated.
-
-        Parameters
-        ----------
-        value: float
-            Value to be included in the last position of buffer.
-
-        Returns
-        ------
-        results: dict
-            results['anomaly_probability']: Probability that the value is an
-                                            anomaly given the last observations.
-            results['is_anomaly']: Boolean indicator. 1 if it is an anomaly
-                                   based on threshold else 0.
-            results['value_upper_limit']: Value upper limit.
-            results['value_lower_limit']: Value lower limit.
-        """
+    def predict(self, value: float, **kwargs) -> AnomalyResult:
         results = {}
         if np.isnan(self._data).any():
             results['anomaly_probability'] = -1

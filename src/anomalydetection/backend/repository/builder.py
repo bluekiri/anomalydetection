@@ -21,8 +21,16 @@ from anomalydetection.backend.repository.sqlite import SQLiteRepository
 
 
 class BaseBuilder(object):
+    """
+    BaseBuilder, implement this to create Repository Builders.
+    """
 
     def build(self) -> BaseRepository:
+        """
+        Build a repository
+
+        :return: A BaseRepository implementation instance.
+        """
         raise NotImplementedError("To implement in child classes.")
 
 
@@ -44,5 +52,5 @@ class SQLiteBuilder(BaseBuilder):
 class RepositoryBuilderFactory(object):
 
     @staticmethod
-    def get_sqlite():
+    def get_sqlite() -> SQLiteBuilder:
         return SQLiteBuilder()

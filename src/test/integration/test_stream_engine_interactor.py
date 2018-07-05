@@ -26,9 +26,9 @@ from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.interactor import BaseWarmUp
+from anomalydetection.backend.interactor import BaseObservable
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.common.logging import LoggingMixin
 
@@ -68,7 +68,7 @@ class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
         return {"ts": message.ts}
 
 
-class DummySink(Sink, LoggingMixin):
+class DummySink(BaseSink, LoggingMixin):
 
     def on_next(self, value):
         self.logger.debug("Middleware on_next: {}".format(value))
@@ -80,7 +80,7 @@ class DummySink(Sink, LoggingMixin):
         self.logger.debug("Middleware on_completed.")
 
 
-class DummyWarmUp(BaseWarmUp, LoggingMixin):
+class DummyWarmUp(BaseObservable, LoggingMixin):
 
     def dummy_generator(self) -> Generator:
         for i in range(50):

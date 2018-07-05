@@ -90,7 +90,7 @@ class TestConfig(unittest.TestCase, LoggingMixin):
         self.assertIsInstance(kafka_stream, KafkaStreamConsumerBuilder)
         self.assertEqual(kafka_stream.agg_window_millis, 60000)
         self.assertEqual(kafka_stream.agg_function, AggregationFunction.AVG)
-        self.assertEqual(kafka_stream.broker_server, "localhost:9092")
+        self.assertEqual(kafka_stream.broker_servers, "localhost:9092")
         self.assertEqual(kafka_stream.input_topic, "in")
         self.assertEqual(kafka_stream.group_id, "group_id")
 

@@ -28,6 +28,14 @@ class ObservableRepository(BaseObservableRepository):
 
     def __init__(self, repository: BaseRepository,
                  application=None, from_ts=None, to_ts=None) -> None:
+        """
+        Creates ObservableRepository that is capable to act as an observable
+
+        :param repository:    the repository
+        :param application:   application name
+        :param from_ts:       from timestamp
+        :param to_ts:         to timestamp
+        """
         super().__init__(repository)
         self.application = application
         self.from_ts = from_ts

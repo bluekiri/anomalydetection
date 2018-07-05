@@ -24,7 +24,7 @@ import yaml
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.repository.observable import ObservableRepository
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.backend.sink.repository import RepositorySink
 from anomalydetection.backend.sink.stream import StreamSink
 from anomalydetection.backend.stream import AggregationFunction
@@ -74,7 +74,7 @@ class Config(LoggingMixin):
         source = item["source"]
         if source["type"] == "kafka":
             builder = StreamBuilderFactory.get_kafka_consumer()
-            builder.set_broker_server(source["params"]["brokers"])
+            builder.set_broker_servers(source["params"]["brokers"])
             builder.set_input_topic(source["params"]["in"])
             if "group_id" in source["params"]:
                 builder.set_group_id(source["params"]["group_id"])
@@ -192,7 +192,7 @@ class Config(LoggingMixin):
                 builder.set_database(repository["params"]["database"])
         return builder
 
-    def _get_sink(self, sink) -> Sink:
+    def _get_sink(self, sink) -> BaseSink:
         if sink["type"] == "repository":
             builder = self._get_repository(sink["repository"])
             if builder:
@@ -201,7 +201,7 @@ class Config(LoggingMixin):
             stream = sink["stream"]
             if stream["type"] == "kafka":
                 builder = StreamBuilderFactory.get_kafka_producer()
-                builder.set_broker_server(stream["params"]["brokers"])
+                builder.set_broker_servers(stream["params"]["brokers"])
                 builder.set_output_topic(stream["params"]["out"])
                 return StreamSink(builder.build())
             if stream["type"] == "pubsub":

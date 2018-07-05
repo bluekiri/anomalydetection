@@ -25,8 +25,10 @@ a dashboard.
     1. [Install](#install)
     2. [Input messages](#input-messages)
     3. [Run](#run)
-    4. [Devel mode](#devel-mode)
+    4. [Backend](#backend)
     5. [Dashboard](#dashboard)
+    6. [Devel mode](#devel-mode)
+    7. [Dashboard](#dashboard)
 3. [Use as Framework](#use-as-framework)
 4. [Status](#status)
 5. [Roadmap](#roadmap)
@@ -133,8 +135,30 @@ to overwrite the default settings of logging (Is in DEBUG level while developing
 And run it typing
 
 ```bash
-export SPARK_HOME="<spark home directory>"
+export SPARK_HOME="<spark home directory>"  # If needed
 python3 -m anomalydetection.anomdec
+```
+
+### Backend
+
+You can also run an standalone backend, this will run the anomaly detection but
+without the dashboard in case you are not interested on using it. The 
+```$HOME/anomdec/anomdec.yml``` configuration file is also required.
+
+```bash
+python3 -m anomalydetection.anomdec backend
+```
+
+### Dashboard
+
+Its also possible to run the dashboard only, for example, in another machine for
+visualization and use the sandbox. The 
+```$HOME/anomdec/anomdec.yml``` configuration file is required in case you want use
+it for visualization, but it is not to use the ```sandbox```
+
+
+```bash
+python3 -m anomalydetection.anomdec dashboard
 ```
 
 ### Devel mode

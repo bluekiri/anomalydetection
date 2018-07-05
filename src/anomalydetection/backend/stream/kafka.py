@@ -41,14 +41,11 @@ class KafkaStreamConsumer(BaseStreamConsumer, LoggingMixin):
                  input_topic: str,
                  group_id: str) -> None:
         """
-        Kafka Stream backend constructor.
+        KafkaStreamConsumer constructor
 
-        :type broker_server:      str.
-        :param broker_server:     broker/s servers.
-        :type input_topic:        str.
-        :param input_topic:       topic to read from.
-        :type group_id:           str.
-        :param group_id:          consumer id.
+        :param broker_server:     broker servers
+        :param input_topic:       input topic
+        :param group_id:          consumer group id
         """
         super().__init__()
         self.broker_servers = broker_server.split(",")
@@ -88,19 +85,17 @@ class KafkaStreamConsumer(BaseStreamConsumer, LoggingMixin):
 class KafkaStreamProducer(BaseStreamProducer, LoggingMixin):
 
     def __init__(self,
-                 broker_server: str,
+                 broker_servers: str,
                  output_topic: str) -> None:
         """
-        Kafka Stream backend constructor.
+        KafkaStreamProducer constructor
 
-        :type broker_server:      str.
-        :param broker_server:     broker/s servers.
-        :type topic:              str.
-        :param topic:             topic to write to.
+        :param broker_servers:     broker servers
+        :param output_topic:      topic to write to
         """
         super().__init__()
-        self.broker_servers = broker_server.split(",")
-        self.topic = output_topic
+        self.broker_servers = broker_servers.split(",")
+        self.output_topic = output_topic
 
         self.kafka_producer = KafkaProducer(
             bootstrap_servers=self.broker_servers,
@@ -109,7 +104,7 @@ class KafkaStreamProducer(BaseStreamProducer, LoggingMixin):
     def push(self, message: str) -> None:
         try:
             self.logger.debug("Pushing message: {}.".format(message))
-            self.kafka_producer.send(self.topic,
+            self.kafka_producer.send(self.output_topic,
                                      bytearray(message, 'utf-8'))
         except Exception as ex:
             self.logger.error("Pushing message failed.", ex)
@@ -117,7 +112,7 @@ class KafkaStreamProducer(BaseStreamProducer, LoggingMixin):
     def __str__(self) -> str:
         return "Kafka topic: brokers: {}, topic: {}".format(
             self.broker_servers,
-            self.topic)
+            self.output_topic)
 
 
 class SparkKafkaStreamConsumer(BaseStreamConsumer,
@@ -125,16 +120,26 @@ class SparkKafkaStreamConsumer(BaseStreamConsumer,
                                LoggingMixin):
 
     def __init__(self,
-                 broker_server: str,
+                 broker_servers: str,
                  input_topic: str,
                  group_id: str,
                  agg_function: AggregationFunction,
                  agg_window_millis: int,
                  spark_opts: dict={},
                  multiprocessing=True) -> None:
+        """
+        SparkKafkaStreamConsumer constructor
 
+        :param broker_servers:      broker servers
+        :param input_topic:         input topic
+        :param group_id:            consumer group id
+        :param agg_function:        aggregation function to apply
+        :param agg_window_millis:   aggregation window in milliseconds
+        :param spark_opts:          spark options dict
+        :param multiprocessing:     use multiprocessing instead of threading
+        """
         super().__init__(agg_function, agg_window_millis)
-        self.broker_servers = broker_server.split(",")
+        self.broker_servers = broker_servers.split(",")
         self.input_topic = input_topic
         self.group_id = group_id
         self.spark_opts = spark_opts

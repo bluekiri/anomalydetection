@@ -21,5 +21,16 @@ from anomalydetection.backend.entities.output_message import AnomalyResult
 
 class BaseEngine(object):
 
+    """
+    Base class for any Engine implementation.
+    """
+
     def predict(self, value: float, **kwargs) -> AnomalyResult:
+        """
+        Predict if the given value is anomalous.
+
+        :param value:    value to predict
+        :param kwargs:   extra data to make the prediction
+        :return:         anomaly result
+        """
         raise NotImplementedError("To implement in child classes.")

@@ -15,9 +15,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import datetime
 import sqlite3
 from sqlite3 import Row
+from typing import Iterable
 
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.entities.output_message import OutputMessage
@@ -29,6 +31,11 @@ from anomalydetection.backend.stream import AggregationFunction
 class SQLiteRepository(BaseRepository):
 
     def __init__(self, database: str) -> None:
+        """
+        SQLiteRepository constructor
+
+        :param database:  database path
+        """
         super().__init__(database)
         self.conn_string = database
 
@@ -87,7 +94,7 @@ class SQLiteRepository(BaseRepository):
         elements = [x[0] for x in elements]
         return sorted(elements)
 
-    def fetch(self, application, from_ts, to_ts):
+    def fetch(self, application, from_ts, to_ts) -> Iterable[Row]:
         stmt = """
             SELECT
                 application,

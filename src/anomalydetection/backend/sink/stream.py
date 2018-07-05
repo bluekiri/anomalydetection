@@ -17,15 +17,21 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from anomalydetection.backend.stream import BaseStreamProducer
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.common.logging import LoggingMixin
 
 
-class StreamSink(Sink, LoggingMixin):
+class StreamSink(BaseSink, LoggingMixin):
 
-    def __init__(self, repository: BaseStreamProducer) -> None:
+    def __init__(self, stream_producer: BaseStreamProducer) -> None:
+        """
+        Creates a StreamSink that is capable to sink OutputMessages into
+        the stream producer
+
+        :param stream_producer:  an stream producer
+        """
         super().__init__()
-        self.producer = repository
+        self.producer = stream_producer
 
     def on_next(self, value):
         self.producer.push(str(value))

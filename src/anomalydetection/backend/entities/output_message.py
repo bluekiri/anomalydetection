@@ -26,11 +26,28 @@ from anomalydetection.backend.stream import AggregationFunction
 
 class AnomalyResult(object):
 
+    """
+    AnomalyResult description
+
+    :cvar value_lower_limit:     lower bound limit
+    :cvar value_upper_limit:     upper bound limit
+    :cvar anomaly_probability:   probability of being anomalous
+    :cvar is_anomaly:            if its anomalous or not
+    """
+
     def __init__(self,
                  value_lower_limit: float,
                  value_upper_limit: float,
                  anomaly_probability: float,
                  is_anomaly: bool) -> None:
+        """
+        AnomalyResults constructor
+
+        :param value_lower_limit:     lower bound limit
+        :param value_upper_limit:     upper bound limit
+        :param anomaly_probability:   probability of being anomalous
+        :param is_anomaly:            if its anomalous or not
+        """
         super().__init__()
         self.value_lower_limit = value_lower_limit
         self.value_upper_limit = value_upper_limit
@@ -61,18 +78,37 @@ class AnomalyResult(object):
 
 class OutputMessage(object):
 
+    """
+    OutputMessage class description
+
+    :cvar application:        application name
+    :cvar anomaly_results:    anomaly results
+    :cvar agg_window_millis:  aggregation window in milliseconds
+    :cvar agg_function:       aggregation function
+    :cvar agg_value:          the value after aggregation
+    :cvar ts:                 timestamp
+    """
+
     def __init__(self,
                  application: str,
                  anomaly_results: AnomalyResult,
-                 agg_window_millis: int,
+                 agg_window_millis: int = 0,
                  agg_function: AggregationFunction = AggregationFunction.NONE,
                  agg_value: float = 0,
                  ts: datetime = datetime.datetime.now()):
+        """
+        OutputMessage class constructor
+
+        :param application:        application name
+        :param anomaly_results:    anomaly results
+        :param agg_window_millis:  aggregation window in milliseconds
+        :param agg_function:       aggregation function
+        :param agg_value:          the value after aggregation
+        :param ts:                 timestamp
+        """
         self.application = application
         self.anomaly_results = anomaly_results
-        self.agg_window_millis = agg_window_millis \
-            if isinstance(agg_window_millis, int) \
-            else 0
+        self.agg_window_millis = agg_window_millis
         self.agg_function = agg_function
         self.agg_value = agg_value
         self.ts = ts

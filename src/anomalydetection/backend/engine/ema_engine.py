@@ -26,6 +26,11 @@ from anomalydetection.backend.entities.output_message import AnomalyResult
 class EMADetector(BaseEngine):
 
     def __init__(self, window=100, threshold=2.0) -> None:
+        """
+        EMADetector constructor
+        :param window:      window of samples to work with
+        :param threshold:   threshold for confidence
+        """
         super().__init__()
         self.window = window
         self.threshold = threshold

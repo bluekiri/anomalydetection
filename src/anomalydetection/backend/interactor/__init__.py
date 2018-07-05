@@ -16,26 +16,44 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from threading import Lock
+
 from anomalydetection.backend.engine.builder import BaseBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
-from anomalydetection.backend.stream import BaseObservable
-
-
-class BaseWarmUp(BaseObservable):
-    pass
 
 
 class BaseEngineInteractor(object):
 
+    """
+    BaseEngineInteractor is responsible to hold the engine builder
+    and the message handler. It's also responsible for build engines
+    for each application
+    """
+
     def __init__(self,
                  engine_builder: BaseBuilder,
                  message_handler: BaseMessageHandler) -> None:
+        """
+        BaseEngineInteractor constructor
+
+        :param engine_builder:    engine builder
+        :param message_handler:   message handler
+        """
         super().__init__()
         self.engine_builder = engine_builder
         self.message_handler = message_handler
         self.app_engine = {}
+        self.lock = Lock()
 
     def get_engine(self, application: str):
+        """
+        Return the engine for the application in a thread safe way
+
+        :param application:   application name
+        :return:              its engine
+        """
         if application not in self.app_engine:
-            self.app_engine[application] = self.engine_builder.build()
+            with self.lock:
+                if application not in self.app_engine:
+                    self.app_engine[application] = self.engine_builder.build()
         return self.app_engine[application]

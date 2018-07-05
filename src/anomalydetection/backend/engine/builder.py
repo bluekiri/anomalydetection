@@ -26,11 +26,19 @@ from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
 
 class BaseBuilder(object):
+    """
+    BaseBuilder, implement this to create Engine Builders.
+    """
 
     def build(self) -> BaseEngine:
+        """
+        Build the engine
+
+        :return:  A BaseEngine implementation instance.
+        """
         raise NotImplementedError("To implement in child classes.")
 
-    def set(self, name, value):
+    def set(self, name: str, value: str):
         def raise_exception(*args, **kwargs):
             raise NotImplementedError()
         func_name = "set_{}".format(name)
@@ -168,13 +176,13 @@ class EngineBuilderFactory(object):
                     "EngineBuilderFactory", func_name))
 
     @staticmethod
-    def get_robust():
+    def get_robust() -> RobustDetectorBuilder:
         return RobustDetectorBuilder()
 
     @staticmethod
-    def get_cad():
+    def get_cad() -> CADDetectorBuilder:
         return CADDetectorBuilder()
 
     @staticmethod
-    def get_ema():
+    def get_ema() -> EMADetectorBuilder:
         return EMADetectorBuilder()

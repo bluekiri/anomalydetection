@@ -21,13 +21,19 @@ import json
 
 import websockets
 
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.common.logging import LoggingMixin
 
 
-class WebSocketSink(Sink, LoggingMixin):
+class WebSocketSink(BaseSink, LoggingMixin):
 
     def __init__(self, name: str, url: str) -> None:
+        """
+        Implementation to Sink OutputMessage stream to a WebSocket
+
+        :param name:   name
+        :param url:    websocket url
+        """
         super().__init__()
         self.name = name
         self.url = url

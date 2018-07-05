@@ -24,8 +24,8 @@ from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.kafka import KafkaStreamConsumer
 from anomalydetection.backend.stream.kafka import KafkaStreamProducer
 from anomalydetection.backend.stream.kafka import SparkKafkaStreamConsumer
-from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer, \
-    SparkPubsubStreamConsumer
+from anomalydetection.backend.stream.pubsub import PubSubStreamConsumer
+from anomalydetection.backend.stream.pubsub import SparkPubsubStreamConsumer
 from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
 
 
@@ -44,20 +44,20 @@ class BaseProducerBuilder(object):
 class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
 
     def __init__(self,
-                 broker_server: str = None,
+                 broker_servers: str = None,
                  input_topic: str = None,
                  group_id: str = str(uuid.uuid4()),
                  agg_function: AggregationFunction = None,
                  agg_window_millis: int = 0) -> None:
         super().__init__()
-        self.broker_server = broker_server
+        self.broker_servers = broker_servers
         self.input_topic = input_topic
         self.group_id = group_id
         self.agg_function = agg_function
         self.agg_window_millis = agg_window_millis
 
-    def set_broker_server(self, broker_server):
-        self.broker_server = broker_server
+    def set_broker_servers(self, broker_servers):
+        self.broker_servers = broker_servers
         return self
 
     def set_input_topic(self, input_topic):
@@ -89,14 +89,14 @@ class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
 class KafkaStreamProducerBuilder(BaseProducerBuilder):
 
     def __init__(self,
-                 broker_server: str = None,
+                 broker_servers: str = None,
                  output_topic: str = None) -> None:
         super().__init__()
-        self.broker_server = broker_server
+        self.broker_servers = broker_servers
         self.output_topic = output_topic
 
-    def set_broker_server(self, broker_server):
-        self.broker_server = broker_server
+    def set_broker_servers(self, broker_servers):
+        self.broker_servers = broker_servers
         return self
 
     def set_output_topic(self, output_topic):

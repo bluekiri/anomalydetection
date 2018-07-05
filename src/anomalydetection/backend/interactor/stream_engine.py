@@ -23,7 +23,7 @@ from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.backend.stream import BaseStreamAggregation
 from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream import BaseStreamConsumer
@@ -37,7 +37,7 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
                  stream: BaseStreamConsumer,
                  engine_builder: BaseBuilder,
                  message_handler: BaseMessageHandler,
-                 sinks: List[Sink] = list(),
+                 sinks: List[BaseSink] = list(),
                  warm_up: BaseObservable = None) -> None:
         super().__init__(engine_builder, message_handler)
         self.stream = stream
