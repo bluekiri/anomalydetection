@@ -26,10 +26,9 @@ from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.interactor import BaseObservable
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.backend.sink import BaseSink
-from anomalydetection.backend.stream import BaseStreamConsumer
+from anomalydetection.backend.stream import BaseStreamConsumer, BaseObservable
 from anomalydetection.common.logging import LoggingMixin
 
 

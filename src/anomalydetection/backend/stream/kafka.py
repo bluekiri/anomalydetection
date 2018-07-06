@@ -37,18 +37,18 @@ from anomalydetection.common.logging import LoggingMixin
 class KafkaStreamConsumer(BaseStreamConsumer, LoggingMixin):
 
     def __init__(self,
-                 broker_server: str,
+                 broker_servers: str,
                  input_topic: str,
                  group_id: str) -> None:
         """
         KafkaStreamConsumer constructor
 
-        :param broker_server:     broker servers
+        :param broker_servers:     broker servers
         :param input_topic:       input topic
         :param group_id:          consumer group id
         """
         super().__init__()
-        self.broker_servers = broker_server.split(",")
+        self.broker_servers = broker_servers.split(",")
         self.topic = input_topic
         self.group_id = group_id
         self.subscribed = True
