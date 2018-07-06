@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/bluekiri/anomalydetection/branch/master/graph/badge.svg)](https://codecov.io/gh/bluekiri/anomalydetection)
 [![All Contributors](https://img.shields.io/badge/all_contributors-4-blue.svg)](#contributors)
 
-![N|Bluekiri](var/bluekiri_logo.png?raw=true "Bluekiri")
+![N|Bluekiri](var/bluekiri_logo.png "Bluekiri")
 
 ## Overview
 
@@ -199,7 +199,7 @@ already implemented. In future it will hold a configurable, by user, dashboard.
 
 Then it has a signal list and its detail.
 
-![N|Dashboard](var/dashboard.png?raw=true "Dashboard")
+![N|Dashboard](var/dashboard.png "Dashboard")
 
 ### Use as Framework
 

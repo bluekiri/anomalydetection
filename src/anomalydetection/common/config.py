@@ -40,11 +40,12 @@ class Config(LoggingMixin):
         self.built = None
         self.mode = mode
         self.root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.home = os.getenv("ANOMDEC_HOME", os.environ["HOME"])
         if not yaml_stream:
             if self.mode == "regular":
                 try:
                     self.config = \
-                        yaml.load(open(os.environ["HOME"] + "/anomdec/anomdec.yml"))
+                        yaml.load(open("{}/anomdec/anomdec.yml".format(self.home)))
                 except FileNotFoundError as e:
                     self.logger.error("Cannot load configuration. \n{}".format(str(e)))
             elif self.mode == "devel":
