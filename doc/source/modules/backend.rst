@@ -128,6 +128,42 @@ backend.repository.sqlite
     :undoc-members:
     :show-inheritance:
 
+backend.sink
+************
+
+.. automodule:: anomalydetection.backend.sink
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+backend.sink.repository
+***********************
+
+.. automodule:: anomalydetection.backend.sink.repository
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+backend.sink.stream
+*******************
+
+.. automodule:: anomalydetection.backend.sink.stream
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+backend.sink.websocket
+**********************
+
+.. automodule:: anomalydetection.backend.sink.websocket
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
 backend.stream
 **************
 

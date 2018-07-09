@@ -34,33 +34,39 @@ class Anomdec(LoggingMixin):
     def run(self):
         self.logger.info("Starting anomdec")
         try:
-            if sys.argv[1] == "dashboard":
-                self.logger.info("Run dashboard")
-                dashboard_main([], Config())
-            elif sys.argv[1] == "backend":
-                self.logger.info("Run backend")
-                backend_main(Config())
-            elif sys.argv[1] == "devel":
+            if len(sys.argv) == 1:
+                dashboard_main([backend_main], Config())
+            elif len(sys.argv) == 2:
+                if sys.argv[1] == "dashboard":
+                    self.logger.info("Run dashboard")
+                    dashboard_main([], Config())
+                elif sys.argv[1] == "backend":
+                    self.logger.info("Run backend")
+                    backend_main(Config())
+                elif sys.argv[1] == "devel":
 
-                from anomalydetection.backend.devel_mode import produce_messages
+                    from anomalydetection.backend.devel_mode import produce_messages
 
-                # Prepare settings for devel mode
-                if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
-                    os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
-                    os.environ["PUBSUB_PROJECT_ID"] = "testing"
-                    os.environ["ASYNC_TEST_TIMEOUT"] = "100"
+                    # Prepare settings for devel mode
+                    if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
+                        os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085"
+                        os.environ["PUBSUB_PROJECT_ID"] = "testing"
+                        os.environ["ASYNC_TEST_TIMEOUT"] = "100"
 
-                self.logger.info("Creating configuration")
-                config = Config("devel")
-                sleep(5)
+                    self.logger.info("Creating configuration for DEVEL MODE")
+                    config = Config("devel")
+                    sleep(5)
 
-                self.logger.info("Run dashboard, backend and producer")
-                dashboard_main([backend_main, produce_messages], config)
+                    self.logger.info("Run dashboard, backend and producer")
+                    dashboard_main([backend_main, produce_messages], config)
 
-        except IndexError as _:
-            self.logger.info("Run dashboard and backend")
-            dashboard_main([backend_main])
+        except Exception as ex:
+            raise ex
+
+
+def main():
+    Anomdec().run()
 
 
 if __name__ == '__main__':
-    Anomdec().run()
+    main()

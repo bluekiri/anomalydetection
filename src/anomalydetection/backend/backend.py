@@ -32,18 +32,21 @@ def main(config: Config):
     def run_live_anomaly_detection(stream, engine_builder,
                                    sinks, warmup, name):
 
-        # Send to broker or similar
-        extra_middleware = [
-            WebSocketSink(name, config.get_websocket_url())
-        ]
+        # Add dashboard websocket as extra sink
+        extra_sink = []
+        try:
+            websocket = WebSocketSink(name, config.get_websocket_url())
+            extra_sink.append(websocket)
+        except Exception as _:
+            pass
 
         # Instantiate interactor and run
         interactor = StreamEngineInteractor(
             stream,
             engine_builder,
             InputJsonMessageHandler(),
-            sinks=sinks + extra_middleware,
-            warm_up=warmup[0])
+            sinks=sinks + extra_sink,
+            warm_up=warmup[0] if warmup else None)
         interactor.run()
 
     for name, item in config.get_as_dict().items():

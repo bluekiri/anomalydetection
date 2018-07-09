@@ -1,4 +1,4 @@
-Welcome to anomalydetection's documentation!
+Anomaly Detection Framework Documentation
 ============================================
 
 .. image:: var/bluekiri_logo.png
@@ -18,6 +18,7 @@ Status
 .. image:: https://codecov.io/gh/bluekiri/anomalydetection/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/bluekiri/anomalydetection
 .. image:: https://img.shields.io/badge/all_contributors-4-blue.svg
+   :target: /project.html#contributors
 
 Overview
 ********
@@ -41,7 +42,7 @@ Features
 * It has a default implementation for that supports tumbling window aggregation
   on Spark, on Kafka and PubSub sources using an specific JSON schema messages.
 
-* Settings are in YAML format.
+* Configuration file in YAML format.
 
 * It also includes a dashboard to visualize the signal anomalies and play with
   signals in a sandbox to try models, tune parameters an see which parameters
@@ -59,6 +60,8 @@ Features
 
    project
    license
+   getting-started
+   configuration
    api-reference
 
 Indices and tables

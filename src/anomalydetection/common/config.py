@@ -40,14 +40,14 @@ class Config(LoggingMixin):
         self.built = None
         self.mode = mode
         self.root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.home = os.getenv("ANOMDEC_HOME", os.environ["HOME"])
+        self.home = os.getenv("ANOMDEC_HOME", os.environ["HOME"] + "/anomdec")
         if not yaml_stream:
             if self.mode == "regular":
                 try:
                     self.config = \
-                        yaml.load(open("{}/anomdec/anomdec.yml".format(self.home)))
+                        yaml.load(open("{}/anomdec.yml".format(self.home)))
                 except FileNotFoundError as e:
-                    self.logger.error("Cannot load configuration. \n{}".format(str(e)))
+                    self.logger.warning("Cannot load configuration. \n{}".format(str(e)))
             elif self.mode == "devel":
                 self.config = yaml.load(open(self.root + "/anomdec.yml"))
         else:
@@ -154,7 +154,7 @@ class Config(LoggingMixin):
         for item in self.config["streams"]:
 
             if "sink" not in item:
-                sinks.append(None)
+                sinks.append([])
                 continue
 
             mid_list = []
@@ -172,7 +172,7 @@ class Config(LoggingMixin):
         for item in self.config["streams"]:
 
             if "warmup" not in item:
-                warmups.append(None)
+                warmups.append([])
                 continue
 
             warmup_list = []

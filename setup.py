@@ -22,19 +22,19 @@ from setuptools import find_packages, setup
 
 install_require = [
     # Core dependencies
-    "rx", "jsonschema", "python-dateutil", "scipy",
-    "numpy", "pandas", "statsmodels", "bokeh",
+    "Rx==1.6.1", "jsonschema==2.6.0", "python-dateutil==2.1", "scipy==1.1.0",
+    "numpy==1.14.2", "pandas==0.22.0", "statsmodels==0.8.0", "bokeh==0.12.16",
     # Kafka
-    "kafka-python",
+    "kafka-python==1.4.2",
     # Google api base
-    "oauth2client", "google-auth", "google-auth-httplib2",
-    "google-api-python-client",
+    "oauth2client==2.0.0", "google-auth==1.5.0", "google-auth-httplib2==0.0.3",
+    "google-api-python-client==1.7.3",
     # Google cloud base
-    "google-cloud", "google-cloud-pubsub",
+    "google-cloud==0.33.1", "google-cloud-pubsub==0.30.0",
     # Dashboard
-    "tornado", "PyYAML", "python-ldap", "websockets",
+    "tornado==5.0.2", "PyYAML==3.12", "python-ldap==3.0.0", "websockets==5.0.1",
     # Spark
-    "findspark"
+    "findspark==1.3.0"
 ]
 
 test_require = [
@@ -46,7 +46,7 @@ test_require = [
 
 setup(
     name='anomalydetection',
-    version='0.0.0',
+    version='0.0.0.dev0',
     description='Anomaly detection bridge',
     url='',
     zip_safe=False,
@@ -54,5 +54,28 @@ setup(
     packages=find_packages('src', exclude=("test", "test.*")),
     package_dir={'': 'src'},
     install_requires=install_require,
-    test_suite="nose.collector"
+    classifiers=[
+        # https://pypi.org/pypi?%3Aaction=list_classifiers
+        # Status
+        'Development Status :: 2 - Pre-Alpha',
+        # License
+        'License :: OSI Approved :: GNU Affero General Public License v3',
+        # Python
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        # SO
+        'Operating System :: MacOS',
+        'Operating System :: POSIX :: Linux',
+        # Environment
+        'Environment :: Web Environment',
+        # Topics
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+    ],
+    test_suite="nose.collector",
+    entry_points={
+        'console_scripts': [
+            'anomdec=anomalydetection.anomdec:main'
+        ]
+    }
 )
