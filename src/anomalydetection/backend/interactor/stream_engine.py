@@ -18,7 +18,7 @@
 
 from typing import List
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
@@ -35,7 +35,7 @@ class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
     def __init__(self,
                  stream: BaseConsumerBuilder,
-                 engine_builder: BaseBuilder,
+                 engine_builder: BaseEngineBuilder,
                  message_handler: BaseMessageHandler,
                  sinks: List[BaseSink] = list(),
                  warm_up: BaseObservable = None) -> None:

@@ -118,7 +118,7 @@ input messages must have the following JSON format:
 }
 ```
 
-You can check this implementation at [json_input_message_handler.py](src/anomalydetection/backend/entities/json_input_message_handler.py#29)
+You can check this implementation at [json_input_message_handler.py](src/anomalydetection/backend/entities/handlers/json.py#29)
    
 ### Run
 

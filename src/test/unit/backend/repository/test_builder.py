@@ -18,7 +18,7 @@
 
 import unittest
 
-from anomalydetection.backend.repository.builder import BaseBuilder
+from anomalydetection.backend.repository.builder import BaseRepositoryBuilder
 from anomalydetection.backend.repository.builder import SQLiteBuilder
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.repository.sqlite import SQLiteRepository
@@ -28,7 +28,7 @@ class TestBaseBuilder(unittest.TestCase):
 
     def test_build(self):
         with self.assertRaises(NotImplementedError) as ctx:
-            builder = BaseBuilder()
+            builder = BaseRepositoryBuilder()
             builder.build()
 
         self.assertEqual(str(ctx.exception), "To implement in child classes.")

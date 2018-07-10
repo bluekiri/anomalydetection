@@ -62,16 +62,16 @@ class DevelConfigWrapper(Config):
                     pass
 
         producers.append(
-            StreamBuilderFactory.get_pubsub_producer()
+            StreamBuilderFactory.get_producer_pubsub()
                                 .set_project_id(project)
                                 .set_output_topic("test10").build())
         producers.append(
-            StreamBuilderFactory.get_kafka_producer()
+            StreamBuilderFactory.get_producer_kafka()
                                 .set_broker_servers("localhost:9092")
                                 .set_output_topic("test1").build())
 
         producers.append(
-            StreamBuilderFactory.get_kafka_producer()
+            StreamBuilderFactory.get_producer_kafka()
                                 .set_broker_servers("localhost:9092")
                                 .set_output_topic("test3").build())
 

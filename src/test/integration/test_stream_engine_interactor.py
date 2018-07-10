@@ -49,7 +49,7 @@ class DummyStreamBuilder(BaseConsumerBuilder):
         return DummyStream()
 
 
-class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
+class DummyMessageHandler(BaseMessageHandler[InputMessage]):
 
     @classmethod
     def parse_message(cls, message: str) -> InputMessage:
@@ -102,7 +102,7 @@ class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
     def test_robust_stream_engine_interactor(self):
 
         interactor = StreamEngineInteractor(
-            DummyStream(),
+            DummyStreamBuilder(),
             EngineBuilderFactory.get_robust().set_window(30).set_threshold(.95),
             DummyMessageHandler(),
             sinks=[DummySink()],
@@ -112,7 +112,7 @@ class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
     def test_cad_stream_engine_interactor(self):
 
         interactor = StreamEngineInteractor(
-            DummyStream(),
+            DummyStreamBuilder(),
             EngineBuilderFactory.get_cad(),
             DummyMessageHandler(),
             sinks=[DummySink()],

@@ -6,8 +6,8 @@ streams:
     source:
       type: kafka
       params:
-        brokers: localhost:9092
-        in: test1
+        broker_servers: localhost:9092
+        input_topic: test1
     engine:
       type: cad
       params:

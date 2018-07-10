@@ -18,6 +18,6 @@
 
 import os
 
-BASE_PATH = os.path.dirname(__file__)
+BASE_PATH = os.path.dirname(__file__)  # noqa: E402
 
-__all__ = ('BASE_PATH', 'VERSION', 'BUILD', '__version__')
+__all__ = ('BASE_PATH')

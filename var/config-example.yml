@@ -7,8 +7,8 @@ streams:
     source:
       type: kafka
       params:
-        brokers: localhost:9092
-        in: test1
+        broker_servers: localhost:9092
+        input_topic: test1
     engine:
       type: robust
       params:
@@ -26,8 +26,8 @@ streams:
         stream:
           type: kafka
           params:
-            brokers: localhost:9092
-            out: test2
+            broker_servers: localhost:9092
+            output_topic: test2
     warmup:
       - name: sqlite
         repository:

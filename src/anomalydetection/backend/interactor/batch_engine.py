@@ -18,7 +18,7 @@
 
 from rx.core import Observable
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
@@ -37,7 +37,7 @@ class BatchEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
     def __init__(self,
                  batch: BaseObservable,
-                 engine_builder: BaseBuilder,
+                 engine_builder: BaseEngineBuilder,
                  message_handler: BaseMessageHandler) -> None:
         """
         BatchEngineInteractor constructor

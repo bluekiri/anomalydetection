@@ -18,7 +18,7 @@
 
 import unittest
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.engine.builder import CADDetectorBuilder
 from anomalydetection.backend.engine.builder import EMADetectorBuilder
 from anomalydetection.backend.engine.builder import RobustDetectorBuilder
@@ -29,7 +29,7 @@ class TestBaseBuilder(unittest.TestCase):
 
     def test_build(self):
         with self.assertRaises(NotImplementedError) as ctx:
-            builder = BaseBuilder()
+            builder = BaseEngineBuilder()
             builder.build()
 
         self.assertEqual(ctx.exception.args[0],

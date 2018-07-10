@@ -18,6 +18,7 @@
 
 import os
 
+from anomalydetection.backend.entities.handlers.factory import MessageHandlerFactory
 from anomalydetection.common.logging import LoggingMixin
 import yaml
 
@@ -27,7 +28,6 @@ from anomalydetection.backend.repository.observable import ObservableRepository
 from anomalydetection.backend.sink import BaseSink
 from anomalydetection.backend.sink.repository import RepositorySink
 from anomalydetection.backend.sink.stream import StreamSink
-from anomalydetection.backend.stream import AggregationFunction
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
 
 
@@ -71,27 +71,15 @@ class Config(LoggingMixin):
         return streams
 
     def _get_stream(self, item):
-        builder = None
         source = item["source"]
-        if source["type"] == "kafka":
-            builder = StreamBuilderFactory.get_kafka_consumer()
-            builder.set_broker_servers(source["params"]["brokers"])
-            builder.set_input_topic(source["params"]["in"])
-            if "group_id" in source["params"]:
-                builder.set_group_id(source["params"]["group_id"])
-
-        if source["type"] == "pubsub":
-            builder = StreamBuilderFactory.get_pubsub_consumer()
-            builder.set_project_id(source["params"]["project"])
-            builder.set_subscription(source["params"]["in"])
-            if "auth_file" in source["params"]:
-                builder.set_auth_file(source["params"]["auth_file"])
-
+        builder = StreamBuilderFactory.get_consumer(source["type"])
+        params = source["params"] if "params" in source else {}
+        for param in params:
+            builder.set(param, params[param])
         if "aggregation" in item:
-            agg = item["aggregation"]
-            builder.set_agg_function(AggregationFunction(agg["function"]))
-            builder.set_agg_window_millis(agg["window_millis"])
-
+            agg_params = item["aggregation"]
+            for agg_param in agg_params:
+                builder.set(agg_param, agg_params[agg_param])
         return builder
 
     def get_engines(self):
@@ -100,44 +88,26 @@ class Config(LoggingMixin):
             engines.append(self._get_engine(item["engine"]))
         return engines
 
+    def get_handlers(self):
+        handlers = []
+        for item in self.config["streams"]:
+            try:
+                handlers.append(MessageHandlerFactory.get(item["handler"]))
+            except KeyError as key_error:
+                handlers.append(MessageHandlerFactory.get_json())
+        return handlers
+
     def _get_engine(self, engine):
-        builder = None
-        if engine["type"] == "cad":
-            builder = EngineBuilderFactory.get_cad()
-            if "min_value" in engine["params"]:
-                builder.set_min_value(engine["params"]["min_value"])
-            if "max_value" in engine["params"]:
-                builder.set_max_value(engine["params"]["max_value"])
-            if "rest_period" in engine["params"]:
-                builder.set_rest_period(engine["params"]["rest_period"])
-            if "num_norm_value_bits" in engine["params"]:
-                builder.set_num_norm_value_bits(
-                    engine["params"]["num_norm_value_bits"])
-            if "max_active_neurons_num" in engine["params"]:
-                builder.set_max_active_neurons_num(
-                    engine["params"]["max_active_neurons_num"])
-            if "max_left_semi_contexts_length" in engine["params"]:
-                builder.set_max_left_semi_contexts_length(
-                    engine["params"]["max_left_semi_contexts_length"])
-
-        if engine["type"] == "robust":
-            builder = EngineBuilderFactory.get_robust()
-            if "window" in engine["params"]:
-                builder.set_window(engine["params"]["window"])
-
-        if engine["type"] == "ema":
-            builder = EngineBuilderFactory.get_ema()
-            if "window" in engine["params"]:
-                builder.set_window(engine["params"]["window"])
-
-        if "threshold" in engine["params"]:
-            builder.set_threshold(engine["params"]["threshold"])
-
+        builder = EngineBuilderFactory.get(engine["type"])
+        params = engine["params"] if "params" in engine else {}
+        for param in params:
+            builder.set(param, params[param])
         return builder
 
     def get(self):
         if not self.built:
             self.built = list(zip(self.get_streams(),
+                                  self.get_handlers(),
                                   self.get_engines(),
                                   self.get_sinks(),
                                   self.get_warmup()))
@@ -186,11 +156,10 @@ class Config(LoggingMixin):
         return warmups
 
     def _get_repository(self, repository):
-        builder = None
-        if repository["type"] == "sqlite":
-            builder = RepositoryBuilderFactory.get_sqlite()
-            if "database" in repository["params"]:
-                builder.set_database(repository["params"]["database"])
+        builder = RepositoryBuilderFactory.get(repository["type"])
+        params = repository["params"] if "params" in repository else {}
+        for param in params:
+            builder.set(param, params[param])
         return builder
 
     def _get_sink(self, sink) -> BaseSink:
@@ -200,15 +169,8 @@ class Config(LoggingMixin):
                 return RepositorySink(builder.build())
         if sink["type"] == "stream":
             stream = sink["stream"]
-            if stream["type"] == "kafka":
-                builder = StreamBuilderFactory.get_kafka_producer()
-                builder.set_broker_servers(stream["params"]["brokers"])
-                builder.set_output_topic(stream["params"]["out"])
-                return StreamSink(builder.build())
-            if stream["type"] == "pubsub":
-                builder = StreamBuilderFactory.get_pubsub_producer()
-                builder.set_project_id(stream["params"]["project"])
-                builder.set_output_topic(stream["params"]["out"])
-                if "auth_file" in stream["params"]:
-                    builder.set_auth_file(stream["params"]["auth_file"])
-                return StreamSink(builder.build())
+            builder = StreamBuilderFactory.get_producer(stream["type"])
+            params = stream["params"] if "params" in stream else {}
+            for param in params:
+                builder.set(param, params[param])
+            return StreamSink(builder.build())

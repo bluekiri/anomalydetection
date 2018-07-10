@@ -24,7 +24,7 @@ from datetime import datetime
 from typing import Any
 
 from anomalydetection.backend.engine import BaseEngine
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
@@ -62,7 +62,7 @@ class DummyEngine(BaseEngine):
                              math.pow(value, 0.5), bool(value % 2))
 
 
-class DummyEngineBuilder(BaseBuilder):
+class DummyEngineBuilder(BaseEngineBuilder):
 
     def build(self) -> BaseEngine:
         return DummyEngine()

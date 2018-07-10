@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import importlib
 import uuid
 
 from anomalydetection.backend.stream import BaseStreamConsumer
@@ -34,11 +34,35 @@ class BaseConsumerBuilder(object):
     def build(self) -> BaseStreamConsumer:
         raise NotImplementedError("To implement in child classes.")
 
+    def set(self, name: str, value: str):
+        def raise_exception(*args, **kwargs):
+            raise NotImplementedError()
+        func_name = "set_{}".format(name)
+        func = getattr(self, func_name, raise_exception)
+        try:
+            return func(value)
+        except NotImplementedError as ex:
+            raise NotImplementedError(
+                "Calling undefined function: {}.{}()".format(
+                    self.__class__.__name__, func_name))
+
 
 class BaseProducerBuilder(object):
 
     def build(self) -> BaseStreamProducer:
         raise NotImplementedError("To implement in child classes.")
+
+    def set(self, name: str, value: str):
+        def raise_exception(*args, **kwargs):
+            raise NotImplementedError()
+        func_name = "set_{}".format(name)
+        func = getattr(self, func_name, raise_exception)
+        try:
+            return func(value)
+        except NotImplementedError as ex:
+            raise NotImplementedError(
+                "Calling undefined function: {}.{}()".format(
+                    self.__class__.__name__, func_name))
 
 
 class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
@@ -69,6 +93,8 @@ class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
         return self
 
     def set_agg_function(self, agg_function: AggregationFunction):
+        if isinstance(agg_function, str):
+            agg_function = AggregationFunction(agg_function)
         self.agg_function = agg_function
         return self
 
@@ -143,6 +169,8 @@ class PubSubStreamConsumerBuilder(BaseConsumerBuilder):
         return self
 
     def set_agg_function(self, agg_function: AggregationFunction):
+        if isinstance(agg_function, str):
+            agg_function = AggregationFunction(agg_function)
         self.agg_function = agg_function
         return self
 
@@ -198,17 +226,67 @@ class PubSubStreamProducerBuilder(BaseProducerBuilder):
 class StreamBuilderFactory(object):
 
     @staticmethod
-    def get_kafka_consumer():
+    def get_consumer_plugin(name) -> BaseConsumerBuilder:
+        module_name = "anomalydetection.backend.stream.{}_builder".format(name)
+        objects = vars(importlib.import_module(module_name))["_objects"]
+        for obj in objects:
+            if issubclass(obj, BaseConsumerBuilder):
+                return obj()
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_consumer(name) -> BaseConsumerBuilder:
+        def raise_exception():
+            raise NotImplementedError()
+        func_name = "get_consumer_{}".format(name)
+        func = getattr(StreamBuilderFactory, func_name, raise_exception)
+        try:
+            return func()
+        except NotImplementedError as ex:
+            try:
+                return StreamBuilderFactory.get_consumer_plugin(name)
+            except NotImplementedError as ex:
+                raise NotImplementedError(
+                    "Calling undefined function: {}.{}()".format(
+                        "EngineBuilderFactory", func_name))
+
+    @staticmethod
+    def get_producer_plugin(name) -> BaseProducerBuilder:
+        module_name = "anomalydetection.backend.stream.{}_builder".format(name)
+        objects = vars(importlib.import_module(module_name))["_objects"]
+        for obj in objects:
+            if issubclass(obj, BaseProducerBuilder):
+                return obj()
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_producer(name) -> BaseProducerBuilder:
+        def raise_exception():
+            raise NotImplementedError()
+        func_name = "get_producer_{}".format(name)
+        func = getattr(StreamBuilderFactory, func_name, raise_exception)
+        try:
+            return func()
+        except NotImplementedError as ex:
+            try:
+                return StreamBuilderFactory.get_producer_plugin(name)
+            except NotImplementedError as ex:
+                raise NotImplementedError(
+                    "Calling undefined function: {}.{}()".format(
+                        "StreamBuilderFactory", func_name))
+
+    @staticmethod
+    def get_consumer_kafka():
         return KafkaStreamConsumerBuilder()
 
     @staticmethod
-    def get_kafka_producer():
+    def get_producer_kafka():
         return KafkaStreamProducerBuilder()
 
     @staticmethod
-    def get_pubsub_consumer():
+    def get_consumer_pubsub():
         return PubSubStreamConsumerBuilder()
 
     @staticmethod
-    def get_pubsub_producer():
+    def get_producer_pubsub():
         return PubSubStreamProducerBuilder()

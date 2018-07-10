@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
@@ -75,15 +76,14 @@ class TestConfig(unittest.TestCase, LoggingMixin):
                 "source": {
                     "type": "kafka",
                     "params": {
-                        "brokers": "localhost:9092",
-                        "in": "in",
-                        "out": "out",
+                        "broker_servers": "localhost:9092",
+                        "input_topic": "in",
                         "group_id": "group_id"
                     },
                 },
                 "aggregation": {
-                    "function": "avg",
-                    "window_millis": 60000
+                    "agg_function": "avg",
+                    "agg_window_millis": 60000
                 }
             }
         )
@@ -100,10 +100,9 @@ class TestConfig(unittest.TestCase, LoggingMixin):
                 "source": {
                     "type": "pubsub",
                     "params": {
-                        "project": "project-id",
+                        "project_id": "project-id",
                         "auth_file": "/dev/null",
-                        "in": "in",
-                        "out": "out",
+                        "subscription": "in",
                     },
                 }
             }
@@ -111,6 +110,7 @@ class TestConfig(unittest.TestCase, LoggingMixin):
         self.assertIsInstance(pubsub_stream, PubSubStreamConsumerBuilder)
         self.assertEqual(pubsub_stream.project_id, "project-id")
         self.assertEqual(pubsub_stream.subscription, "in")
+        self.assertEqual(pubsub_stream.auth_file, "/dev/null")
 
     def test__get_repository_sqlite(self):
         repository = self.config._get_repository(
@@ -198,8 +198,8 @@ class TestConfig(unittest.TestCase, LoggingMixin):
                 "stream": {
                     "type": "kafka",
                     "params": {
-                        "brokers": "localhost:9092",
-                        "out": "out"
+                        "broker_servers": "localhost:9092",
+                        "output_topic": "out"
                     }
                 }
             }
@@ -215,8 +215,8 @@ class TestConfig(unittest.TestCase, LoggingMixin):
                 "stream": {
                     "type": "pubsub",
                     "params": {
-                        "project": "project",
-                        "out": "out"
+                        "project_id": "project",
+                        "output_topic": "out"
                     }
                 }
             }

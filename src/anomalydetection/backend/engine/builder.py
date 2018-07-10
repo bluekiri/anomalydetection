@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import importlib
 import sys
 from collections import OrderedDict
 
@@ -25,7 +25,7 @@ from anomalydetection.backend.engine.ema_engine import EMADetector
 from anomalydetection.backend.engine.robust_z_engine import RobustDetector
 
 
-class BaseBuilder(object):
+class BaseEngineBuilder(object):
     """
     BaseBuilder, implement this to create Engine Builders.
     """
@@ -51,7 +51,7 @@ class BaseBuilder(object):
                     self.__class__.__name__, func_name))
 
 
-class CADDetectorBuilder(BaseBuilder):
+class CADDetectorBuilder(BaseEngineBuilder):
 
     type = "cad"
 
@@ -103,7 +103,7 @@ class CADDetectorBuilder(BaseBuilder):
         return CADDetector(**vars(self).copy())
 
 
-class RobustDetectorBuilder(BaseBuilder):
+class RobustDetectorBuilder(BaseEngineBuilder):
 
     type = "robust"
 
@@ -123,7 +123,7 @@ class RobustDetectorBuilder(BaseBuilder):
         return RobustDetector(**vars(self).copy())
 
 
-class EMADetectorBuilder(BaseBuilder):
+class EMADetectorBuilder(BaseEngineBuilder):
 
     type = "ema"
 
@@ -145,25 +145,23 @@ class EMADetectorBuilder(BaseBuilder):
 
 class EngineBuilderFactory(object):
 
-    engines = OrderedDict(
-        [
-            ("robust", {
-                "key": "robust",
-                "name": "RobustDetector"
-            }),
-            ("cad", {
-                "key": "cad",
-                "name": "CADDetector"
-            }),
-            ("ema", {
-                "key": "ema",
-                "name": "EMADetector"
-            }),
-        ]
-    )
+    engines = OrderedDict()
+
+    @classmethod
+    def register_engine(cls, key, class_name):
+        cls.engines[key] = {"key": key, "name": class_name}
 
     @staticmethod
-    def get(name) -> BaseBuilder:
+    def get_plugin(name) -> BaseEngineBuilder:
+        module_name = "anomalydetection.backend.engine.{}_builder".format(name)
+        objects = vars(importlib.import_module(module_name))["_objects"]
+        for obj in objects:
+            if issubclass(obj, BaseEngineBuilder):
+                return obj()
+        raise NotImplementedError()
+
+    @staticmethod
+    def get(name) -> BaseEngineBuilder:
         def raise_exception():
             raise NotImplementedError()
         func_name = "get_{}".format(name)
@@ -171,9 +169,12 @@ class EngineBuilderFactory(object):
         try:
             return func()
         except NotImplementedError as ex:
-            raise NotImplementedError(
-                "Calling undefined function: {}.{}()".format(
-                    "EngineBuilderFactory", func_name))
+            try:
+                return EngineBuilderFactory.get_plugin(name)
+            except NotImplementedError as ex:
+                raise NotImplementedError(
+                    "Calling undefined function: {}.{}()".format(
+                        "EngineBuilderFactory", func_name))
 
     @staticmethod
     def get_robust() -> RobustDetectorBuilder:
@@ -186,3 +187,8 @@ class EngineBuilderFactory(object):
     @staticmethod
     def get_ema() -> EMADetectorBuilder:
         return EMADetectorBuilder()
+
+
+EngineBuilderFactory.register_engine("robust", "RobustDetector")
+EngineBuilderFactory.register_engine("cad", "CADDetector")
+EngineBuilderFactory.register_engine("ema", "EMADetector")

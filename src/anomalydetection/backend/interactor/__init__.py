@@ -18,7 +18,7 @@
 
 from threading import Lock
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 
 
@@ -31,7 +31,7 @@ class BaseEngineInteractor(object):
     """
 
     def __init__(self,
-                 engine_builder: BaseBuilder,
+                 engine_builder: BaseEngineBuilder,
                  message_handler: BaseMessageHandler) -> None:
         """
         BaseEngineInteractor constructor

@@ -20,6 +20,7 @@ import os
 import sys
 from time import sleep
 
+from anomalydetection.common import plugins  # noqa: F401
 from anomalydetection.backend.backend import main as backend_main
 from anomalydetection.common.config import Config
 from anomalydetection.common.logging import LoggingMixin
