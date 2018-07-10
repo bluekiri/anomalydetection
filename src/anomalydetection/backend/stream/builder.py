@@ -47,7 +47,7 @@ class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
                  broker_servers: str = None,
                  input_topic: str = None,
                  group_id: str = str(uuid.uuid4()),
-                 agg_function: AggregationFunction = None,
+                 agg_function: AggregationFunction = AggregationFunction.NONE,
                  agg_window_millis: int = 0) -> None:
         super().__init__()
         self.broker_servers = broker_servers
@@ -85,6 +85,14 @@ class KafkaStreamConsumerBuilder(BaseConsumerBuilder):
             del args["agg_window_millis"]
             return KafkaStreamConsumer(**args)
 
+    def __str__(self) -> str:
+        return "Kafka topic: " \
+               "brokers: {}, topic: {}, func: {}, window: {}ms".format(
+                    self.broker_servers,
+                    self.input_topic,
+                    self.agg_function,
+                    self.agg_window_millis)
+
 
 class KafkaStreamProducerBuilder(BaseProducerBuilder):
 
@@ -113,7 +121,7 @@ class PubSubStreamConsumerBuilder(BaseConsumerBuilder):
                  project_id: str = None,
                  subscription: str = None,
                  auth_file: str = None,
-                 agg_function: AggregationFunction = None,
+                 agg_function: AggregationFunction = AggregationFunction.NONE,
                  agg_window_millis: int = 0) -> None:
         super().__init__()
         self.project_id = project_id
@@ -150,6 +158,14 @@ class PubSubStreamConsumerBuilder(BaseConsumerBuilder):
             del args["agg_function"]
             del args["agg_window_millis"]
             return PubSubStreamConsumer(**args)
+
+    def __str__(self) -> str:
+        return "PubSub subscription: " \
+               "project: {}, subscription: {}, func: {}, window: {}ms".format(
+                    self.project_id,
+                    self.subscription,
+                    self.agg_function,
+                    self.agg_window_millis)
 
 
 class PubSubStreamProducerBuilder(BaseProducerBuilder):

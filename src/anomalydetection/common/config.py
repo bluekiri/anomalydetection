@@ -67,7 +67,7 @@ class Config(LoggingMixin):
         streams = []
         for item in self.config["streams"]:
             builder = self._get_stream(item)
-            streams.append(builder.build() if builder else builder)
+            streams.append(builder if builder else builder)
         return streams
 
     def _get_stream(self, item):

@@ -21,6 +21,13 @@ streams:
           type: sqlite
           params:
             database: /tmp/my_kafka_source_one.sqlite
+      - name: kafka
+        type: stream
+        stream:
+          type: kafka
+          params:
+            brokers: localhost:9092
+            out: test2
     warmup:
       - name: sqlite
         repository:

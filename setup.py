@@ -16,9 +16,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
+import os
 
 from setuptools import find_packages, setup
 
+
+def _read_from_file(_file):
+    try:
+        _file = os.path.join(os.path.dirname(__file__), _file)
+        return open(_file, 'r').read().strip().split('.')
+    except Exception as _:
+        return []
+
+
+VERSION = _read_from_file('version.info')
+BUILD = _read_from_file('build.info')
+
+__version__ = '.'.join([str(v) for v in VERSION + BUILD])
 
 install_require = [
     # Core dependencies
@@ -46,7 +60,7 @@ test_require = [
 
 setup(
     name='anomalydetection',
-    version='0.0.0.dev0',
+    version=__version__,
     description='Anomaly detection bridge',
     url='',
     zip_safe=False,

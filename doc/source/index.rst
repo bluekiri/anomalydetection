@@ -62,6 +62,7 @@ Features
    license
    getting-started
    configuration
+   deploy
    api-reference
 
 Indices and tables

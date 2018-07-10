@@ -29,6 +29,7 @@ from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.backend.sink import BaseSink
 from anomalydetection.backend.stream import BaseStreamConsumer, BaseObservable
+from anomalydetection.backend.stream.builder import BaseConsumerBuilder
 from anomalydetection.common.logging import LoggingMixin
 
 
@@ -40,6 +41,12 @@ class DummyStream(BaseStreamConsumer, LoggingMixin):
 
     def push(self, message: str) -> None:
         self.logger.debug("Pushing message: {}".format(message))
+
+
+class DummyStreamBuilder(BaseConsumerBuilder):
+
+    def build(self) -> BaseStreamConsumer:
+        return DummyStream()
 
 
 class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):

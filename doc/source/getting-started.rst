@@ -15,8 +15,8 @@ The installation is quick and simple using pip.
     # Install from pypi using pip
     pip install anomalydetection
 
-Dashboard/Sandbox
-*****************
+Sandbox
+*******
 
 After installation, you can start a dashboard instance and play with
 the sandbox, there is no configuration required to do this.
@@ -39,6 +39,7 @@ You will get an output similar to this one.
 
     Ignore the Config ``WARNING`` log if you are following this *Getting started* guide.
     This is because we have not configured any signal to process yet.
+
 
 Devel mode
 **********
@@ -65,31 +66,13 @@ You should see how messages are pushed to Kafka and PubSub backends to ``stdout`
 
 .. code-block:: text
 
-    2018-07-09 13:00:19,479 - anomalydetection.anomdec.Anomdec:35 - INFO - Starting anomdec
-    2018-07-09 13:00:19,480 - anomalydetection.anomdec.Anomdec:53 - INFO - Creating configuration
-    2018-07-09 13:00:24,496 - anomalydetection.anomdec.Anomdec:57 - INFO - Run dashboard, backend and producer
-    2018-07-09 13:00:24,679 - anomalydetection.backend.devel_mode.DevelConfigWrapper:50 - ERROR - Cannot load configuration.
-    [Errno 2] No such file or directory: '~/anomdec/anomdec.yml'
-    2018-07-09 13:00:25,798 - kafka.consumer.subscription_state:165 - WARNING - subscription unchanged by change_subscription(['test1'])
-    2018-07-09 13:00:26,909 - kafka.consumer.subscription_state:165 - WARNING - subscription unchanged by change_subscription(['test3'])
-    2018-07-09 13:00:26,927 - anomalydetection.backend.interactor.stream_engine.StreamEngineInteractor:81 - INFO - Warm up completed.
-    2018-07-09 13:00:26,930 - anomalydetection.backend.interactor.stream_engine.StreamEngineInteractor:81 - INFO - Warm up completed.
-    2018-07-09 13:00:26,934 - anomalydetection.backend.interactor.stream_engine.StreamEngineInteractor:81 - INFO - Warm up completed.
-    2018-07-09 13:00:26,938 - anomalydetection.backend.stream.kafka.KafkaStreamConsumer:68 - DEBUG - Polling messages (auto ack). START
-    2018-07-09 13:00:26,941 - anomalydetection.backend.stream.kafka.KafkaStreamConsumer:68 - DEBUG - Polling messages (auto ack). START
-    2018-07-09 13:00:27,439 - kafka.coordinator.assignors.range:47 - WARNING - No partition metadata for topic test3
-    2018-07-09 13:00:29,891 - anomalydetection.backend.stream.kafka.KafkaStreamProducer:106 - DEBUG - Pushing message: {"application": "devel0", "ts": "2018-07-09 13:00:29.887453", "value": 1}.
-    2018-07-09 13:00:29,895 - anomalydetection.backend.stream.kafka.KafkaStreamProducer:106 - DEBUG - Pushing message: {"application": "devel0", "ts": "2018-07-09 13:00:29.887075", "value": 2}.
-    2018-07-09 13:00:29,895 - anomalydetection.backend.stream.kafka.KafkaStreamProducer:106 - DEBUG - Pushing message: {"application": "devel1", "ts": "2018-07-09 13:00:29.895098", "value": 1}.
-    2018-07-09 13:00:29,900 - anomalydetection.backend.stream.pubsub.PubSubStreamProducer:121 - DEBUG - Pushing message: {"application": "devel0", "ts": "2018-07-09 13:00:29.886520", "value": 1}.
-    2018-07-09 13:00:29,900 - anomalydetection.backend.stream.kafka.KafkaStreamProducer:106 - DEBUG - Pushing message: {"application": "devel1", "ts": "2018-07-09 13:00:29.897012", "value": 3}.
-    2018-07-09 13:00:29,901 - anomalydetection.backend.stream.kafka.KafkaStreamProducer:106 - DEBUG - Pushing message: {"application": "devel2", "ts": "2018-07-09 13:00:29.896385", "value": 9}.
-    2018-07-09 13:00:29,903 - anomalydetection.backend.stream.kafka.KafkaStreamProducer:106 - DEBUG - Pushing message: {"application": "devel2", "ts": "2018-07-09 13:00:29.901965", "value": 2}.
-    2018-07-09 13:00:29,905 - anomalydetection.backend.stream.pubsub.PubSubStreamProducer:121 - DEBUG - Pushing message: {"application": "devel1", "ts": "2018-07-09 13:00:29.902405", "value": 2}.
-    2018-07-09 13:00:29,906 - anomalydetection.backend.stream.pubsub.PubSubStreamProducer:121 - DEBUG - Pushing message: {"application": "devel2", "ts": "2018-07-09 13:00:29.905861", "value": 3}.
-    2018-07-09 13:00:29,977 - anomalydetection.backend.stream.pubsub.PubSubStreamConsumer:70 - DEBUG - Message received: {"application": "devel0", "ts": "2018-07-09 13:00:29.886520", "value": 1}
-    2018-07-09 13:00:29,979 - anomalydetection.backend.stream.pubsub.PubSubStreamConsumer:70 - DEBUG - Message received: {"application": "devel2", "ts": "2018-07-09 13:00:29.905861", "value": 3}
-    2018-07-09 13:00:29,979 - anomalydetection.backend.stream.pubsub.PubSubStreamConsumer:70 - DEBUG - Message received: {"application": "devel1", "ts": "2018-07-09 13:00:29.902405", "value": 2}
+    - anomalydetection.anomdec.Anomdec:35 - INFO - Starting anomdec
+    - anomalydetection.anomdec.Anomdec:53 - INFO - Creating configuration for DEVEL MODE
+    - anomalydetection.anomdec.Anomdec:57 - INFO - Run dashboard, backend and producer
+    ...
+    - anomalydetection.backend.stream.pubsub.PubSubStreamConsumer:70 - DEBUG - Message received: {"application": "devel0", "ts": "2018-07-09 13:00:29.886520", "value": 1}
+    - anomalydetection.backend.stream.pubsub.PubSubStreamConsumer:70 - DEBUG - Message received: {"application": "devel2", "ts": "2018-07-09 13:00:29.905861", "value": 3}
+    - anomalydetection.backend.stream.pubsub.PubSubStreamConsumer:70 - DEBUG - Message received: {"application": "devel1", "ts": "2018-07-09 13:00:29.902405", "value": 2}
 
 Open the `dashboard
 <http://localhost:5000/signals>`_

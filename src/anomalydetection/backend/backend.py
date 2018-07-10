@@ -49,12 +49,17 @@ def main(config: Config):
             warm_up=warmup[0] if warmup else None)
         interactor.run()
 
+    pids = []
     for name, item in config.get_as_dict().items():
         item_list = list(item)
         item_list.append(name)
-        Concurrency.run_thread(target=run_live_anomaly_detection,
-                               args=tuple(item_list),
-                               name="Detector {}".format(name))
+        pid = Concurrency.run_process(target=run_live_anomaly_detection,
+                                      args=tuple(item_list),
+                                      name="Detector {}".format(name))
+        pids.append(pid)
+
+    for pid in pids:
+        Concurrency.get_process(pid).join()
 
 
 if __name__ == "__main__":

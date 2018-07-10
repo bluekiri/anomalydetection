@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*- #
 #
 # Anomaly Detection Framework
 # Copyright (C) 2018 Bluekiri BigData Team <bigdata@bluekiri.com>
@@ -16,8 +16,4 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
-
-BASE_PATH = os.path.dirname(__file__)
-
-__all__ = ('BASE_PATH', 'VERSION', 'BUILD', '__version__')
+# TODO

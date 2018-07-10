@@ -35,6 +35,7 @@ class Anomdec(LoggingMixin):
         self.logger.info("Starting anomdec")
         try:
             if len(sys.argv) == 1:
+                self.logger.info("Run dashboard/backend embedded")
                 dashboard_main([backend_main], Config())
             elif len(sys.argv) == 2:
                 if sys.argv[1] == "dashboard":
