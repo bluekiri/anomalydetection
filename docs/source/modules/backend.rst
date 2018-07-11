@@ -9,6 +9,33 @@ This module contains the core of the anomaly detection framework implementation.
     :undoc-members:
     :show-inheritance:
 
+backend.core
+****************
+
+.. automodule:: anomalydetection.backend.core
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+backend.core.plugins
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: anomalydetection.backend.core.plugins
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+backend.core.config
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: anomalydetection.backend.core.config
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
 backend.entities
 ****************
 

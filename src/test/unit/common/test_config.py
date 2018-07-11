@@ -19,6 +19,7 @@
 import os
 import unittest
 
+from anomalydetection.backend.core.config import Config
 from anomalydetection.backend.engine.builder import CADDetectorBuilder
 from anomalydetection.backend.engine.builder import EMADetectorBuilder
 from anomalydetection.backend.engine.builder import RobustDetectorBuilder
@@ -31,7 +32,6 @@ from anomalydetection.backend.stream.builder import KafkaStreamConsumerBuilder
 from anomalydetection.backend.stream.builder import PubSubStreamConsumerBuilder
 from anomalydetection.backend.stream.kafka import KafkaStreamProducer
 from anomalydetection.backend.stream.pubsub import PubSubStreamProducer
-from anomalydetection.common.config import Config
 from anomalydetection.common.logging import LoggingMixin
 
 from test import TEST_PATH

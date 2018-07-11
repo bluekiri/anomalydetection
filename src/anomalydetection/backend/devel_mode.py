@@ -24,7 +24,7 @@ from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
 from rx import Observable, Observer
 
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
-from anomalydetection.common.config import Config
+from anomalydetection.backend.core.config import Config
 
 
 class DevelConfigWrapper(Config):

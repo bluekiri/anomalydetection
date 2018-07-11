@@ -18,7 +18,6 @@
 
 import unittest
 
-from anomalydetection.common import plugins  # noqa: F401
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities.handlers.factory import MessageHandlerFactory
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
@@ -30,6 +29,8 @@ class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
     @unittest.skip("FIXME")
     def test_modules(self):
+
+        from anomalydetection.backend.core import plugins  # noqa: F401
         EngineBuilderFactory.get("plugin1").build()
         RepositoryBuilderFactory.get("plugin1").build()
         StreamBuilderFactory.get_consumer("plugin1").build()

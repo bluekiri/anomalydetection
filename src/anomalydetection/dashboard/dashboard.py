@@ -22,7 +22,7 @@ from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
-from anomalydetection.common.config import Config
+from anomalydetection.backend.core.config import Config
 from anomalydetection.dashboard.settings import settings
 
 

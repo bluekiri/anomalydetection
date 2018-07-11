@@ -63,6 +63,7 @@ Features
    getting-started
    configuration
    deploy
+   plugins
    api-reference
 
 Indices and tables

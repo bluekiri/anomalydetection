@@ -16,10 +16,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from anomalydetection.backend.core.config import Config
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.backend.sink.websocket import WebSocketSink
 from anomalydetection.common.concurrency import Concurrency
-from anomalydetection.common.config import Config
 
 
 def main(config: Config):
