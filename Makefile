@@ -16,7 +16,7 @@ install-spark:
 	cd /opt/spark && wget $(SPARK_URL) && tar vxzf $(SPARK_PKGNAME).tgz && ln -s $(SPARK_PKGNAME) spark
 
 build: bootstrap # build
-	cd src/anomalydetection/dashboard && nodejs $(BOWER) --remove
+	cd src/anomalydetection/dashboard && node $(BOWER) --remove
 
 install: # install
 	pip3 install .

@@ -1,0 +1,36 @@
+version: 1
+
+websocket: ws://localhost:5000/ws/
+
+streams:
+  - name: my_kafka_source_one
+    source:
+      type: kafka
+      params:
+        broker_servers: localhost:9092
+        input_topic: test1
+    engine:
+      type: robust
+      params:
+        window: 30
+        threshold: 0.9999
+    sink:
+      - name: sqlite
+        type: repository
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/my_kafka_source_one.sqlite
+      - name: kafka
+        type: stream
+        stream:
+          type: kafka
+          params:
+            broker_servers: localhost:9092
+            output_topic: test2
+    warmup:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/my_kafka_source_one.sqlite

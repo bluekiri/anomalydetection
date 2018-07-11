@@ -16,42 +16,46 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.sink.websocket import \
-    WebSocketSink
+from anomalydetection.backend.core.config import Config
+from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
+from anomalydetection.backend.sink.websocket import WebSocketSink
 from anomalydetection.common.concurrency import Concurrency
-from anomalydetection.common.config import Config
-from anomalydetection.backend.entities.json_input_message_handler import \
-    InputJsonMessageHandler
-from anomalydetection.backend.interactor.stream_engine import \
-    StreamEngineInteractor
 
 
 def main(config: Config):
 
     # Creates stream based on config env vars and a RobustDetector
-    def run_live_anomaly_detection(stream, engine_builder,
+    def run_live_anomaly_detection(stream, handler, engine_builder,
                                    sinks, warmup, name):
 
-        # Send to broker or similar
-        extra_middleware = [
-            WebSocketSink(name, config.get_websocket_url())
-        ]
+        # Add dashboard websocket as extra sink
+        extra_sink = []
+        try:
+            websocket = WebSocketSink(name, config.get_websocket_url())
+            extra_sink.append(websocket)
+        except Exception as _:
+            pass
 
         # Instantiate interactor and run
         interactor = StreamEngineInteractor(
             stream,
             engine_builder,
-            InputJsonMessageHandler(),
-            sinks=sinks + extra_middleware,
-            warm_up=warmup[0])
+            handler,
+            sinks=sinks + extra_sink,
+            warm_up=warmup[0] if warmup else None)
         interactor.run()
 
+    pids = []
     for name, item in config.get_as_dict().items():
         item_list = list(item)
         item_list.append(name)
-        Concurrency.run_thread(target=run_live_anomaly_detection,
-                               args=tuple(item_list),
-                               name="Detector {}".format(name))
+        pid = Concurrency.run_process(target=run_live_anomaly_detection,
+                                      args=tuple(item_list),
+                                      name="Detector {}".format(name))
+        pids.append(pid)
+
+    for pid in pids:
+        Concurrency.get_process(pid).join()
 
 
 if __name__ == "__main__":

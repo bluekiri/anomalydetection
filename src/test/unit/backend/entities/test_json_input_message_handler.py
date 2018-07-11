@@ -21,7 +21,7 @@ from datetime import datetime
 
 from jsonschema import ValidationError
 
-from anomalydetection.backend.entities.json_input_message_handler import \
+from anomalydetection.backend.entities.handlers.json import \
     InputJsonMessageHandler
 
 

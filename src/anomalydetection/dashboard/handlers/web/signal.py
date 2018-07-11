@@ -19,19 +19,16 @@
 import datetime
 import sys
 
-from anomalydetection.backend.stream import FileObservable
-from anomalydetection.common.logging import LoggingMixin
-from tornado.escape import json_encode
-
-from anomalydetection.backend.entities.json_input_message_handler import \
-    InputJsonMessageHandler
-from bokeh.embed import components
-from bokeh.plotting import figure
 import pandas as pd
+from tornado.escape import json_encode
+from bokeh.plotting import figure
 from tornado.web import RequestHandler
 from tornado import web
 
+from anomalydetection.backend.stream import FileObservable
+from anomalydetection.common.logging import LoggingMixin
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
+from anomalydetection.backend.entities.handlers.json import InputJsonMessageHandler
 from anomalydetection.backend.entities.output_message import OutputMessageHandler
 from anomalydetection.backend.interactor.batch_engine import BatchEngineInteractor
 from anomalydetection.backend.repository.observable import ObservableRepository
@@ -53,7 +50,7 @@ class Chart(RequestHandler):
             .settings["config"] \
             .get_as_dict()
 
-        repository = conf[data["name"]][3][0].repository
+        repository = conf[data["name"]][4][0].repository
         observable = ObservableRepository(repository,
                                           data["application"],
                                           from_ts, to_ts)
@@ -127,7 +124,7 @@ class SignalData(SecureJSONHandler):
             .settings["config"] \
             .get_as_dict()
 
-        repository = conf[signal][3][0].repository
+        repository = conf[signal][4][0].repository
         observable = ObservableRepository(repository,
                                           input_data["application"])
         data = [x.to_plain_dict()
@@ -185,7 +182,7 @@ class SignalSandbox(SecureHTMLHandler, LoggingMixin):
                       data=json_encode(data))
 
 
-class SignalDetail(SecureHTMLHandler, Chart):
+class SignalDetail(SecureHTMLHandler):
 
     template = "signal.html"
 
@@ -200,7 +197,7 @@ class SignalDetail(SecureHTMLHandler, Chart):
             .get_as_dict()
 
         data = {
-            "engine": conf[signal][1].type,
+            "engine": conf[signal][2].type,
             "window": "30",
             "threshold": "0.99",
             "to-date": to_date.strftime("%d-%m-%Y"),
@@ -212,19 +209,16 @@ class SignalDetail(SecureHTMLHandler, Chart):
                       for k, v in self.request.arguments.items()}
         data.update(input_data)
 
-        repository = conf[data["name"]][3][0].repository
+        repository = conf[data["name"]][4][0].repository
         applications = repository.get_applications()
         if 'application' not in data:
             data['application'] = applications[0]
-
-        plot = await self.create_figure(data)
-        script, div = components(plot)
 
         breadcrumb = [
             ("/signals/", "Signals", ""),
             (self.request.uri, signal, "active")
         ]
-        self.response(script=script, div=div, engines=engines,
+        self.response(script=None, div=None, engines=engines,
                       signal_name=signal, breadcrumb=breadcrumb,
                       form_data=data, engine_key=data['engine'],
                       applications=applications,

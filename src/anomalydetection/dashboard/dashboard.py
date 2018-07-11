@@ -22,7 +22,7 @@ from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
-from anomalydetection.common.config import Config
+from anomalydetection.backend.core.config import Config
 from anomalydetection.dashboard.settings import settings
 
 
@@ -31,13 +31,14 @@ def make_app(kwargs):
     return Application(urls, **kwargs)
 
 
-def main(callables=[], config: Config = lambda: Config()):
+def main(callables: list, config: Config):
     settings.update({"config": config})
     app = make_app(settings)
     port = os.getenv("PORT", "5000")
     server = HTTPServer(app)
     ioloop = IOLoop.current()
 
+    # Run async in executor
     for func in callables:
         ioloop.run_in_executor(None, func, config)
 
@@ -47,4 +48,4 @@ def main(callables=[], config: Config = lambda: Config()):
 
 
 if __name__ == '__main__':
-    main([], config=Config())
+    main(callables=[], config=Config())

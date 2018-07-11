@@ -20,17 +20,17 @@ import unittest
 from typing import Any
 
 from anomalydetection.backend.engine import BaseEngine
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.interactor import BaseEngineInteractor
-from anomalydetection.backend.interactor import BaseWarmUp
+from anomalydetection.backend.stream import BaseObservable
 
 
 class TestBaseWarmUp(unittest.TestCase):
 
     def test_constructor(self):
-        BaseWarmUp()
+        BaseObservable()
 
 
 class DummyEngine(BaseEngine):
@@ -39,7 +39,7 @@ class DummyEngine(BaseEngine):
         return AnomalyResult(-10, 10, 0.5, False)
 
 
-class DummyEngineBuilder(BaseBuilder):
+class DummyEngineBuilder(BaseEngineBuilder):
 
     def build(self) -> BaseEngine:
         return DummyEngine()

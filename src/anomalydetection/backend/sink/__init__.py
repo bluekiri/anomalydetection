@@ -16,8 +16,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from rx import Observer
+from rx.core import Observer
 
 
-class Sink(Observer):
+class BaseSink(Observer):
+    """
+    BaseSink, implement this to create Sinks
+    """
     pass

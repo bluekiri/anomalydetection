@@ -19,27 +19,38 @@
 from collections import Generator
 from typing import Any
 
-from rx import Observable
+from rx.core import Observable
 
 from anomalydetection.backend.stream.agg.functions import AggregationFunction
 
 
 class BaseObservable(object):
 
-    def get_observable(self):
+    def get_observable(self) -> Observable:
         raise NotImplementedError("To implement in child classes.")
 
     def map(self, x: Any) -> Any:
+        """
+        Map items in observable.
+
+        :param x:  input item
+        :return:   output item
+        """
         return x
 
 
 class FileObservable(BaseObservable):
 
-    def __init__(self, file) -> None:
+    def __init__(self, file: str) -> None:
+        """
+        FileObservable to transform a file lines to an Observable
+
+        :param file:  a path to local file
+        """
         super().__init__()
         self.file = file
 
-    def get_observable(self):
+    def get_observable(self) -> Observable:
         return Observable.from_(open(self.file).readlines())
 
 
@@ -48,7 +59,7 @@ class BaseStreamConsumer(BaseObservable):
     def poll(self) -> Generator:
         raise NotImplementedError("To implement in child classes.")
 
-    def get_observable(self):
+    def get_observable(self) -> Observable:
         return Observable.from_(self.poll())
 
 
@@ -61,8 +72,14 @@ class BaseStreamProducer:
 class BaseStreamAggregation(object):
 
     def __init__(self,
-                 agg_function: AggregationFunction = None,
-                 agg_window_millis: int = None) -> None:
+                 agg_function: AggregationFunction = AggregationFunction.NONE,
+                 agg_window_millis: int = 0) -> None:
+        """
+        BaseStreamAggregation class
+
+        :param agg_function:        aggregation function
+        :param agg_window_millis:   aggregation window in milliseconds
+        """
         super().__init__()
         self.agg_function = agg_function
         self.agg_window_millis = agg_window_millis

@@ -23,7 +23,7 @@ from tornado.testing import AsyncHTTPTestCase
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.stream import AggregationFunction
-from anomalydetection.common.config import Config
+from anomalydetection.backend.core.config import Config
 from anomalydetection.common.logging import LoggingMixin
 from anomalydetection.dashboard.dashboard import make_app
 from test import TEST_PATH

@@ -24,11 +24,12 @@ streams:
     source:
       type: kafka
       params:
-        brokers: localhost:9092
-        in: test1
+        broker_servers: localhost:9092
+        input_topic: test1
 #    aggregation:
-#      function: avg
-#      window_millis: 30000
+#      agg_function: avg
+#      agg_window_millis: 30000
+    handler: json
     engine:
       type: cad
       params:
@@ -51,8 +52,8 @@ streams:
         stream:
           type: kafka
           params:
-            brokers: localhost:9092
-            out: test2
+            broker_servers: localhost:9092
+            output_topic: test2
     warmup:
       - name: sqlite
         repository:
@@ -64,12 +65,10 @@ streams:
     source:
       type: pubsub
       params:
-        project: testing
+        project_id: testing
         auth_file: /dev/null
-        in: test10
-#    aggregation:
-#      function: avg
-#      window_millis: 30000
+        subscription: test10
+    handler: json
     engine:
       type: robust
       params:
@@ -87,8 +86,8 @@ streams:
         stream:
           type: pubsub
           params:
-            project: testing
-            out: test20
+            project_id: testing
+            output_topic: test20
     warmup:
       - name: sqlite
         repository:
@@ -100,8 +99,9 @@ streams:
     source:
       type: kafka
       params:
-        brokers: localhost:9092
-        in: test3
+        broker_servers: localhost:9092
+        input_topic: test3
+    handler: json
     engine:
       type: ema
       params:
@@ -119,8 +119,8 @@ streams:
         stream:
           type: kafka
           params:
-            brokers: localhost:9092
-            out: test4
+            broker_servers: localhost:9092
+            output_topic: test4
     warmup:
       - name: sqlite
         repository:

@@ -24,18 +24,16 @@ from datetime import datetime
 from typing import Any
 
 from anomalydetection.backend.engine import BaseEngine
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.output_message import AnomalyResult
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
 from anomalydetection.backend.stream import BaseStreamConsumer
+from anomalydetection.backend.stream.builder import BaseConsumerBuilder
 from anomalydetection.common.logging import LoggingMixin
 
 
 class DummyStream(BaseStreamConsumer):
-
-    def __init__(self) -> None:
-        self.pushed = []
 
     def poll(self) -> Generator:
         for i in range(10):
@@ -43,6 +41,15 @@ class DummyStream(BaseStreamConsumer):
                                "value": i,
                                "ts": str(datetime.now())})
             yield line
+
+
+class DummyStreamBuilder(BaseConsumerBuilder):
+
+    def __init__(self) -> None:
+        self.pushed = []
+
+    def build(self) -> BaseStreamConsumer:
+        return DummyStream()
 
     def push(self, message: str) -> None:
         self.pushed.append(message)
@@ -55,7 +62,7 @@ class DummyEngine(BaseEngine):
                              math.pow(value, 0.5), bool(value % 2))
 
 
-class DummyEngineBuilder(BaseBuilder):
+class DummyEngineBuilder(BaseEngineBuilder):
 
     def build(self) -> BaseEngine:
         return DummyEngine()
@@ -84,14 +91,14 @@ class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
 
     def test_batch_engine_interactor(self):
 
-        stream = DummyStream()
+        stream_builder = DummyStreamBuilder()
         interactor = StreamEngineInteractor(
-            stream,
+            stream_builder,
             DummyEngineBuilder(),
             DummyMessageHandler())
 
         interactor.run().to_blocking()
-        for i, item in enumerate(stream.pushed):
+        for i, item in enumerate(stream_builder.pushed):
             output = json.loads(item)
             self.assertEqual(output["agg_value"], i)
             self.assertEqual(AnomalyResult(**output["anomaly_results"]),

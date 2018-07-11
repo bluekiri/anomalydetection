@@ -17,7 +17,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
-import logging
 from datetime import datetime
 
 from jsonschema import validate
@@ -28,9 +27,6 @@ from anomalydetection.backend.entities import BaseMessageHandler
 
 
 class InputJsonMessageHandler(BaseMessageHandler[InputMessage]):
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
 
     JSON_SCHEMA = {
         "$id": "anomaly-detection",

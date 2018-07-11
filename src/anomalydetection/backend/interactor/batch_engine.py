@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from rx.core import Observable
+
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
@@ -28,13 +30,24 @@ from anomalydetection.backend.stream import AggregationFunction
 
 class BatchEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
+    """
+    BatchEngineInteractor is an implementation for batch process
+    an Observable
+    """
+
     def __init__(self,
                  batch: BaseObservable,
-                 engine_builder: BaseBuilder,
+                 engine_builder: BaseEngineBuilder,
                  message_handler: BaseMessageHandler) -> None:
+        """
+        BatchEngineInteractor constructor
+
+        :param batch:             an observable
+        :param engine_builder:    an engine builder
+        :param message_handler:   a message handler
+        """
         super().__init__(engine_builder, message_handler)
         self.batch = batch
-        self.app_engine = {}
 
     def map_with_engine(self, input_message: InputMessage) -> OutputMessage:
         key = self.message_handler.extract_key(input_message)
@@ -56,8 +69,7 @@ class BatchEngineInteractor(BaseEngineInteractor, LoggingMixin):
         }
         return OutputMessage(**output)
 
-    def process(self) -> list:
-
+    def process(self) -> Observable:
         processed = self.batch.get_observable() \
             .map(lambda x: self.message_handler.parse_message(x)) \
             .filter(lambda x: self.message_handler.validate_message(x)) \

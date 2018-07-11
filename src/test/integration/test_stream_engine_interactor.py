@@ -26,10 +26,10 @@ from anomalydetection.backend.engine.builder import EngineBuilderFactory
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
-from anomalydetection.backend.interactor import BaseWarmUp
 from anomalydetection.backend.interactor.stream_engine import StreamEngineInteractor
-from anomalydetection.backend.sink import Sink
-from anomalydetection.backend.stream import BaseStreamConsumer
+from anomalydetection.backend.sink import BaseSink
+from anomalydetection.backend.stream import BaseStreamConsumer, BaseObservable
+from anomalydetection.backend.stream.builder import BaseConsumerBuilder
 from anomalydetection.common.logging import LoggingMixin
 
 
@@ -43,7 +43,13 @@ class DummyStream(BaseStreamConsumer, LoggingMixin):
         self.logger.debug("Pushing message: {}".format(message))
 
 
-class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
+class DummyStreamBuilder(BaseConsumerBuilder):
+
+    def build(self) -> BaseStreamConsumer:
+        return DummyStream()
+
+
+class DummyMessageHandler(BaseMessageHandler[InputMessage]):
 
     @classmethod
     def parse_message(cls, message: str) -> InputMessage:
@@ -68,7 +74,7 @@ class DummyMessageHandler(BaseMessageHandler[InputMessage], LoggingMixin):
         return {"ts": message.ts}
 
 
-class DummySink(Sink, LoggingMixin):
+class DummySink(BaseSink, LoggingMixin):
 
     def on_next(self, value):
         self.logger.debug("Middleware on_next: {}".format(value))
@@ -80,7 +86,7 @@ class DummySink(Sink, LoggingMixin):
         self.logger.debug("Middleware on_completed.")
 
 
-class DummyWarmUp(BaseWarmUp, LoggingMixin):
+class DummyWarmUp(BaseObservable, LoggingMixin):
 
     def dummy_generator(self) -> Generator:
         for i in range(50):
@@ -96,7 +102,7 @@ class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
     def test_robust_stream_engine_interactor(self):
 
         interactor = StreamEngineInteractor(
-            DummyStream(),
+            DummyStreamBuilder(),
             EngineBuilderFactory.get_robust().set_window(30).set_threshold(.95),
             DummyMessageHandler(),
             sinks=[DummySink()],
@@ -106,7 +112,7 @@ class TestStreamEngineInteractor(unittest.TestCase, LoggingMixin):
     def test_cad_stream_engine_interactor(self):
 
         interactor = StreamEngineInteractor(
-            DummyStream(),
+            DummyStreamBuilder(),
             EngineBuilderFactory.get_cad(),
             DummyMessageHandler(),
             sinks=[DummySink()],

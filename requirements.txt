@@ -22,3 +22,6 @@ cython
 findspark
 tox
 codecov
+setuptools
+wheel
+twine

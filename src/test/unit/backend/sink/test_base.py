@@ -18,15 +18,15 @@
 
 import unittest
 
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 
 
 class TestMiddleware(unittest.TestCase):
 
     def test_constructor(self):
         with self.assertRaises(TypeError) as ctx:
-            Sink()
+            BaseSink()
 
         self.assertEqual(str(ctx.exception),
-                         "Can't instantiate abstract class Sink with "
+                         "Can't instantiate abstract class BaseSink with "
                          "abstract methods on_completed, on_error, on_next")

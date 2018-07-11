@@ -24,7 +24,7 @@ from google.cloud.pubsub_v1 import PublisherClient, SubscriberClient
 from rx import Observable, Observer
 
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
-from anomalydetection.common.config import Config
+from anomalydetection.backend.core.config import Config
 
 
 class DevelConfigWrapper(Config):
@@ -62,17 +62,17 @@ class DevelConfigWrapper(Config):
                     pass
 
         producers.append(
-            StreamBuilderFactory.get_pubsub_producer()
+            StreamBuilderFactory.get_producer_pubsub()
                                 .set_project_id(project)
                                 .set_output_topic("test10").build())
         producers.append(
-            StreamBuilderFactory.get_kafka_producer()
-                                .set_broker_server("localhost:9092")
+            StreamBuilderFactory.get_producer_kafka()
+                                .set_broker_servers("localhost:9092")
                                 .set_output_topic("test1").build())
 
         producers.append(
-            StreamBuilderFactory.get_kafka_producer()
-                                .set_broker_server("localhost:9092")
+            StreamBuilderFactory.get_producer_kafka()
+                                .set_broker_servers("localhost:9092")
                                 .set_output_topic("test3").build())
 
         return producers

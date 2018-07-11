@@ -29,6 +29,11 @@ class LoggingMixin(object):
 
     @property
     def logger(self):
+        """
+        Logger object.
+
+        :return:  a configured logger object
+        """
         name = '.'.join([self.__class__.__module__,
                          self.__class__.__name__])\
             .replace("__main__", "anomalydetection")

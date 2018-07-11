@@ -18,34 +18,34 @@
 
 from typing import List
 
-from anomalydetection.backend.engine.builder import BaseBuilder
+from anomalydetection.backend.engine.builder import BaseEngineBuilder
 from anomalydetection.backend.entities import BaseMessageHandler
 from anomalydetection.backend.entities.input_message import InputMessage
 from anomalydetection.backend.entities.output_message import OutputMessage
 from anomalydetection.backend.interactor import BaseEngineInteractor
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.backend.stream import BaseStreamAggregation
 from anomalydetection.backend.stream import AggregationFunction
-from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.backend.stream import BaseObservable
+from anomalydetection.backend.stream.builder import BaseConsumerBuilder
 from anomalydetection.common.logging import LoggingMixin
 
 
 class StreamEngineInteractor(BaseEngineInteractor, LoggingMixin):
 
     def __init__(self,
-                 stream: BaseStreamConsumer,
-                 engine_builder: BaseBuilder,
+                 stream: BaseConsumerBuilder,
+                 engine_builder: BaseEngineBuilder,
                  message_handler: BaseMessageHandler,
-                 sinks: List[Sink] = list(),
+                 sinks: List[BaseSink] = list(),
                  warm_up: BaseObservable = None) -> None:
         super().__init__(engine_builder, message_handler)
-        self.stream = stream
+        self.stream = stream.build()
         self.sinks = sinks
         self.warm_up = warm_up
-        if isinstance(stream, BaseStreamAggregation):
-            self.agg_function = stream.agg_function
-            self.agg_window_millis = stream.agg_window_millis
+        if isinstance(self.stream, BaseStreamAggregation):
+            self.agg_function = self.stream.agg_function
+            self.agg_window_millis = self.stream.agg_window_millis
         else:
             self.agg_function = AggregationFunction.NONE
             self.agg_window_millis = 0

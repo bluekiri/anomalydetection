@@ -40,7 +40,13 @@ class PubSubStreamConsumer(BaseStreamConsumer, LoggingMixin):
                  project_id: str,
                  subscription: str,
                  auth_file: str = None) -> None:
+        """
+        PubSubStreamConsumer constructor
 
+        :param project_id:     the project id
+        :param subscription:   the subscription name
+        :param auth_file:      path to credentials json file
+        """
         super().__init__()
         if auth_file:
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = \
@@ -89,7 +95,13 @@ class PubSubStreamProducer(BaseStreamProducer, LoggingMixin):
                  project_id: str,
                  output_topic: str,
                  auth_file: str = None) -> None:
+        """
+        PubSubStreamConsumer constructor
 
+        :param project_id:     the project id
+        :param output_topic:   the topic to push the messages to
+        :param auth_file:      path to credentials json file
+        """
         super().__init__()
         if auth_file:
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = \
@@ -128,7 +140,17 @@ class SparkPubsubStreamConsumer(BaseStreamConsumer,
                  auth_file: str = None,
                  spark_opts: dict={},
                  multiprocessing=False) -> None:
+        """
+        SparkPubSubStreamConsumer constructor
 
+        :param project_id:          the project id
+        :param subscription:        the subscription name
+        :param agg_function:        aggregation function to apply
+        :param agg_window_millis:   aggregation window in milliseconds
+        :param auth_file:           path to credentials json file
+        :param spark_opts:          spark options dict
+        :param multiprocessing:     use multiprocessing instead of threading
+        """
         super().__init__(agg_function, agg_window_millis)
         self.project_id = project_id
         self.subscription = subscription

@@ -17,13 +17,19 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from anomalydetection.backend.repository import BaseRepository
-from anomalydetection.backend.sink import Sink
+from anomalydetection.backend.sink import BaseSink
 from anomalydetection.common.logging import LoggingMixin
 
 
-class RepositorySink(Sink, LoggingMixin):
+class RepositorySink(BaseSink, LoggingMixin):
 
     def __init__(self, repository: BaseRepository) -> None:
+        """
+        Creates a RepositorySink that is capable to sink OutputMessages into the
+        given repository
+
+        :param repository:    a repository
+        """
         super().__init__()
         self.repository = repository
         self.repository.initialize()
