@@ -55,6 +55,10 @@ install_require = [
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
     install_require.remove("python-ldap==3.0.0")
+    install_require.remove("oauth2client==2.0.0")
+    install_require.remove("google-auth==1.5.0")
+    install_require.remove("google-auth-httplib2==0.0.3")
+    install_require.remove("google-api-python-client==1.7.3")
 
 test_require = [
     "mock",
