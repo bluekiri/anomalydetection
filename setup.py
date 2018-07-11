@@ -51,10 +51,10 @@ install_require = [
     "findspark==1.3.0"
 ]
 
-# Avoid installation of dependencies in RTD, and install
+# Avoid installation of dependencies in RTD
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    install_require = []
+    install_require.remove("python-ldap==3.0.0")
 
 test_require = [
     "mock",
