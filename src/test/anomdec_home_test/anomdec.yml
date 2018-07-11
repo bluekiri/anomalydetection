@@ -1,0 +1,38 @@
+version: 1
+
+streams:
+
+  - name: test
+    source:
+      type: kafka
+      params:
+        broker_servers: localhost:9092
+        input_topic: test1
+    engine:
+      type: cad
+      params:
+        min_value: 0
+        max_value: 101
+        threshold: 0.75
+        rest_period: 30
+        max_left_semi_contexts_length: 8
+        max_active_neurons_num: 16
+        num_norm_value_bits: 3
+    sink:
+      - name: sqlite
+        type: repository
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec-test.sqlite
+    warmup:
+      - name: sqlite
+        repository:
+          type: sqlite
+          params:
+            database: /tmp/anomdec-test.sqlite
+
+websocket: ws://localhost:5000/ws/
+
+auth:
+  enabled: false
