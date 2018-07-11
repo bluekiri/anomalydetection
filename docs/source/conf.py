@@ -24,9 +24,9 @@ copyright = '2018, Bluekiri'
 author = 'Cristòfol Torrens <tofol.torrens@bluekiri.com>'
 
 # The short X.Y version
-version = ''
+version = '0.0.0'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = '0.0.0.dev1'
 
 
 # -- General configuration ---------------------------------------------------
