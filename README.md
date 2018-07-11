@@ -9,9 +9,13 @@
 
 ## Overview
 
-This project born from the need of detect anomalies on multiple signals.
-To achieve this, Bluekiri decided to implement its own system to manage
-multiple signals at the same time in a easy and scalable way.
+This project born from the need of detect anomalies on multiple and completely
+different signals, and react to it rapidly. To achieve this, Bluekiri decided to
+implement its own system to manage multiple signals at the same time in a easy
+and scalable way.
+
+This project is not focused on Machine Learning models, but in an effective
+Framework  to put those models in production.
 
 ## Architecture
 
