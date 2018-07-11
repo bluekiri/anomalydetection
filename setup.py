@@ -60,6 +60,7 @@ if on_rtd:
     install_require.remove("google-auth-httplib2==0.0.3")
     install_require.remove("google-api-python-client==1.7.3")
     install_require.remove("google-cloud==0.33.1")
+    install_require.remove("google-cloud-pubsub==0.30.0")
 
 test_require = [
     "mock",
