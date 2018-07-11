@@ -49,7 +49,7 @@ class TestConfig(unittest.TestCase, LoggingMixin):
         # Initialize config
         cls.config = Config(
             cls.MODE,
-            open("{}/anomdec-test.yml".format(TEST_PATH)))
+            open("{}/anomdec_home_test/anomdec.yml".format(TEST_PATH)))
 
     @classmethod
     def tearDownClass(cls):

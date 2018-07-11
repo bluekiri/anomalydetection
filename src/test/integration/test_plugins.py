@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import unittest
 
 from anomalydetection.backend.engine.builder import EngineBuilderFactory
@@ -23,16 +24,22 @@ from anomalydetection.backend.entities.handlers.factory import MessageHandlerFac
 from anomalydetection.backend.repository.builder import RepositoryBuilderFactory
 from anomalydetection.backend.stream.builder import StreamBuilderFactory
 from anomalydetection.common.logging import LoggingMixin
+from test import TEST_PATH
 
 
 class TestPubSubStreamBackend(unittest.TestCase, LoggingMixin):
 
-    @unittest.skip("FIXME")
+    PLUGIN_NAME = "test"
+
     def test_modules(self):
 
+        os.environ["ANOMDEC_HOME"] = TEST_PATH + "/anomdec_home_test"
+
         from anomalydetection.backend.core import plugins  # noqa: F401
-        EngineBuilderFactory.get("plugin1").build()
-        RepositoryBuilderFactory.get("plugin1").build()
-        StreamBuilderFactory.get_consumer("plugin1").build()
-        StreamBuilderFactory.get_producer("plugin1").build()
-        MessageHandlerFactory.get("plugin1")
+        EngineBuilderFactory.get(self.PLUGIN_NAME).build()
+        RepositoryBuilderFactory.get(self.PLUGIN_NAME).build()
+        StreamBuilderFactory.get_consumer(self.PLUGIN_NAME).build()
+        StreamBuilderFactory.get_producer(self.PLUGIN_NAME).build()
+        MessageHandlerFactory.get(self.PLUGIN_NAME)
+
+        del os.environ["ANOMDEC_HOME"]

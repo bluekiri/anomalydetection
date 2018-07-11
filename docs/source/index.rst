@@ -17,6 +17,8 @@ Status
    :target: https://travis-ci.org/bluekiri/anomalydetection
 .. image:: https://codecov.io/gh/bluekiri/anomalydetection/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/bluekiri/anomalydetection
+.. image:: https://readthedocs.org/projects/anomalydetection/badge/?version=latest
+   :target: http://anomalydetection.readthedocs.io/
 .. image:: https://img.shields.io/badge/all_contributors-4-blue.svg
    :target: /project.html#contributors
 

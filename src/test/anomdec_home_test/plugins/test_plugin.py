@@ -29,7 +29,7 @@ from anomalydetection.backend.stream import BaseStreamConsumer
 from anomalydetection.backend.stream import BaseStreamProducer
 from anomalydetection.backend.stream.builder import BaseConsumerBuilder
 from anomalydetection.backend.stream.builder import BaseProducerBuilder
-from anomalydetection.common.plugins import Plugin
+from anomalydetection.backend.core.plugins import Plugin
 
 
 class PluginOneRepository(BaseRepository):
@@ -114,7 +114,7 @@ class HandlerOne(BaseMessageHandler[InputMessage]):
 
 
 class PluginOneRepositoryPlugin(Plugin):
-    name = "plugin1"
+    name = "test"
     stream_consumer_builders = [ConsumerOneBuilder]
     stream_consumers = [ConsumerOne]
     stream_producer_builders = [ProducerOneBuilder]

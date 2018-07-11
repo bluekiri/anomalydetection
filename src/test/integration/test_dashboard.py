@@ -42,7 +42,7 @@ class TestDashboard(AsyncHTTPTestCase, LoggingMixin):
         super().setUpClass()
         cls.config = Config(
             "test",
-            open("{}/anomdec-test.yml".format(TEST_PATH)))
+            open("{}/anomdec_home_test/anomdec.yml".format(TEST_PATH)))
 
         conf = cls.config.get_as_dict()
         repository = conf["test"][3][0].repository
