@@ -7,7 +7,7 @@ statsmodels==0.8.0
 kafka-python==1.4.2
 python-ldap==3.0.0
 tornado==5.0.2
-PyYAML==3.12
+PyYAML==5.1
 oauth2client
 google-auth
 google-auth-httplib2
