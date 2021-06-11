@@ -46,7 +46,7 @@ install_require = [
     # Google cloud base
     "google-cloud==0.33.1", "google-cloud-pubsub==0.30.0",
     # Dashboard
-    "tornado==5.0.2", "PyYAML==3.12", "python-ldap==3.0.0", "websockets==5.0.1",
+    "tornado==5.0.2", "PyYAML==3.12", "python-ldap==3.0.0", "websockets==9.1",
     # Spark
     "findspark==1.3.0"
 ]
