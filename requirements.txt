@@ -1,4 +1,4 @@
-numpy==1.14.2
+numpy==1.22.0
 rx==1.6.1
 jsonschema==2.6.0
 python-dateutil==2.1
