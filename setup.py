@@ -37,7 +37,7 @@ __version__ = '.'.join([str(v) for v in VERSION + BUILD])
 install_require = [
     # Core dependencies
     "Rx==1.6.1", "jsonschema==2.6.0", "python-dateutil==2.1", "scipy==1.1.0",
-    "numpy==1.14.2", "pandas==0.22.0", "statsmodels==0.8.0", "bokeh==0.12.16",
+    "numpy==1.22.0", "pandas==0.22.0", "statsmodels==0.8.0", "bokeh==0.12.16",
     # Kafka
     "kafka-python==1.4.2",
     # Google api base
